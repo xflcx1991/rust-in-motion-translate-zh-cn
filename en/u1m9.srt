@@ -1,0 +1,948 @@
+﻿1
+00:00:02,440 --> 00:00:03,579
+Enums and structs
+
+2
+00:00:03,580 --> 00:00:05,509
+are how we define the data that makes
+
+3
+00:00:05,510 --> 00:00:06,760
+up custom types.
+
+4
+00:00:07,400 --> 00:00:09,399
+Methods are how we define behavior
+
+5
+00:00:09,400 --> 00:00:10,690
+on custom types.
+
+6
+00:00:12,830 --> 00:00:14,839
+Methods are similar to functions, which
+
+7
+00:00:14,840 --> 00:00:16,450
+we covered in module 5.
+
+8
+00:00:17,560 --> 00:00:19,419
+Methods are defined either in the context
+
+9
+00:00:19,420 --> 00:00:21,529
+of an enum that we talked about in module
+
+10
+00:00:21,530 --> 00:00:22,230
+7
+
+11
+00:00:22,810 --> 00:00:24,900
+or a struct from module 8.
+
+12
+00:00:25,570 --> 00:00:27,870
+Review these modules to get ready for this one.
+
+13
+00:00:30,160 --> 00:00:32,228
+In this module, we'll take a look at when
+
+14
+00:00:32,229 --> 00:00:33,420
+methods are useful.
+
+15
+00:00:34,090 --> 00:00:35,739
+We'll cover how to define methods
+
+16
+00:00:35,740 --> 00:00:37,560
+and then show how to call methods.
+
+17
+00:00:38,380 --> 00:00:40,419
+We'll take a brief aside to mention associated
+
+18
+00:00:40,420 --> 00:00:42,429
+functions and how they're different from regular
+
+19
+00:00:42,430 --> 00:00:43,950
+functions and methods.
+
+20
+00:00:44,530 --> 00:00:46,479
+We'll wrap up by talking about the difference
+
+21
+00:00:46,480 --> 00:00:48,489
+between methods that only need to read
+
+22
+00:00:48,490 --> 00:00:50,220
+data from the type they're defined on
+
+23
+00:00:50,380 --> 00:00:52,359
+versus methods that need to be able to modify
+
+24
+00:00:52,360 --> 00:00:53,340
+the data too.
+
+25
+00:00:56,040 --> 00:00:58,070
+Let's start with when methods are useful.
+
+26
+00:00:59,040 --> 00:01:00,869
+Let's take a look at the HockeyPlayer struct
+
+27
+00:01:00,870 --> 00:01:02,480
+we defined in module 8.
+
+28
+00:01:03,300 --> 00:01:04,760
+With just this definition,
+
+29
+00:01:04,950 --> 00:01:06,809
+we can create an instance, read from
+
+30
+00:01:06,810 --> 00:01:08,759
+its fields, change the values
+
+31
+00:01:08,760 --> 00:01:10,660
+in the fields if the instance is mutable,
+
+32
+00:01:10,920 --> 00:01:11,890
+but that's about it.
+
+33
+00:01:13,970 --> 00:01:15,889
+We'd like to model what happens when a player
+
+34
+00:01:15,890 --> 00:01:17,470
+shoots the puck at the goal.
+
+35
+00:01:17,960 --> 00:01:19,819
+So, let's start by defining a function named
+
+36
+00:01:19,820 --> 00:01:20,770
+shoot_puck
+
+37
+00:01:21,050 --> 00:01:22,939
+and we'll work towards making the function into
+
+38
+00:01:22,940 --> 00:01:24,869
+a method. The shoot_puck
+
+39
+00:01:24,870 --> 00:01:27,340
+function will take a HockeyPlayer instance,
+
+40
+00:01:27,590 --> 00:01:29,860
+which is the player that will be shooting the puck.
+
+41
+00:01:31,040 --> 00:01:32,899
+Eventually, this function could take in a lot of
+
+42
+00:01:32,900 --> 00:01:34,840
+data about the current state of the game.
+
+43
+00:01:35,540 --> 00:01:37,609
+For now, we'll start our modeling by taking
+
+44
+00:01:37,610 --> 00:01:39,439
+into account the number of seconds left
+
+45
+00:01:39,440 --> 00:01:40,600
+in the current period.
+
+46
+00:01:42,070 --> 00:01:44,179
+The actual implementation of this function
+
+47
+00:01:44,180 --> 00:01:45,730
+isn't important for the moment.
+
+48
+00:01:46,150 --> 00:01:48,630
+Feel free to add an implementation of your choosing
+
+49
+00:01:48,760 --> 00:01:50,229
+that looks at the player's stats
+
+50
+00:01:50,230 --> 00:01:51,399
+and the seconds left,
+
+51
+00:01:51,400 --> 00:01:53,229
+and prints out whether the puck went in the goal
+
+52
+00:01:53,230 --> 00:01:55,149
+or not, according to how you want your hockey
+
+53
+00:01:55,150 --> 00:01:56,410
+simulator to work.
+
+54
+00:01:57,160 --> 00:01:59,079
+We've decided that, in our very
+
+55
+00:01:59,080 --> 00:02:00,690
+unrealistic simulation,
+
+56
+00:02:01,120 --> 00:02:03,150
+all players always make their goals
+
+57
+00:02:03,230 --> 00:02:05,100
+unless there's under 5 minutes left,
+
+58
+00:02:05,350 --> 00:02:07,189
+in which case, only players at the center
+
+59
+00:02:07,190 --> 00:02:09,579
+position have the composure to make shots,
+
+60
+00:02:09,580 --> 00:02:11,460
+and players in other positions miss.
+
+61
+00:02:13,530 --> 00:02:14,939
+This code works fine
+
+62
+00:02:14,940 --> 00:02:16,400
+and prints Goal!.
+
+63
+00:02:18,470 --> 00:02:20,359
+However, we're not communicating
+
+64
+00:02:20,360 --> 00:02:22,099
+the capabilities of our program
+
+65
+00:02:22,100 --> 00:02:24,229
+the best way we could. In
+
+66
+00:02:24,230 --> 00:02:25,990
+our hockey simulation program,
+
+67
+00:02:26,330 --> 00:02:28,339
+the shoot_puck function only makes
+
+68
+00:02:28,340 --> 00:02:30,229
+sense in the context of a HockeyPlayer
+
+69
+00:02:30,230 --> 00:02:31,120
+instance.
+
+70
+00:02:31,760 --> 00:02:33,899
+Other types, like coach, fan,
+
+71
+00:02:33,900 --> 00:02:35,869
+or mascot can't legally
+
+72
+00:02:35,870 --> 00:02:36,820
+shoot the puck.
+
+73
+00:02:37,580 --> 00:02:39,709
+We're defining behavior of the hockey player
+
+74
+00:02:39,710 --> 00:02:41,410
+that every hockey player should have,
+
+75
+00:02:41,810 --> 00:02:43,429
+and the code would be more organized
+
+76
+00:02:43,430 --> 00:02:45,259
+if the behavior was clearly tied to the
+
+77
+00:02:45,260 --> 00:02:45,910
+struct.
+
+78
+00:02:46,570 --> 00:02:47,950
+That's where methods come in.
+
+79
+00:02:50,130 --> 00:02:51,360
+How do we define a method?
+
+80
+00:02:51,790 --> 00:02:52,720
+Let's find out.
+
+81
+00:02:54,010 --> 00:02:56,179
+Methods are defined within a block
+
+82
+00:02:56,180 --> 00:02:58,120
+that starts with the impl keyword,
+
+83
+00:02:58,310 --> 00:03:00,110
+which is short for implementation.
+
+84
+00:03:01,280 --> 00:03:03,109
+Then we specify what we're implementing
+
+85
+00:03:03,110 --> 00:03:05,239
+methods on, which, in this case,
+
+86
+00:03:05,240 --> 00:03:06,790
+is the HockeyPlayer struct.
+
+87
+00:03:07,700 --> 00:03:09,559
+Note that this code would look similar if
+
+88
+00:03:09,560 --> 00:03:11,749
+we were implementing a method on an enum
+
+89
+00:03:11,750 --> 00:03:12,910
+rather than a struct.
+
+90
+00:03:13,780 --> 00:03:15,639
+We'd just put the name of the enum where
+
+91
+00:03:15,640 --> 00:03:17,460
+we currently have the name of the struct.
+
+92
+00:03:18,100 --> 00:03:20,169
+Next comes curly brackets to start the body
+
+93
+00:03:20,170 --> 00:03:22,149
+of the block. Within
+
+94
+00:03:22,150 --> 00:03:24,179
+the block, we use the fn keyword
+
+95
+00:03:24,180 --> 00:03:25,310
+and the method name,
+
+96
+00:03:25,560 --> 00:03:26,920
+just like with functions.
+
+97
+00:03:27,840 --> 00:03:29,369
+A big difference between functions
+
+98
+00:03:29,370 --> 00:03:31,429
+and methods is that the first parameter
+
+99
+00:03:31,430 --> 00:03:33,389
+of a method is always a form
+
+100
+00:03:33,390 --> 00:03:35,249
+of self, which refers
+
+101
+00:03:35,250 --> 00:03:37,320
+to the type that we're defining the method on –
+
+102
+00:03:37,830 --> 00:03:39,920
+in this case, a HockeyPlayer instance.
+
+103
+00:03:40,290 --> 00:03:42,440
+The rest of the parameters of the method
+
+104
+00:03:42,510 --> 00:03:44,699
+are the same as the rest of the parameters of the function
+
+105
+00:03:44,700 --> 00:03:45,410
+we had.
+
+106
+00:03:45,900 --> 00:03:47,759
+And whatever implementation you have would be the
+
+107
+00:03:47,760 --> 00:03:49,799
+same as well, except wherever
+
+108
+00:03:49,800 --> 00:03:51,680
+you used the HockeyPlayer parameter,
+
+109
+00:03:51,780 --> 00:03:52,619
+you'd use self
+
+110
+00:03:52,620 --> 00:03:53,330
+instead.
+
+111
+00:03:55,180 --> 00:03:57,099
+Now that we have a method defined, what
+
+112
+00:03:57,100 --> 00:03:58,370
+does it look like to call it?
+
+113
+00:04:00,340 --> 00:04:02,139
+Instead of having the function name
+
+114
+00:04:02,140 --> 00:04:03,969
+and passing the HockeyPlayer instance
+
+115
+00:04:03,970 --> 00:04:05,400
+as the first argument,
+
+116
+00:04:06,010 --> 00:04:08,180
+we can specify the HockeyPlayer instance,
+
+117
+00:04:08,280 --> 00:04:09,939
+then a dot, then the name
+
+118
+00:04:09,940 --> 00:04:11,430
+of the method we want to call,
+
+119
+00:04:11,680 --> 00:04:14,040
+and the remaining arguments that aren't self.
+
+120
+00:04:15,980 --> 00:04:17,869
+Now this code works just like the code
+
+121
+00:04:17,870 --> 00:04:19,900
+where shoot_puck was a function,
+
+122
+00:04:20,500 --> 00:04:22,369
+but we've more clearly communicated that
+
+123
+00:04:22,370 --> 00:04:24,259
+shooting a puck is behavior that a hockey
+
+124
+00:04:24,260 --> 00:04:25,570
+player instance has.
+
+125
+00:04:27,600 --> 00:04:29,639
+Related to methods are associated
+
+126
+00:04:29,640 --> 00:04:31,599
+functions. Let's take
+
+127
+00:04:31,600 --> 00:04:33,720
+a look at associated functions for a minute
+
+128
+00:04:34,000 --> 00:04:35,079
+and see how they compare
+
+129
+00:04:35,080 --> 00:04:36,219
+with regular functions
+
+130
+00:04:36,220 --> 00:04:37,320
+and with methods.
+
+131
+00:04:39,390 --> 00:04:41,399
+Associated functions are defined
+
+132
+00:04:41,400 --> 00:04:43,679
+within an impl block on a struct
+
+133
+00:04:43,680 --> 00:04:46,120
+or an enum, the same as methods.
+
+134
+00:04:47,260 --> 00:04:49,590
+They're still behavior that's related to the type,
+
+135
+00:04:50,080 --> 00:04:51,939
+so we want to organize that behavior
+
+136
+00:04:51,940 --> 00:04:53,049
+so that it's associated
+
+137
+00:04:53,050 --> 00:04:54,909
+with the type. Unlike
+
+138
+00:04:54,910 --> 00:04:56,739
+methods, they don't take self
+
+139
+00:04:56,740 --> 00:04:59,079
+as a parameter. Associated
+
+140
+00:04:59,080 --> 00:05:01,119
+functions are commonly used to create
+
+141
+00:05:01,120 --> 00:05:03,099
+instances of types, so
+
+142
+00:05:03,100 --> 00:05:05,139
+they don't have a self instance to operate
+
+143
+00:05:05,140 --> 00:05:05,640
+on.
+
+144
+00:05:07,730 --> 00:05:09,769
+For example, here's an associated
+
+145
+00:05:09,770 --> 00:05:11,440
+function named new
+
+146
+00:05:11,740 --> 00:05:13,579
+that creates an instance of a HockeyPlayer
+
+147
+00:05:13,580 --> 00:05:15,469
+struct from the given name,
+
+148
+00:05:15,470 --> 00:05:16,930
+number, and position.
+
+149
+00:05:18,140 --> 00:05:20,029
+This function always starts the goals_ytd
+
+150
+00:05:20,030 --> 00:05:22,120
+field at 0.
+
+151
+00:05:23,050 --> 00:05:24,999
+Note that new isn't a special
+
+152
+00:05:25,000 --> 00:05:26,899
+function name in Rust like it is
+
+153
+00:05:26,900 --> 00:05:28,280
+in languages like Ruby,
+
+154
+00:05:28,830 --> 00:05:30,699
+but by convention, many Rust types
+
+155
+00:05:30,700 --> 00:05:32,649
+define an associated function named
+
+156
+00:05:32,650 --> 00:05:33,270
+new
+
+157
+00:05:33,510 --> 00:05:35,730
+that creates new instances of that type.
+
+158
+00:05:37,590 --> 00:05:39,510
+To call an associated function,
+
+159
+00:05:39,780 --> 00:05:41,799
+specify the type name, then two
+
+160
+00:05:41,800 --> 00:05:43,910
+colons, then the function name.
+
+161
+00:05:44,670 --> 00:05:46,619
+The associated function is namespaced
+
+162
+00:05:46,620 --> 00:05:47,930
+beneath the type name.
+
+163
+00:05:48,450 --> 00:05:50,459
+This code will function similarly to the code
+
+164
+00:05:50,460 --> 00:05:52,379
+we had before in that we have
+
+165
+00:05:52,380 --> 00:05:54,140
+a new HockeyPlayer instance.
+
+166
+00:05:54,780 --> 00:05:56,699
+The difference is the goals_ytd
+
+167
+00:05:56,700 --> 00:05:58,520
+will be 0 instead of 7.
+
+168
+00:06:00,620 --> 00:06:02,020
+Returning to methods,
+
+169
+00:06:02,480 --> 00:06:04,519
+let's talk about the different forms of self
+
+170
+00:06:04,520 --> 00:06:06,349
+that a method can take, which
+
+171
+00:06:06,350 --> 00:06:08,269
+has to do with whether the method only needs to
+
+172
+00:06:08,270 --> 00:06:09,160
+read data
+
+173
+00:06:09,500 --> 00:06:11,410
+or whether it needs to write data too.
+
+174
+00:06:13,630 --> 00:06:15,609
+We actually glossed over a problem our code
+
+175
+00:06:15,610 --> 00:06:17,679
+currently has: a player
+
+176
+00:06:17,680 --> 00:06:19,950
+instance can only shoot the puck once.
+
+177
+00:06:20,730 --> 00:06:22,739
+If we try to have the same player shoot the puck
+
+178
+00:06:22,740 --> 00:06:23,360
+again,
+
+179
+00:06:23,760 --> 00:06:25,619
+we get an error saying use
+
+180
+00:06:25,620 --> 00:06:27,110
+of moved value: 'player'.
+
+181
+00:06:27,300 --> 00:06:29,129
+This has to do with Rust's system
+
+182
+00:06:29,130 --> 00:06:30,140
+of ownership
+
+183
+00:06:30,510 --> 00:06:32,790
+and the next unit is all about ownership,
+
+184
+00:06:33,150 --> 00:06:35,129
+so don't worry about understanding why this error
+
+185
+00:06:35,130 --> 00:06:36,530
+happens right this second.
+
+186
+00:06:38,660 --> 00:06:40,529
+A better way to define the shoot_puck
+
+187
+00:06:40,530 --> 00:06:42,160
+method in this context
+
+188
+00:06:42,350 --> 00:06:44,179
+is for it to borrow self instead
+
+189
+00:06:44,180 --> 00:06:46,069
+of taking ownership, which we
+
+190
+00:06:46,070 --> 00:06:47,189
+indicate with an &amp;.
+
+191
+00:06:47,190 --> 00:06:49,149
+Again, we're
+
+192
+00:06:49,150 --> 00:06:51,139
+going to go into a lot more detail on this
+
+193
+00:06:51,140 --> 00:06:52,150
+in the next unit.
+
+194
+00:06:52,790 --> 00:06:54,889
+Making this change fixes the error
+
+195
+00:06:54,890 --> 00:06:56,719
+and we can now call shoot_puck more
+
+196
+00:06:56,720 --> 00:06:57,520
+than once.
+
+197
+00:06:59,520 --> 00:07:01,379
+&amp;self is for methods
+
+198
+00:07:01,380 --> 00:07:03,369
+that don't change anything about self's
+
+199
+00:07:03,370 --> 00:07:05,219
+values. In this
+
+200
+00:07:05,220 --> 00:07:07,319
+implementation, we're only reading
+
+201
+00:07:07,320 --> 00:07:09,179
+from the position field of the HockeyPlayer
+
+202
+00:07:09,180 --> 00:07:11,330
+instance, not changing anything.
+
+203
+00:07:13,190 --> 00:07:15,490
+Let's say we did want to change self
+
+204
+00:07:15,710 --> 00:07:17,599
+to increase the count of the goals_ytd
+
+205
+00:07:17,600 --> 00:07:19,699
+when shooting the puck
+
+206
+00:07:19,700 --> 00:07:21,110
+and the player gets a goal.
+
+207
+00:07:23,920 --> 00:07:24,909
+If we make this change
+
+208
+00:07:24,910 --> 00:07:26,460
+and try to compile the code,
+
+209
+00:07:26,860 --> 00:07:28,749
+we get an error that we cannot assign to the
+
+210
+00:07:28,750 --> 00:07:30,300
+field, goals_ytd.
+
+211
+00:07:32,320 --> 00:07:34,389
+Just like we have to explicitly annotate
+
+212
+00:07:34,390 --> 00:07:36,090
+variables that can be mutated,
+
+213
+00:07:36,610 --> 00:07:38,549
+we have to annotate methods that can mutate
+
+214
+00:07:38,550 --> 00:07:38,950
+self.
+
+215
+00:07:40,030 --> 00:07:41,949
+We do this by making the first parameter of
+
+216
+00:07:41,950 --> 00:07:44,120
+the method &amp;mut self.
+
+217
+00:07:46,100 --> 00:07:47,359
+This fixes the error,
+
+218
+00:07:47,360 --> 00:07:49,369
+and we can see that the method has modified
+
+219
+00:07:49,370 --> 00:07:50,470
+the player instance.
+
+220
+00:07:52,190 --> 00:07:53,290
+In this module,
+
+221
+00:07:53,360 --> 00:07:54,589
+we covered how methods
+
+222
+00:07:54,590 --> 00:07:56,870
+let us add behavior to data types,
+
+223
+00:07:57,230 --> 00:07:59,290
+how to define and call methods,
+
+224
+00:07:59,730 --> 00:08:01,669
+associated functions defined in impl
+
+225
+00:08:01,670 --> 00:08:02,869
+blocks that are associated
+
+226
+00:08:02,870 --> 00:08:03,710
+with a type
+
+227
+00:08:03,740 --> 00:08:05,630
+but not with an instance of the type,
+
+228
+00:08:06,350 --> 00:08:08,269
+and the various forms of self that
+
+229
+00:08:08,270 --> 00:08:10,399
+methods take depending on whether they read
+
+230
+00:08:10,400 --> 00:08:11,470
+or write data.
+
+231
+00:08:12,770 --> 00:08:14,410
+Those are the basics of methods
+
+232
+00:08:14,770 --> 00:08:16,659
+and the end of the syntax introduction for this
+
+233
+00:08:16,660 --> 00:08:17,380
+course.
+
+234
+00:08:18,520 --> 00:08:19,380
+Next unit,
+
+235
+00:08:19,600 --> 00:08:21,789
+we'll find out all about the concepts of ownership
+
+236
+00:08:21,790 --> 00:08:22,660
+and borrowing.
+
+237
+00:08:23,320 --> 00:08:25,870
+We'll get comfortable with when we should be adding ampersands.
+

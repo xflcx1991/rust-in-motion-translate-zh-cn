@@ -1,0 +1,572 @@
+﻿1
+00:00:02,990 --> 00:00:04,909
+In this module, we're going to be talking
+
+2
+00:00:04,910 --> 00:00:06,280
+about variables
+
+3
+00:00:06,440 --> 00:00:08,509
+and especially what makes variables different
+
+4
+00:00:08,510 --> 00:00:10,339
+in Rust as opposed to other programming
+
+5
+00:00:10,340 --> 00:00:11,240
+languages.
+
+6
+00:00:11,540 --> 00:00:13,399
+First, we'll cover the syntax to
+
+7
+00:00:13,400 --> 00:00:14,419
+declare a variable in Rust.
+
+8
+00:00:14,420 --> 00:00:16,429
+Then, we'll talk
+
+9
+00:00:16,430 --> 00:00:18,379
+about mutability, which is whether
+
+10
+00:00:18,380 --> 00:00:20,359
+a variable is allowed to change its value
+
+11
+00:00:20,360 --> 00:00:20,870
+or not.
+
+12
+00:00:21,750 --> 00:00:23,909
+Finally, we'll discuss how every variable
+
+13
+00:00:23,910 --> 00:00:26,209
+in Rust has a type, whether we explicitly
+
+14
+00:00:26,210 --> 00:00:27,089
+annotate that type
+
+15
+00:00:27,090 --> 00:00:27,690
+or not.
+
+16
+00:00:28,490 --> 00:00:29,449
+You're probably familiar
+
+17
+00:00:29,450 --> 00:00:31,870
+with variables from other programming languages.
+
+18
+00:00:32,210 --> 00:00:34,099
+To review, a variable is like a
+
+19
+00:00:34,100 --> 00:00:36,319
+cardboard box that you can label
+
+20
+00:00:36,320 --> 00:00:38,370
+and put data into for use later.
+
+21
+00:00:39,140 --> 00:00:41,209
+Then we write code that operates on the variable
+
+22
+00:00:41,210 --> 00:00:43,399
+name and doesn't need to know what's actually
+
+23
+00:00:43,400 --> 00:00:45,430
+in the box until the program is running.
+
+24
+00:00:45,620 --> 00:00:47,479
+Let's talk about how to declare a variable in Rust.
+
+25
+00:00:47,480 --> 00:00:49,399
+All variable
+
+26
+00:00:49,400 --> 00:00:50,329
+declarations start
+
+27
+00:00:50,330 --> 00:00:52,159
+with the let keyword followed
+
+28
+00:00:52,160 --> 00:00:54,239
+by the name we want. Here,
+
+29
+00:00:54,240 --> 00:00:56,210
+we're declaring a variable named x.
+
+30
+00:00:56,730 --> 00:00:58,769
+To give variables an initial value,
+
+31
+00:00:58,770 --> 00:01:00,059
+we use an equals sign
+
+32
+00:01:00,060 --> 00:01:01,889
+and then specify the value we want to
+
+33
+00:01:01,890 --> 00:01:03,140
+assign to the variable.
+
+34
+00:01:03,810 --> 00:01:05,389
+Here, the value we are choosing is the number 5.
+
+35
+00:01:06,550 --> 00:01:09,110
+Semicolons separate Rust statements.
+
+36
+00:01:09,510 --> 00:01:11,369
+Once we have a variable declared, we can
+
+37
+00:01:11,370 --> 00:01:12,620
+use it by its name.
+
+38
+00:01:13,290 --> 00:01:14,069
+Here's an example
+
+39
+00:01:14,070 --> 00:01:15,350
+with three variables,
+
+40
+00:01:15,530 --> 00:01:17,789
+and we've built the value of the variable z
+
+41
+00:01:17,790 --> 00:01:19,649
+using the values in the variables
+
+42
+00:01:19,650 --> 00:01:21,749
+x and y.
+
+43
+00:01:21,750 --> 00:01:23,060
+A few more things to note about this code:
+
+44
+00:01:23,910 --> 00:01:26,099
+the main function is a special function
+
+45
+00:01:26,100 --> 00:01:28,460
+that's the entry point to binary programs.
+
+46
+00:01:29,100 --> 00:01:31,409
+It's the function that gets called when we execute
+
+47
+00:01:31,410 --> 00:01:32,330
+cargo run.
+
+48
+00:01:32,610 --> 00:01:34,469
+We're going to talk about functions in a future
+
+49
+00:01:34,470 --> 00:01:35,180
+module.
+
+50
+00:01:35,490 --> 00:01:37,910
+The println! macro  is how you print in Rust.
+
+51
+00:01:38,250 --> 00:01:40,370
+The first argument is the format string
+
+52
+00:01:40,710 --> 00:01:42,749
+and the curly braces in that format string
+
+53
+00:01:42,750 --> 00:01:44,579
+are placeholders for the values we want to
+
+54
+00:01:44,580 --> 00:01:46,649
+print out, which are specified
+
+55
+00:01:46,650 --> 00:01:48,200
+as the rest of the arguments.
+
+56
+00:01:48,770 --> 00:01:50,809
+The Standard Library documentation has a full
+
+57
+00:01:50,810 --> 00:01:52,180
+format string reference.
+
+58
+00:01:53,520 --> 00:01:55,229
+If we switch over to the terminal
+
+59
+00:01:55,230 --> 00:01:57,530
+and execute cargo run for this program,
+
+60
+00:01:58,110 --> 00:01:59,239
+we'll see z is 11
+
+61
+00:01:59,240 --> 00:02:00,110
+printed out.
+
+62
+00:02:01,060 --> 00:02:03,110
+Next, let's talk about mutability.
+
+63
+00:02:03,850 --> 00:02:06,009
+One thing that's different about variables in Rust
+
+64
+00:02:06,010 --> 00:02:08,100
+is that, by default,
+
+65
+00:02:08,289 --> 00:02:10,350
+they can't actually vary.
+
+66
+00:02:10,490 --> 00:02:12,309
+Here's a program where we've declared a variable
+
+67
+00:02:12,310 --> 00:02:14,139
+named x with an initial value of
+
+68
+00:02:14,140 --> 00:02:14,780
+5.
+
+69
+00:02:15,130 --> 00:02:16,839
+Then, we try to add 1 to the value
+
+70
+00:02:16,840 --> 00:02:18,120
+and store the result in x.
+
+71
+00:02:19,180 --> 00:02:21,189
+The red line beneath the code on line 3
+
+72
+00:02:21,190 --> 00:02:23,019
+is the IDE signaling that we have a
+
+73
+00:02:23,020 --> 00:02:24,600
+compiler error on that line.
+
+74
+00:02:25,780 --> 00:02:27,690
+If we build this code in the terminal,
+
+75
+00:02:27,970 --> 00:02:29,910
+we can see the full compiler error,
+
+76
+00:02:29,980 --> 00:02:31,899
+which says we cannot assign twice
+
+77
+00:02:31,900 --> 00:02:33,810
+to the immutable variable, x.
+
+78
+00:02:34,690 --> 00:02:36,300
+After we assign the value 5 to x,
+
+79
+00:02:36,820 --> 00:02:38,460
+we're not allowed to change that value.
+
+80
+00:02:39,010 --> 00:02:41,139
+The reason Rust variables aren't allowed to change
+
+81
+00:02:41,140 --> 00:02:43,740
+by default is to help prevent some bugs.
+
+82
+00:02:44,420 --> 00:02:45,349
+Bugs can happen
+
+83
+00:02:45,350 --> 00:02:46,609
+if you look at a value
+
+84
+00:02:46,610 --> 00:02:48,790
+and assume that value never changes,
+
+85
+00:02:49,040 --> 00:02:51,079
+but another part of the program might change
+
+86
+00:02:51,080 --> 00:02:53,380
+that value and violate your assumptions.
+
+87
+00:02:53,840 --> 00:02:56,269
+Instead, Rust encodes the assumption
+
+88
+00:02:56,270 --> 00:02:58,279
+that a value will never change by making
+
+89
+00:02:58,280 --> 00:03:00,040
+that the default for variables.
+
+90
+00:03:00,380 --> 00:03:02,539
+To make sure all parts of a program agree
+
+91
+00:03:02,540 --> 00:03:04,510
+that a variable is allowed to change,
+
+92
+00:03:04,700 --> 00:03:06,829
+we have to explicitly opt in to allowing mutability.
+
+93
+00:03:06,830 --> 00:03:08,689
+The way to make a
+
+94
+00:03:08,690 --> 00:03:09,889
+variable mutable is
+
+95
+00:03:09,890 --> 00:03:11,839
+with the mut keyword. By
+
+96
+00:03:11,840 --> 00:03:14,310
+saying let mut x =﻿,﻿
+
+97
+00:03:14,450 --> 00:03:16,519
+we're then allowed to change the value of x whenever
+
+98
+00:03:16,520 --> 00:03:18,450
+we want by reassigning to it.
+
+99
+00:03:18,830 --> 00:03:21,220
+After adding mut to the previous example,
+
+100
+00:03:21,290 --> 00:03:23,359
+the program compiles without any errors
+
+101
+00:03:23,360 --> 00:03:25,600
+and prints the value of x is﻿ 6﻿.
+
+102
+00:03:27,910 --> 00:03:29,739
+The last big difference between variables
+
+103
+00:03:29,740 --> 00:03:32,220
+in Rust and variables in some other languages
+
+104
+00:03:32,590 --> 00:03:33,519
+is that every variable
+
+105
+00:03:33,520 --> 00:03:34,860
+in Rust has a type.
+
+106
+00:03:36,020 --> 00:03:37,999
+These two variables have different types
+
+107
+00:03:38,000 --> 00:03:39,670
+based on the values they contain.
+
+108
+00:03:40,100 --> 00:03:42,319
+If we want to annotate the type of a variable,
+
+109
+00:03:42,320 --> 00:03:44,179
+we can by putting a colon after
+
+110
+00:03:44,180 --> 00:03:44,890
+the name
+
+111
+00:03:45,110 --> 00:03:47,260
+and then the type after the equals sign.
+
+112
+00:03:47,690 --> 00:03:49,039
+In our previous examples,
+
+113
+00:03:49,040 --> 00:03:51,029
+we didn't have to say that x was an i32,
+
+114
+00:03:51,030 --> 00:03:52,959
+though. Rust was
+
+115
+00:03:52,960 --> 00:03:54,849
+able to figure that out based on the value,
+
+116
+00:03:54,850 --> 00:03:56,310
+5, that we assigned to it.
+
+117
+00:03:56,770 --> 00:03:58,899
+If you'd like to annotate your types as you're learning,
+
+118
+00:03:58,900 --> 00:03:59,610
+feel free.
+
+119
+00:04:00,310 --> 00:04:02,169
+However, most idiomatic Rust
+
+120
+00:04:02,170 --> 00:04:04,329
+you'll see doesn't annotate types
+
+121
+00:04:04,330 --> 00:04:06,189
+except for situations in which Rust
+
+122
+00:04:06,190 --> 00:04:08,189
+can't figure out the type you want without
+
+123
+00:04:08,190 --> 00:04:09,050
+an annotation.
+
+124
+00:04:09,700 --> 00:04:11,709
+If you're ever unsure of the type of something
+
+125
+00:04:11,710 --> 00:04:13,890
+you have, a trick to figure that out
+
+126
+00:04:14,080 --> 00:04:15,369
+is to annotate the variable
+
+127
+00:04:15,370 --> 00:04:17,550
+with a type that it definitely isn't.
+
+128
+00:04:17,950 --> 00:04:19,869
+For example, say we have a variable,
+
+129
+00:04:19,870 --> 00:04:21,750
+y,﻿ that has the value true
+
+130
+00:04:22,140 --> 00:04:24,069
+and we want to find out the type of the value
+
+131
+00:04:24,070 --> 00:04:25,989
+true. We know that
+
+132
+00:04:25,990 --> 00:04:26,949
+it's definitely not an
+
+133
+00:04:26,950 --> 00:04:28,170
+i32.
+
+134
+00:04:28,840 --> 00:04:31,290
+We can annotate y as type i32.
+
+135
+00:04:32,970 --> 00:04:34,789
+The compiler error we get tells us
+
+136
+00:04:34,790 --> 00:04:36,640
+that the type of true is bool.
+
+137
+00:04:37,190 --> 00:04:38,239
+In this module,
+
+138
+00:04:38,240 --> 00:04:40,420
+we've covered how to declare a variable,
+
+139
+00:04:40,760 --> 00:04:42,169
+how to make a variable mutable
+
+140
+00:04:42,170 --> 00:04:43,390
+with the mut﻿ ﻿keyword,
+
+141
+00:04:43,760 --> 00:04:45,570
+and how every variable has a type.
+
+142
+00:04:46,420 --> 00:04:47,529
+In the next video,
+
+143
+00:04:47,530 --> 00:04:49,210
+we'll talk about primitive data types.
+

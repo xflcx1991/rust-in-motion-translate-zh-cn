@@ -1,0 +1,1236 @@
+﻿1
+00:00:00,120 --> 00:00:02,200
+Welcome to module 6 on custom
+
+2
+00:00:02,400 --> 00:00:03,030
+error types.
+
+3
+00:00:04,490 --> 00:00:06,309
+In this module, we're going to cover
+
+4
+00:00:06,509 --> 00:00:08,209
+two solutions to the problem of a
+
+5
+00:00:08,409 --> 00:00:10,090
+function that might fail in multiple
+
+6
+00:00:10,290 --> 00:00:10,710
+ways.
+
+7
+00:00:11,620 --> 00:00:13,300
+We'll first talk about how
+
+8
+00:00:13,500 --> 00:00:15,340
+and why to use Box&lt;Error&gt;
+
+9
+00:00:15,540 --> 00:00:17,620
+as the error type of a function returning
+
+10
+00:00:17,820 --> 00:00:17,950
+Result.
+
+11
+00:00:18,950 --> 00:00:20,809
+Then, we'll talk about when
+
+12
+00:00:21,009 --> 00:00:22,370
+Box&lt;Error&gt; might not be sufficient,
+
+13
+00:00:22,820 --> 00:00:24,529
+and how to use a custom error type
+
+14
+00:00:24,729 --> 00:00:25,040
+instead.
+
+15
+00:00:26,050 --> 00:00:27,700
+When using a custom error type,
+
+16
+00:00:28,120 --> 00:00:30,100
+you'll need to implement the Error trait.
+
+17
+00:00:30,610 --> 00:00:32,449
+Implementing the From trait will let
+
+18
+00:00:32,649 --> 00:00:34,120
+you use the ? operator.
+
+19
+00:00:34,930 --> 00:00:36,430
+We'll show you how to implement those.
+
+20
+00:00:37,380 --> 00:00:39,210
+Finally, we'll show a common
+
+21
+00:00:39,410 --> 00:00:41,250
+idiom defining a Result
+
+22
+00:00:41,450 --> 00:00:43,710
+type alias that uses your custom error.
+
+23
+00:00:45,220 --> 00:00:45,970
+Let's get started
+
+24
+00:00:46,170 --> 00:00:47,030
+with how and why
+
+25
+00:00:47,230 --> 00:00:48,340
+to return Box&lt;Error&gt;.
+
+26
+00:00:49,840 --> 00:00:52,030
+In the module on advantages of Rust's
+
+27
+00:00:52,230 --> 00:00:53,260
+error handling strategy,
+
+28
+00:00:53,770 --> 00:00:55,689
+we ended with a function that reads an
+
+29
+00:00:55,889 --> 00:00:57,660
+environment variable that parses
+
+30
+00:00:57,860 --> 00:00:59,740
+the environment variable string value into a
+
+31
+00:00:59,940 --> 00:01:01,590
+number and adds 1 to it.
+
+32
+00:01:02,590 --> 00:01:04,959
+We want to use the ? operator
+
+33
+00:01:05,170 --> 00:01:06,500
+to propagate the errors,
+
+34
+00:01:07,240 --> 00:01:09,790
+but the problem is each of these operations
+
+35
+00:01:09,990 --> 00:01:11,320
+returns a different error type.
+
+36
+00:01:11,800 --> 00:01:13,779
+Therefore, we can't use either
+
+37
+00:01:13,979 --> 00:01:15,760
+of those types as the error type
+
+38
+00:01:15,960 --> 00:01:16,720
+for our function.
+
+39
+00:01:17,470 --> 00:01:18,640
+So, what can we use?
+
+40
+00:01:19,640 --> 00:01:21,560
+One solution is specifying
+
+41
+00:01:21,760 --> 00:01:23,480
+the trait object,Box&lt;Error&gt;,
+
+42
+00:01:23,960 --> 00:01:25,189
+using the Error trait
+
+43
+00:01:25,389 --> 00:01:26,320
+from the Standard Library.
+
+44
+00:01:27,790 --> 00:01:29,919
+Let's talk in detail about what
+
+45
+00:01:30,119 --> 00:01:30,820
+Box&lt;Error&gt; means.
+
+46
+00:01:31,300 --> 00:01:33,309
+You might see this written as
+
+47
+00:01:33,509 --> 00:01:35,169
+Box&lt;dyn Error&gt;in versions
+
+48
+00:01:35,369 --> 00:01:37,060
+of Rust greater than 1.27 –
+
+49
+00:01:37,570 --> 00:01:38,410
+they're the same thing.
+
+50
+00:01:39,400 --> 00:01:41,319
+This is the simplest solution to
+
+51
+00:01:41,519 --> 00:01:43,179
+the problem we had in the num_threads
+
+52
+00:01:43,379 --> 00:01:45,069
+function. The function will now
+
+53
+00:01:45,269 --> 00:01:45,700
+compile.
+
+54
+00:01:46,710 --> 00:01:48,570
+Box&lt;Error&gt; is a trait object.
+
+55
+00:01:49,240 --> 00:01:51,350
+A trait object consists of a pointer,
+
+56
+00:01:51,720 --> 00:01:53,699
+in this case the Box type, which points
+
+57
+00:01:53,899 --> 00:01:55,610
+to data on the heap; and
+
+58
+00:01:55,810 --> 00:01:56,100
+a trait,
+
+59
+00:01:56,610 --> 00:01:58,680
+in this case, the Standard Library's Error trait.
+
+60
+00:01:59,670 --> 00:02:01,590
+See The Rust Programming Language book,
+
+61
+00:02:01,790 --> 00:02:03,550
+chapter 17, for more
+
+62
+00:02:03,750 --> 00:02:05,730
+information on trait objects in general.
+
+63
+00:02:07,230 --> 00:02:09,059
+What this type means is that this
+
+64
+00:02:09,259 --> 00:02:11,008
+function will return some type that
+
+65
+00:02:11,208 --> 00:02:12,300
+implements the Error trait,
+
+66
+00:02:12,930 --> 00:02:15,020
+but the program doesn't know what the concrete type
+
+67
+00:02:15,280 --> 00:02:16,800
+will be until runtime.
+
+68
+00:02:18,200 --> 00:02:20,330
+The Error trait requires the Debug
+
+69
+00:02:20,530 --> 00:02:21,500
+and Display traits.
+
+70
+00:02:21,890 --> 00:02:23,830
+So, what functions that call this function
+
+71
+00:02:24,030 --> 00:02:26,150
+know is that the error value returned
+
+72
+00:02:26,660 --> 00:02:28,639
+will be something that can be printed either
+
+73
+00:02:28,839 --> 00:02:29,540
+to a developer
+
+74
+00:02:29,740 --> 00:02:30,560
+or an end user.
+
+75
+00:02:32,040 --> 00:02:33,899
+For example, here's the main
+
+76
+00:02:34,099 --> 00:02:35,790
+function for a command-line program
+
+77
+00:02:36,080 --> 00:02:38,399
+that has a wrapper for the entire application's
+
+78
+00:02:38,599 --> 00:02:40,470
+functionality – a function called
+
+79
+00:02:40,670 --> 00:02:41,610
+run_application.
+
+80
+00:02:42,600 --> 00:02:44,579
+run_application calls the
+
+81
+00:02:44,779 --> 00:02:45,480
+num_threads function
+
+82
+00:02:45,720 --> 00:02:47,730
+and anything else the application does.
+
+83
+00:02:48,230 --> 00:02:50,010
+If num_threads returns an error
+
+84
+00:02:50,210 --> 00:02:51,270
+that gets propagated up,
+
+85
+00:02:51,930 --> 00:02:52,760
+main panics
+
+86
+00:02:52,960 --> 00:02:54,660
+with a message that displays the error,
+
+87
+00:02:54,860 --> 00:02:55,470
+then exits.
+
+88
+00:02:56,450 --> 00:02:57,529
+For an application
+
+89
+00:02:57,729 --> 00:02:59,449
+with an outer layer that handles all
+
+90
+00:02:59,649 --> 00:03:00,620
+errors by printing them for
+
+91
+00:03:00,820 --> 00:03:02,539
+the end user, the
+
+92
+00:03:02,739 --> 00:03:04,640
+Box&lt;Error&gt; strategy is all you need.
+
+93
+00:03:06,130 --> 00:03:08,320
+The main downside to using Box&lt;Error&gt;
+
+94
+00:03:08,740 --> 00:03:10,989
+is that code that calls a function returning
+
+95
+00:03:11,189 --> 00:03:12,879
+Box&lt;Error&gt; can't see the
+
+96
+00:03:13,079 --> 00:03:14,620
+actual type that was returned
+
+97
+00:03:14,920 --> 00:03:16,749
+and use that information to do something
+
+98
+00:03:16,949 --> 00:03:17,110
+different.
+
+99
+00:03:18,620 --> 00:03:20,629
+If that's the case, you should instead
+
+100
+00:03:20,829 --> 00:03:21,890
+use a custom error type.
+
+101
+00:03:22,460 --> 00:03:23,239
+Let's look at how
+
+102
+00:03:23,439 --> 00:03:24,150
+and why to do that.
+
+103
+00:03:25,580 --> 00:03:27,490
+For this example, we're going to
+
+104
+00:03:27,690 --> 00:03:29,420
+implement a tiny part of a
+
+105
+00:03:29,620 --> 00:03:31,789
+document storage service, creating
+
+106
+00:03:31,989 --> 00:03:32,520
+a new document.
+
+107
+00:03:33,590 --> 00:03:36,050
+The create_document function we're implementing
+
+108
+00:03:36,410 --> 00:03:38,720
+will take the name of the document it should create
+
+109
+00:03:39,290 --> 00:03:41,200
+and will return a file for the caller to
+
+110
+00:03:41,400 --> 00:03:43,150
+write to if everything goes well.
+
+111
+00:03:44,140 --> 00:03:46,090
+As implementers of the service,
+
+112
+00:03:46,420 --> 00:03:48,249
+we want to prevent abuse by
+
+113
+00:03:48,449 --> 00:03:50,169
+adding a rate limit to set how many
+
+114
+00:03:50,369 --> 00:03:51,580
+documents someone can create
+
+115
+00:03:51,780 --> 00:03:52,000
+per minute.
+
+116
+00:03:52,820 --> 00:03:55,070
+This function should also return an error
+
+117
+00:03:55,370 --> 00:03:57,290
+if a document of the specified name already
+
+118
+00:03:57,700 --> 00:03:58,470
+exists.
+
+119
+00:03:59,990 --> 00:04:01,750
+Here's a first attempt at
+
+120
+00:04:01,950 --> 00:04:03,880
+implementing the create_document function
+
+121
+00:04:04,180 --> 00:04:05,170
+using Box&lt;Error&gt;.
+
+122
+00:04:06,550 --> 00:04:08,430
+We're not going to actually implement
+
+123
+00:04:08,630 --> 00:04:09,210
+the rate limiting
+
+124
+00:04:09,410 --> 00:04:10,170
+in this example.
+
+125
+00:04:10,650 --> 00:04:12,990
+We've hardcoded a constant for the maximum
+
+126
+00:04:13,190 --> 00:04:15,029
+and the return value for a function that would
+
+127
+00:04:15,229 --> 00:04:16,860
+return the actual number of documents
+
+128
+00:04:17,060 --> 00:04:18,240
+created in the last minute.
+
+129
+00:04:18,720 --> 00:04:20,590
+You can change these values to simulate
+
+130
+00:04:20,790 --> 00:04:22,770
+being over or under the rate limit
+
+131
+00:04:23,040 --> 00:04:24,959
+if you want to see how this code behaves in
+
+132
+00:04:25,159 --> 00:04:25,740
+those cases.
+
+133
+00:04:27,230 --> 00:04:29,330
+The body of the create_document function
+
+134
+00:04:29,580 --> 00:04:31,640
+checks to see if the caller is over the rate
+
+135
+00:04:31,840 --> 00:04:33,829
+limit and, if so, returns
+
+136
+00:04:34,029 --> 00:04:34,969
+a string turned into a
+
+137
+00:04:35,169 --> 00:04:35,660
+Box&lt;Error&gt;.
+
+138
+00:04:36,650 --> 00:04:38,720
+This is possible because of a From trait
+
+139
+00:04:38,920 --> 00:04:40,939
+implementation provided by the standard
+
+140
+00:04:41,139 --> 00:04:41,480
+library.
+
+141
+00:04:41,990 --> 00:04:43,849
+We'll be talking about the From trait later in
+
+142
+00:04:44,049 --> 00:04:44,450
+this module.
+
+143
+00:04:45,430 --> 00:04:46,020
+Next,
+
+144
+00:04:46,300 --> 00:04:48,280
+the function opens a File for writing
+
+145
+00:04:48,480 --> 00:04:50,240
+with the create_new option set
+
+146
+00:04:50,640 --> 00:04:52,600
+that will return an error if the File
+
+147
+00:04:52,800 --> 00:04:53,650
+already exists.
+
+148
+00:04:55,130 --> 00:04:56,540
+If everything goes well,
+
+149
+00:04:56,900 --> 00:04:58,820
+this function returns a writable File
+
+150
+00:04:59,020 --> 00:04:59,210
+handle.
+
+151
+00:05:00,190 --> 00:05:01,420
+This function compiles
+
+152
+00:05:01,620 --> 00:05:03,040
+and does what it's supposed to do.
+
+153
+00:05:03,460 --> 00:05:05,499
+However, the way it's written makes
+
+154
+00:05:05,699 --> 00:05:07,510
+it hard for a caller to use this function.
+
+155
+00:05:08,990 --> 00:05:10,819
+For example, a programmer
+
+156
+00:05:11,019 --> 00:05:12,919
+writing an application that uses
+
+157
+00:05:13,119 --> 00:05:14,870
+this document creation service API
+
+158
+00:05:15,510 --> 00:05:17,090
+wants to wait and try again
+
+159
+00:05:17,290 --> 00:05:18,830
+if the rate limit has been exceeded.
+
+160
+00:05:19,830 --> 00:05:22,140
+If a document with that name already exists,
+
+161
+00:05:22,450 --> 00:05:24,660
+they'd like to add a number to the end of the name
+
+162
+00:05:25,140 --> 00:05:27,029
+rather than asking the end user to pick
+
+163
+00:05:27,229 --> 00:05:27,660
+a different name.
+
+164
+00:05:28,660 --> 00:05:30,660
+So, the code calling thecreate_document
+
+165
+00:05:30,860 --> 00:05:33,009
+function needs to be able to distinguish
+
+166
+00:05:33,209 --> 00:05:34,840
+the different failure causes, not just print
+
+167
+00:05:35,040 --> 00:05:35,890
+out the error.
+
+168
+00:05:37,410 --> 00:05:39,369
+With the create_document function as
+
+169
+00:05:39,569 --> 00:05:39,830
+written,
+
+170
+00:05:40,410 --> 00:05:41,669
+there are complex
+
+171
+00:05:41,869 --> 00:05:43,890
+and brittle ways callers could distinguish
+
+172
+00:05:44,090 --> 00:05:45,959
+the file creation errors from the string
+
+173
+00:05:46,159 --> 00:05:46,350
+error,
+
+174
+00:05:46,860 --> 00:05:48,750
+and verify that the string error text
+
+175
+00:05:48,950 --> 00:05:50,520
+is that of the error they're looking for.
+
+176
+00:05:50,970 --> 00:05:52,889
+But there's a friendlier way we could write this
+
+177
+00:05:53,089 --> 00:05:54,749
+function – using a custom
+
+178
+00:05:54,949 --> 00:05:55,260
+error type.
+
+179
+00:05:56,750 --> 00:05:57,769
+You can use a struct
+
+180
+00:05:57,969 --> 00:05:58,520
+or an enum.
+
+181
+00:05:59,120 --> 00:06:01,249
+An enum is more common because the type
+
+182
+00:06:01,449 --> 00:06:03,139
+enumerates all the ways your code
+
+183
+00:06:03,339 --> 00:06:03,680
+might fail.
+
+184
+00:06:04,160 --> 00:06:06,079
+This is friendlier because callers can
+
+185
+00:06:06,279 --> 00:06:08,359
+use a match expression to distinguish
+
+186
+00:06:08,559 --> 00:06:09,710
+between different errors.
+
+187
+00:06:11,210 --> 00:06:13,039
+So, to change our example from
+
+188
+00:06:13,239 --> 00:06:15,020
+using Box&lt;Error&gt; to using
+
+189
+00:06:15,220 --> 00:06:17,149
+a custom error type, we're first
+
+190
+00:06:17,349 --> 00:06:19,100
+going to define an enum named
+
+191
+00:06:19,300 --> 00:06:21,170
+DocumentServiceError with variants
+
+192
+00:06:21,590 --> 00:06:23,420
+for all the reasons our code might fail,
+
+193
+00:06:23,810 --> 00:06:25,810
+which is currently RateLimitExceeded
+
+194
+00:06:26,010 --> 00:06:26,660
+and Io.
+
+195
+00:06:28,140 --> 00:06:30,150
+The Io variant will hold the io error
+
+196
+00:06:30,350 --> 00:06:32,330
+instance we get from performing
+
+197
+00:06:32,530 --> 00:06:33,660
+IO operations.
+
+198
+00:06:38,140 --> 00:06:40,150
+Custom error types should have the Error
+
+199
+00:06:40,350 --> 00:06:41,680
+trait implemented on them.
+
+200
+00:06:41,950 --> 00:06:42,940
+So, let's do that now.
+
+201
+00:06:44,420 --> 00:06:46,500
+If you're using Rust 1.24.
+
+202
+00:06:46,700 --> 00:06:48,769
+1, as we are, implementing
+
+203
+00:06:48,969 --> 00:06:51,350
+the Error trait involves adding a definition
+
+204
+00:06:51,550 --> 00:06:52,640
+with a description method.
+
+205
+00:06:54,100 --> 00:06:55,500
+In Rust 1.27,
+
+206
+00:06:55,780 --> 00:06:57,700
+the description method on the Error trait
+
+207
+00:06:57,900 --> 00:06:58,750
+became optional.
+
+208
+00:06:59,200 --> 00:07:01,089
+So, if you're using a version of Rust newer
+
+209
+00:07:01,289 --> 00:07:03,249
+than 1.27, the implementation
+
+210
+00:07:03,449 --> 00:07:04,510
+block can be empty.
+
+211
+00:07:07,030 --> 00:07:08,800
+The Error trait requires that the type
+
+212
+00:07:09,000 --> 00:07:10,510
+also implements the Debug
+
+213
+00:07:10,710 --> 00:07:12,369
+and Display traits, so
+
+214
+00:07:12,569 --> 00:07:13,750
+we're going to derive Debug
+
+215
+00:07:14,080 --> 00:07:16,390
+and implement user-friendly error messages
+
+216
+00:07:16,590 --> 00:07:17,200
+for Display.
+
+217
+00:07:19,510 --> 00:07:21,339
+Next, we're going to change the return
+
+218
+00:07:21,539 --> 00:07:23,560
+type of the create_document function
+
+219
+00:07:24,010 --> 00:07:26,139
+to use DocumentServiceError instead
+
+220
+00:07:26,339 --> 00:07:26,920
+of Box&lt;Error&gt;.
+
+221
+00:07:28,460 --> 00:07:30,350
+Then, we change the rate limit case
+
+222
+00:07:30,550 --> 00:07:32,449
+to create an instance of the
+
+223
+00:07:32,649 --> 00:07:33,330
+RateLimitExceeded variant
+
+224
+00:07:33,530 --> 00:07:34,190
+instead of a string.
+
+225
+00:07:35,660 --> 00:07:37,579
+In the spot where we use the ?
+
+226
+00:07:37,779 --> 00:07:39,409
+operator, we can leave the
+
+227
+00:07:39,609 --> 00:07:41,239
+code in the create_document function the
+
+228
+00:07:41,439 --> 00:07:41,720
+same,
+
+229
+00:07:42,170 --> 00:07:43,780
+if we implement the From trait.
+
+230
+00:07:44,560 --> 00:07:45,910
+Let's look at how to do that now.
+
+231
+00:07:47,430 --> 00:07:49,379
+The From trait is for converting one
+
+232
+00:07:49,579 --> 00:07:50,700
+type into another type.
+
+233
+00:07:51,180 --> 00:07:52,980
+It's useful in many situations.
+
+234
+00:07:53,280 --> 00:07:55,500
+The situation we're interested in right now
+
+235
+00:07:55,890 --> 00:07:57,510
+is that the ? operator
+
+236
+00:07:57,840 --> 00:07:59,699
+will look for an implementation of the
+
+237
+00:07:59,899 --> 00:08:01,860
+From trait to convert an error
+
+238
+00:08:02,060 --> 00:08:03,780
+of one type into the return
+
+239
+00:08:03,980 --> 00:08:04,320
+error type.
+
+240
+00:08:05,840 --> 00:08:07,759
+So, in order to use the ? in
+
+241
+00:08:07,959 --> 00:08:09,920
+our example, we need to implement
+
+242
+00:08:10,120 --> 00:08:11,840
+the From trait to convert from
+
+243
+00:08:12,040 --> 00:08:12,710
+io::Error
+
+244
+00:08:13,130 --> 00:08:14,900
+and create a DocumentServiceError.
+
+245
+00:08:15,860 --> 00:08:17,879
+The function we have to implement is also
+
+246
+00:08:18,079 --> 00:08:19,709
+called from, takes an
+
+247
+00:08:19,909 --> 00:08:21,010
+io::Error parameter
+
+248
+00:08:21,210 --> 00:08:22,330
+that we're going to give the name
+
+249
+00:08:22,530 --> 00:08:24,660
+other, and returns an instance
+
+250
+00:08:24,860 --> 00:08:26,040
+of DocumentServiceError,
+
+251
+00:08:26,580 --> 00:08:28,140
+which we can also write as Self.
+
+252
+00:08:29,100 --> 00:08:30,480
+In the body of the function,
+
+253
+00:08:30,840 --> 00:08:32,519
+we're going to wrap the io::Error
+
+254
+00:08:32,719 --> 00:08:34,499
+in an instance of the DocumentServiceError::Io
+
+255
+00:08:34,699 --> 00:08:35,860
+variant.
+
+256
+00:08:36,870 --> 00:08:38,729
+Now, anywhere that we have an
+
+257
+00:08:38,929 --> 00:08:40,530
+io::Error and want to return
+
+258
+00:08:40,730 --> 00:08:41,819
+a DocumentServiceError,
+
+259
+00:08:42,299 --> 00:08:44,158
+the ? operator will take care
+
+260
+00:08:44,358 --> 00:08:45,360
+of the conversion for us.
+
+261
+00:08:46,860 --> 00:08:48,480
+This example compiles
+
+262
+00:08:48,680 --> 00:08:50,489
+and we've made it easier for callers to
+
+263
+00:08:50,689 --> 00:08:52,409
+distinguish between different ways that
+
+264
+00:08:52,609 --> 00:08:54,239
+our code fails so that they
+
+265
+00:08:54,439 --> 00:08:55,620
+can take different actions.
+
+266
+00:08:57,140 --> 00:08:59,060
+Finally, let's improve this code
+
+267
+00:08:59,260 --> 00:09:00,770
+with a Result type alias.
+
+268
+00:09:02,270 --> 00:09:04,109
+If our crate has many functions that
+
+269
+00:09:04,309 --> 00:09:06,089
+use the DocumentServiceError  as
+
+270
+00:09:06,289 --> 00:09:07,989
+their error type, we
+
+271
+00:09:08,189 --> 00:09:10,270
+can reduce the repetition by defining
+
+272
+00:09:10,470 --> 00:09:11,680
+an alias for the Result type
+
+273
+00:09:12,120 --> 00:09:14,049
+within our crate that always
+
+274
+00:09:14,249 --> 00:09:15,880
+uses DocumentServiceError  as its error
+
+275
+00:09:16,080 --> 00:09:16,190
+type.
+
+276
+00:09:17,710 --> 00:09:19,210
+This Result, as defined,
+
+277
+00:09:19,630 --> 00:09:21,660
+will still be generic in the success type,
+
+278
+00:09:22,270 --> 00:09:23,860
+so we still have to specify that
+
+279
+00:09:24,060 --> 00:09:24,940
+with each usage,
+
+280
+00:09:25,270 --> 00:09:27,129
+but the error type no longer needs to be
+
+281
+00:09:27,329 --> 00:09:27,580
+written out.
+
+282
+00:09:29,090 --> 00:09:31,030
+In this module, we examined two
+
+283
+00:09:31,230 --> 00:09:32,149
+solutions for dealing
+
+284
+00:09:32,349 --> 00:09:34,069
+with functions that return multiple error
+
+285
+00:09:34,269 --> 00:09:34,550
+types.
+
+286
+00:09:35,560 --> 00:09:37,000
+Returning the Box&lt;Error&gt; trait
+
+287
+00:09:37,200 --> 00:09:39,069
+object is sufficient in cases
+
+288
+00:09:39,269 --> 00:09:41,380
+where you only need to know that an error happened
+
+289
+00:09:41,800 --> 00:09:43,750
+and be able to print out error information.
+
+290
+00:09:44,740 --> 00:09:46,599
+Defining a custom error type is
+
+291
+00:09:46,799 --> 00:09:48,429
+recommended when callers need to be
+
+292
+00:09:48,629 --> 00:09:50,050
+able to distinguish in code
+
+293
+00:09:50,290 --> 00:09:51,890
+between different error causes.
+
+294
+00:09:52,950 --> 00:09:54,899
+Custom error types should implement
+
+295
+00:09:55,099 --> 00:09:56,819
+the Error trait, which requires
+
+296
+00:09:57,019 --> 00:09:58,919
+the Debug and Display traits to enable
+
+297
+00:09:59,119 --> 00:09:59,460
+printing.
+
+298
+00:10:00,460 --> 00:10:02,200
+They should implement the From trait
+
+299
+00:10:02,400 --> 00:10:04,239
+for any other error type that needs
+
+300
+00:10:04,439 --> 00:10:06,310
+to be changed into the custom error type
+
+301
+00:10:07,000 --> 00:10:09,009
+so that the question mark operator will take
+
+302
+00:10:09,209 --> 00:10:10,050
+care of the conversion.
+
+303
+00:10:11,010 --> 00:10:13,110
+Finally, Result type aliases
+
+304
+00:10:13,310 --> 00:10:15,420
+are a common way to reduce the repetition
+
+305
+00:10:15,750 --> 00:10:17,550
+of using the same custom error type
+
+306
+00:10:17,750 --> 00:10:18,600
+everywhere in a crate.
+
+307
+00:10:20,120 --> 00:10:22,070
+Next, let's look at a few crates
+
+308
+00:10:22,270 --> 00:10:24,080
+that can help when our error types become
+
+309
+00:10:24,280 --> 00:10:25,150
+even more complex.
+

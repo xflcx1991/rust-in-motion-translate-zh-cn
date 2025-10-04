@@ -1,0 +1,432 @@
+﻿1
+00:00:01,540 --> 00:00:02,370
+Welcome to module
+
+2
+00:00:02,380 --> 00:00:02,740
+8,
+
+3
+00:00:02,990 --> 00:00:06,150
+where we'll discuss how ownership applies to more than just memory.
+
+4
+00:00:06,710 --> 00:00:09,850
+We've been talking about how ownership affects memory management,
+
+5
+00:00:10,340 --> 00:00:11,740
+but it can also help manage other resources.
+
+6
+00:00:11,750 --> 00:00:17,510
+We're going to go through an example of how ownership helps manage network sockets.
+
+7
+00:00:17,940 --> 00:00:18,150
+We'll
+
+8
+00:00:18,150 --> 00:00:19,410
+briefly discuss a few
+
+9
+00:00:19,410 --> 00:00:22,950
+other resources in the standard library that ownership helps to manage,
+
+10
+00:00:23,440 --> 00:00:28,350
+and we'll show how you can customize what happens when your types go out of scope by implementing the Drop trait.
+
+11
+00:00:29,800 --> 00:00:31,450
+Let's get started with sockets.
+
+12
+00:00:32,940 --> 00:00:33,490
+First,
+
+13
+00:00:33,550 --> 00:00:36,050
+let's review what a socket is and how to use one.
+
+14
+00:00:36,990 --> 00:00:42,550
+A socket is a system resource that's a connection to a network endpoint for sending and receiving data.
+
+15
+00:00:43,440 --> 00:00:45,650
+One kind of socket is a TCP socket,
+
+16
+00:00:45,900 --> 00:00:48,550
+which stands for Transmission Control Protocol.
+
+17
+00:00:49,130 --> 00:00:55,150
+TCP underlies much of the internet's communication. To use a TCP socket in code,
+
+18
+00:00:55,540 --> 00:00:58,050
+we create it and bind it to a particular port.
+
+19
+00:00:58,490 --> 00:01:02,110
+And we should close the socket when we're done with it to avoid overloading the system's socket capacity.
+
+20
+00:01:02,110 --> 00:01:08,820
+The way sockets should be managed is similar to the way memory should be managed,
+
+21
+00:01:09,080 --> 00:01:10,750
+and they both have similar problems.
+
+22
+00:01:11,740 --> 00:01:13,270
+As we've discussed with memory,
+
+23
+00:01:13,390 --> 00:01:16,150
+it's an error to use memory after deallocating it.
+
+24
+00:01:16,640 --> 00:01:17,400
+Likewise,
+
+25
+00:01:17,560 --> 00:01:21,950
+it's an error to try and send or receive data on a socket after it's been closed.
+
+26
+00:01:22,840 --> 00:01:25,800
+Trying to free memory twice is an error called "double free."
+
+27
+00:01:26,290 --> 00:01:28,750
+Trying to close a socket twice is also an error.
+
+28
+00:01:29,740 --> 00:01:33,520
+Memory leaks that can overwhelm the system happen if you forget to free memory.
+
+29
+00:01:33,980 --> 00:01:40,650
+Forgetting to close a socket can also overwhelm the system.
+
+30
+00:01:41,180 --> 00:01:43,920
+In languages with a garbage collector, such as Ruby, the garbage collector helps to mitigate the memory problems,
+
+31
+00:01:44,020 --> 00:01:46,810
+but managing resources like sockets is still manual.
+
+32
+00:01:47,110 --> 00:01:49,050
+The garbage collector only helps with memory.
+
+33
+00:01:50,040 --> 00:01:50,650
+However,
+
+34
+00:01:50,860 --> 00:01:56,150
+Rust helps to mitigate the issues with both memory and sockets via the same mechanism – ownership.
+
+35
+00:01:57,670 --> 00:02:02,150
+Let's take a look at a code example to see that the socket is closed when its owner goes out of scope.
+
+36
+00:02:03,040 --> 00:02:06,300
+Here, we have a function called open_socket_for_five_seconds,
+
+37
+00:02:06,500 --> 00:02:08,460
+which binds a new TcpListener,
+
+38
+00:02:08,540 --> 00:02:11,150
+a kind of socket, on port 5000.
+
+39
+00:02:12,090 --> 00:02:14,250
+Then, the function sleeps for 5 seconds.
+
+40
+00:02:15,240 --> 00:02:17,270
+The listener variable is the owner of the socket.
+
+41
+00:02:17,570 --> 00:02:18,870
+At the end of this function,
+
+42
+00:02:18,960 --> 00:02:22,650
+the socket will be closed even though we don't have any code explicitly closing it.
+
+43
+00:02:23,640 --> 00:02:29,450
+We call this function from main, then print that we're back in main, and sleep for 5 more seconds before exiting the program.
+
+44
+00:02:30,440 --> 00:02:32,680
+This code doesn't transmit any data over the socket,
+
+45
+00:02:32,820 --> 00:02:36,080
+so it isn't very useful, other than letting us observe Rust's
+
+46
+00:02:36,090 --> 00:02:36,950
+socket cleanup.
+
+47
+00:02:38,640 --> 00:02:39,650
+Let's run this program,
+
+48
+00:02:39,970 --> 00:02:45,450
+and in another terminal, run a command that shows open TCP sockets listening on port 5000.
+
+49
+00:02:46,340 --> 00:02:49,550
+We see a socket listening during the first 5 seconds.
+
+50
+00:02:51,640 --> 00:02:54,120
+And then the socket is closed and no longer listening
+
+51
+00:02:54,240 --> 00:02:55,380
+when the function has ended,
+
+52
+00:02:55,390 --> 00:02:57,120
+and execution has returned to main.
+
+53
+00:02:59,540 --> 00:03:05,680
+Let's contrast the Rust program's behavior with that of a Ruby program implemented in the same way. Here,
+
+54
+00:03:05,680 --> 00:03:09,390
+we also have a function that opens a new socket and sleeps for 5 seconds,
+
+55
+00:03:10,440 --> 00:03:12,950
+and we call the function and sleep for 5 more seconds.
+
+56
+00:03:14,440 --> 00:03:19,650
+If we run the Ruby program in one terminal window and the same command to list open ports in another,
+
+57
+00:03:20,140 --> 00:03:24,850
+this time, we see the socket is listening for the full 10 seconds that the Ruby program is running.
+
+58
+00:03:29,280 --> 00:03:37,980
+That's because, in Ruby, it's required to explicitly close sockets to prevent leaking them. Rust takes care of this automatically so that we don't have to remember to close the socket.
+
+59
+00:03:37,980 --> 00:03:43,550
+Sockets aren't the only type in the standard library that are managed with ownership.
+
+60
+00:03:44,140 --> 00:03:46,350
+Let's briefly look at a few more: Mutex&lt;T&gt;,
+
+61
+00:03:46,350 --> 00:03:51,090
+Rc&lt;T&gt;, and File. The Mutex&lt;T&gt; type,
+
+62
+00:03:51,210 --> 00:03:53,150
+which is short for mutual exclusion,
+
+63
+00:03:53,640 --> 00:04:00,140
+is a data type used in multithreaded contexts to ensure that only one thread is allowed to modify the value inside the
+
+64
+00:04:00,140 --> 00:04:00,820
+mutex.
+
+65
+00:04:01,840 --> 00:04:05,510
+This is done by acquiring a lock just before modifying the value.
+
+66
+00:04:06,640 --> 00:04:08,050
+After modifying the value,
+
+67
+00:04:08,490 --> 00:04:13,590
+you have to release the lock to allow other threads to acquire it. In Rust,
+
+68
+00:04:13,770 --> 00:04:15,750
+when the owner of the lock goes out of scope,
+
+69
+00:04:16,170 --> 00:04:17,950
+the lock is automatically released.
+
+70
+00:04:18,470 --> 00:04:21,250
+This keeps us from accidentally forgetting to release a lock.
+
+71
+00:04:22,800 --> 00:04:23,820
+The Rc&lt;T&gt; type,
+
+72
+00:04:23,830 --> 00:04:25,300
+which stands for reference counted,
+
+73
+00:04:25,680 --> 00:04:29,150
+is a type that allows for multiple owners of a single piece of data.
+
+74
+00:04:30,140 --> 00:04:38,590
+It has an internal counter of how many owners exist, and when the last owner goes out of scope, then the value is cleaned up.
+
+75
+00:04:38,590 --> 00:04:40,510
+Decrementing the reference counter when each owner goes
+
+76
+00:04:40,510 --> 00:04:43,050
+out of scope is handled by Rust automatically.
+
+77
+00:04:44,540 --> 00:04:45,180
+Finally,
+
+78
+00:04:45,350 --> 00:04:49,410
+files are similar to sockets in that they must be closed when we're done with them
+
+79
+00:04:49,620 --> 00:04:51,450
+to avoid overwhelming the system.
+
+80
+00:04:52,380 --> 00:04:56,750
+Rust also handles closing files automatically when the owner of a File goes out of scope.
+
+81
+00:04:57,640 --> 00:05:00,870
+We're going to be working with files a lot in the next unit on error handling,
+
+82
+00:05:00,970 --> 00:05:02,100
+so you'll see this in action then.
+
+83
+00:05:02,100 --> 00:05:04,540
+Finally,
+
+84
+00:05:04,660 --> 00:05:09,810
+let's look at how to customize what our own types do when their owners go out of scope by using the Drop trait.
+
+85
+00:05:11,260 --> 00:05:12,900
+The Drop trait has one method,
+
+86
+00:05:12,920 --> 00:05:13,950
+also named drop.
+
+87
+00:05:14,390 --> 00:05:17,550
+This method takes a mutable reference to self and no other parameters.
+
+88
+00:05:18,520 --> 00:05:21,170
+This is where you'd put any logic necessary to clean up
+
+89
+00:05:21,170 --> 00:05:22,850
+the resources a type uses.
+
+90
+00:05:24,410 --> 00:05:30,710
+Let's take a look at an example. In this code, we've defined a struct named Noisy that has an id
+
+91
+00:05:30,710 --> 00:05:32,550
+field of type i32.
+
+92
+00:05:33,540 --> 00:05:35,790
+In order to see when the drop method is called,
+
+93
+00:05:36,020 --> 00:05:45,930
+we've implemented the Drop trait for the Noisy struct to print a message indicating that the instance is going out of scope and included the instance's id value. In main,
+
+94
+00:05:46,220 --> 00:05:48,450
+we're creating two Noisy instances,
+
+95
+00:05:48,940 --> 00:05:54,150
+one with id: 1 and the other with id: 2. We're then printing the messageEnd of main.
+
+96
+00:05:55,740 --> 00:05:59,150
+When we run this code, it first prints the End of main message.
+
+97
+00:05:59,740 --> 00:06:03,200
+Then, the two Noisy instances go out of scope at the end of main,
+
+98
+00:06:03,310 --> 00:06:12,250
+and the program prints the messages, Noisy number 2 going out of scope! and Noisy number 1 going out of scope!, when the drop method is automatically run.
+
+99
+00:06:13,390 --> 00:06:21,020
+This example also illustrates that variables go out of scope in the reverse order in which they were declared.
+
+100
+00:06:21,130 --> 00:06:25,820
+In this module, we illustrated how ownership means sockets are managed in the same way that memory is,
+
+101
+00:06:26,060 --> 00:06:29,250
+and that sockets are closed automatically when their owner goes out of scope.
+
+102
+00:06:30,340 --> 00:06:33,170
+We also discussed how other resources, such as
+
+103
+00:06:33,170 --> 00:06:33,950
+the Mutex&lt;T&gt; type,
+
+104
+00:06:34,160 --> 00:06:38,150
+the Rc&lt;T&gt; type, and the File type are also managed in this way.
+
+105
+00:06:39,240 --> 00:06:39,840
+Finally,
+
+106
+00:06:39,970 --> 00:06:48,250
+we looked at how the Drop trait is the feature of Rust that lets us customize what happens when a value goes out of scope, and how to implement that trait on our own type.
+
+107
+00:06:49,990 --> 00:06:52,380
+We hope you enjoyed this tour through ownership and borrowing,
+
+108
+00:06:52,390 --> 00:06:57,750
+as well as seeing how these concepts are important to how Rust makes memory management safe and convenient. In the next unit, we'll be exploring the way error handling works in Rust.
+

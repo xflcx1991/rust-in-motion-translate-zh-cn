@@ -1,0 +1,572 @@
+﻿1
+00:00:00,040 --> 00:00:05,560
+Welcome to module 7 on error handling crates. In this module,
+
+2
+00:00:05,630 --> 00:00:11,220
+we're going to look at three error handling crates that can help as your custom error types become more complex.
+
+3
+00:00:12,140 --> 00:00:17,850
+We're going to use the document service example from the previous module to demonstrate each crate's features.
+
+4
+00:00:18,740 --> 00:00:20,700
+The crates we're going to cover are quick-error,
+
+5
+00:00:20,710 --> 00:00:21,200
+
+
+6
+00:00:21,380 --> 00:00:21,600
+error-chain,
+
+7
+00:00:21,600 --> 00:00:21,680
+
+
+8
+00:00:21,680 --> 00:00:23,120
+and failure.
+
+9
+00:00:24,540 --> 00:00:27,450
+Let's start by reviewing the document service example.
+
+10
+00:00:28,840 --> 00:00:35,040
+We have a DocumentServiceError enum with RateLimitExceeded and Io variants that derives Debug.
+
+11
+00:00:35,940 --> 00:00:41,150
+We implemented the Error trait and the Display trait on the Error enum.
+
+12
+00:00:42,140 --> 00:00:49,050
+We also added an implementation of the From trait to convert an io::Error to an instance of DocumentServiceError.
+
+13
+00:00:50,440 --> 00:00:54,190
+To better illustrate how the error handling libraries affect the code,
+
+14
+00:00:54,640 --> 00:01:00,050
+we're going to add a function called create_project that calls the create_document function multiple times.
+
+15
+00:01:01,540 --> 00:01:02,170
+Then,
+
+16
+00:01:02,180 --> 00:01:04,470
+to see the effects of the libraries on the code's
+
+17
+00:01:04,470 --> 00:01:11,750
+behavior, we'll call the create_project function from main to represent an application that uses the document service library.
+
+18
+00:01:13,140 --> 00:01:14,690
+The first time you run this code,
+
+19
+00:01:15,110 --> 00:01:17,530
+it will print Project created successfully,
+
+20
+00:01:17,800 --> 00:01:20,420
+and there will be four new files in your current directory.
+
+21
+00:01:21,340 --> 00:01:24,730
+If you run this code again, without deleting the project files,
+
+22
+00:01:24,970 --> 00:01:28,250
+the program will exit with an error that says File exists.
+
+23
+00:01:29,190 --> 00:01:34,350
+Note that the message doesn't say which file exists or which create_document call failed,
+
+24
+00:01:34,740 --> 00:01:37,820
+which would make it difficult to figure out why this error was happening.
+
+25
+00:01:39,180 --> 00:01:43,350
+This is the starting point we're going to come back to before demonstrating each crate.
+
+26
+00:01:44,740 --> 00:01:48,020
+So, let's take a look at what the quick-error crate does for us.
+
+27
+00:01:49,440 --> 00:01:49,930
+First,
+
+28
+00:01:49,940 --> 00:01:52,120
+let's add quick-error to Cargo.toml
+
+29
+00:01:52,120 --> 00:01:56,330
+version 1.2.2. To follow along, for each crate,
+
+30
+00:01:56,630 --> 00:02:02,440
+specify that the version should match exactly by adding the equals sign within the quotes.
+
+31
+00:02:02,700 --> 00:02:03,950
+If you want, when you're done with this video,
+
+32
+00:02:04,340 --> 00:02:07,950
+see if there's newer versions of each crate and explore how they're different.
+
+33
+00:02:09,340 --> 00:02:15,090
+The quick-error crate provides its functionality with a macro.
+
+34
+00:02:15,170 --> 00:02:18,590
+In main.rs, we bring the quick-error crate into scope along with its macros,
+
+35
+00:02:18,920 --> 00:02:21,050
+which is what the macro_use annotation means.
+
+36
+00:02:21,940 --> 00:02:22,470
+Next,
+
+37
+00:02:22,470 --> 00:02:24,880
+we call the quick_error! macro around the Error
+
+38
+00:02:24,880 --> 00:02:25,350
+enum.
+
+39
+00:02:26,340 --> 00:02:32,840
+The macro requires curly brackets after each variant instead of a comma and naming the data inside the Io
+
+40
+00:02:32,840 --> 00:02:33,420
+variant.
+
+41
+00:02:34,840 --> 00:02:40,350
+The macro implements the Error trait, so we can remove that implementation and the use statement.
+
+42
+00:02:41,740 --> 00:02:42,440
+Next,
+
+43
+00:02:42,540 --> 00:02:46,650
+the quick_error! macro has a less verbose way to implement the Display trait.
+
+44
+00:02:48,040 --> 00:02:52,850
+We can add just the text to each variant by calling what looks like a function nameddisplay.
+
+45
+00:02:53,790 --> 00:02:58,550
+Then, we can remove the Display implementation and the use std::fmt statement.
+
+46
+00:03:00,140 --> 00:03:11,050
+The quick_error! macro can also implement From traits. We can call what looks like a from function inside the curly braces within the Io variant definition.
+
+47
+00:03:12,540 --> 00:03:15,000
+This behaves the same as the original code,
+
+48
+00:03:15,170 --> 00:03:16,750
+but in a lot fewer lines.
+
+49
+00:03:17,640 --> 00:03:20,010
+Adding more error variants would be less work
+
+50
+00:03:20,010 --> 00:03:20,350
+too.
+
+51
+00:03:21,840 --> 00:03:22,420
+Next,
+
+52
+00:03:22,640 --> 00:03:24,250
+let's use a feature of quick-error,
+
+53
+00:03:24,740 --> 00:03:29,850
+adding the filename as context for the io::Error, so we can see which file already exists.
+
+54
+00:03:31,240 --> 00:03:40,050
+We bring the quick_error::ResultExt trait into scope, add a file named String to the Io variant, and use the filename in the display for that variant.
+
+55
+00:03:41,440 --> 00:03:50,330
+Then, replace the from call with a call to context that takes a string slice for the filename and an io::Error.
+
+56
+00:03:50,500 --> 00:04:04,050
+Using closure-like syntax, we return a tuple of the cause and the filename converted to a string to create this variant. Finally, in create_document, we call context on the result and pass the filename. The io::Error gets passed implicitly.
+
+57
+00:04:05,540 --> 00:04:08,390
+Now we see the name of the file that already exists.
+
+58
+00:04:08,910 --> 00:04:11,050
+This will let us figure out the problem faster.
+
+59
+00:04:12,440 --> 00:04:13,120
+Next,
+
+60
+00:04:13,340 --> 00:04:19,690
+let's look at what the error-chain crate provides. Starting the example back before we added the quick-error
+
+61
+00:04:19,690 --> 00:04:20,050
+crate, let's add error-chain version 0.12.0 to Cargo.toml.
+
+62
+00:04:21,020 --> 00:04:31,250
+error-chain also provides its functionality from a macro.
+
+63
+00:04:32,740 --> 00:04:38,050
+So, again, in main.rs, we bring the crate into our project with the macro_use annotation.
+
+64
+00:04:39,520 --> 00:04:43,650
+The error-chain crate recommends using the macro within an errors module.
+
+65
+00:04:45,140 --> 00:04:47,600
+We'll also add a use statement with a glob,
+
+66
+00:04:47,810 --> 00:04:53,850
+bringing everything in the errors module into the root module's scope. For the rate limited error,
+
+67
+00:04:53,920 --> 00:04:56,490
+we define it within a block called errors
+
+68
+00:04:56,530 --> 00:04:57,650
+within the macro call.
+
+69
+00:04:59,090 --> 00:05:02,650
+error_chain also provides a concise way to implement Display.
+
+70
+00:05:04,040 --> 00:05:05,010
+Coincidentally,
+
+71
+00:05:05,170 --> 00:05:06,780
+it's the same as with quick-error: specify the text in a function-like construct called display.
+
+72
+00:05:07,080 --> 00:05:13,720
+error-chain can implement the From trait
+
+73
+00:05:13,730 --> 00:05:14,150
+too.
+
+74
+00:05:15,540 --> 00:05:17,630
+Replace the block called foreign_links,
+
+75
+00:05:17,810 --> 00:05:19,650
+then define the errors with what they wrap.
+
+76
+00:05:20,540 --> 00:05:22,340
+Because of the way the macro works,
+
+77
+00:05:22,630 --> 00:05:26,340
+we have to specify the full path, starting from the root module to the
+
+78
+00:05:26,340 --> 00:05:33,820
+io::Error. error-chain will automatically use the Display implementation for the inner error.
+
+79
+00:05:33,820 --> 00:05:38,460
+The error_chain! macro provides an implementation of the Error trait on the type it defines.
+
+80
+00:05:38,670 --> 00:05:41,550
+So, at this point, we can remove all this code.
+
+81
+00:05:42,990 --> 00:05:47,650
+The error_chain! macro defines a particular type structure that it thinks works best.
+
+82
+00:05:49,240 --> 00:05:53,100
+There's a struct named Error that holds a variant of an enum named ErrorKind,
+
+83
+00:05:53,540 --> 00:06:01,050
+which is what the types we specify in the macro become. To use these types then, we need to update create_document.
+
+84
+00:06:02,040 --> 00:06:07,900
+error-chain provides another macro named bail! that takes an ErrorKind and returns early with that kind in an error.
+
+85
+00:06:07,900 --> 00:06:10,470
+The error_chain!
+
+86
+00:06:10,470 --> 00:06:15,550
+macro also creates a Result type alias that uses the error it defines.
+
+87
+00:06:17,000 --> 00:06:21,150
+That means we can remove the one we defined and the associated use statement.
+
+88
+00:06:22,590 --> 00:06:24,930
+And now we're back to the same behavior as before
+
+89
+00:06:24,940 --> 00:06:32,960
+adding error-chain, with less boilerplate, in a different way from quick-error.
+
+90
+00:06:33,740 --> 00:06:38,040
+Now for error-chain's extra features. error-chain lets you add context errors by chaining errors into a list –
+
+91
+00:06:38,290 --> 00:06:39,410
+hence the crate's name.
+
+92
+00:06:40,840 --> 00:06:41,720
+For example,
+
+93
+00:06:41,940 --> 00:06:42,120
+to
+
+94
+00:06:42,120 --> 00:06:44,050
+add the filename to the io::Error,
+
+95
+00:06:44,440 --> 00:06:49,650
+we can call the chain_err method on the result and provide an error message containing the filename.
+
+96
+00:06:51,090 --> 00:06:53,290
+Now, cargo run shows the error message
+
+97
+00:06:53,290 --> 00:06:55,220
+we just added that contains the filename.
+
+98
+00:06:56,740 --> 00:07:02,150
+We can change the code in main that prints error messages to also print the chain of errors if there is one.
+
+99
+00:07:03,140 --> 00:07:08,610
+We skip the first error in the chain because that's the one we've already printed. Now,
+
+100
+00:07:08,620 --> 00:07:09,320
+cargo run
+
+101
+00:07:09,320 --> 00:07:17,750
+prints the full chain of errors. error-chain can also provide more information through a backtrace, like what you would get with a panic!.
+
+102
+00:07:19,140 --> 00:07:19,810
+In main,
+
+103
+00:07:19,900 --> 00:07:21,550
+we can print the backtrace as well.
+
+104
+00:07:22,470 --> 00:07:26,850
+The backtrace method returns an Option because the error might not have a backtrace.
+
+105
+00:07:28,740 --> 00:07:38,550
+Just using cargo run won't display the backtrace. Backtraces are only captured when the environment variable, RUST_BACKTRACE, is set to anything other than zero.
+
+106
+00:07:39,040 --> 00:07:43,650
+Here, we've set the environment variable and can see where in our code the error came through.
+
+107
+00:07:44,340 --> 00:07:47,350
+This can really help track down why errors are happening.
+
+108
+00:07:48,910 --> 00:07:51,450
+The last crate we'll look at is the failure crate.
+
+109
+00:07:52,840 --> 00:08:09,400
+Let's put failure version 0.1.5 and failure_derive version 0.1.5 in Cargo.toml. failure provides a procedural macro that lets you derive an implementation for the Fail trait.
+
+110
+00:08:09,400 --> 00:08:09,980
+In main.rs,
+
+111
+00:08:10,160 --> 00:08:13,740
+we need to bring the two crates into scope with macro_use on failure_derive.
+
+112
+00:08:13,740 --> 00:08:14,140
+
+
+113
+00:08:15,580 --> 00:08:18,090
+Then, we can derive the Fail trait on the Error
+
+114
+00:08:18,090 --> 00:08:18,450
+enum.
+
+115
+00:08:19,940 --> 00:08:29,250
+The failure crate implements the standard Error trait for everything that implements the Fail trait, so we can remove the implementation of the Error trait and the associated use statement.
+
+116
+00:08:30,680 --> 00:08:31,180
+The failure_derive
+
+117
+00:08:31,180 --> 00:08:31,980
+crate
+
+118
+00:08:31,990 --> 00:08:33,550
+also helps implement Display.
+
+119
+00:08:35,040 --> 00:08:45,250
+We add the fail attribute with the argument named display set to the string to show. We can also refer to data within the variants using an underscore and the field index.
+
+120
+00:08:46,140 --> 00:08:47,040
+And at this point,
+
+121
+00:08:47,150 --> 00:08:50,650
+we no longer need the Display implementation or the associated use statement.
+
+122
+00:08:52,140 --> 00:08:58,400
+failure also includes backtrace support. To add backtraces to all of our error variants,
+
+123
+00:08:58,640 --> 00:09:02,050
+we need to bring failure Backtrace and Fail into our project's scope.
+
+124
+00:09:03,040 --> 00:09:07,540
+Then, we store a backtrace in each variant and create a new Backtrace instance
+
+125
+00:09:07,600 --> 00:09:12,030
+whenever we create a new error instance. In main,
+
+126
+00:09:12,040 --> 00:09:13,380
+we print the backtrace
+
+127
+00:09:13,500 --> 00:09:18,930
+if this error has a backtrace, and if a backtrace was generated. failure's
+
+128
+00:09:18,930 --> 00:09:21,950
+backtrace also won't display if we use cargo run.
+
+129
+00:09:22,840 --> 00:09:24,410
+When we set RUST_BACKTRACE,
+
+130
+00:09:24,450 --> 00:09:27,950
+we get useful information about where in our code the error came from.
+
+131
+00:09:29,440 --> 00:09:32,350
+So, which of these error crates should you use in your project?
+
+132
+00:09:32,740 --> 00:09:37,950
+It depends – mostly on which features you need and how you'd like to work with the crates.
+
+133
+00:09:39,340 --> 00:09:43,450
+Here's a handy table showing the unique aspects of each crate to consider.
+
+134
+00:09:44,010 --> 00:09:46,050
+You should try them out in your own projects.
+
+135
+00:09:47,540 --> 00:09:48,530
+In this module,
+
+136
+00:09:48,700 --> 00:09:53,180
+we covered three error handling crates and looked at how to use them in our document service
+
+137
+00:09:53,180 --> 00:09:53,890
+example
+
+138
+00:09:54,220 --> 00:09:57,350
+to eliminate boilerplate and provide extra features.
+
+139
+00:09:58,340 --> 00:10:05,950
+We saw how the quick-error crate provides a macro that helps to implement the Display and From traits and provides a way to add context.
+
+140
+00:10:06,840 --> 00:10:16,270
+The error-chain crate has the macro that defines error type structures that let you chain errors together and that have backtrace support. The failure and failure_derive
+
+141
+00:10:16,270 --> 00:10:22,750
+crates provide derive macros to make implementing the traits easier and also provide backtrace support.
+
+142
+00:10:23,640 --> 00:10:24,290
+Next,
+
+143
+00:10:24,580 --> 00:10:27,100
+let's look at useful methods on Result and Option.
+

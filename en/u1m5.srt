@@ -1,0 +1,400 @@
+﻿1
+00:00:01,940 --> 00:00:03,940
+Like functions in other languages,
+
+2
+00:00:04,010 --> 00:00:06,349
+functions in Rust are used to group code
+
+3
+00:00:06,350 --> 00:00:08,359
+so that it can be called multiple times
+
+4
+00:00:08,360 --> 00:00:09,980
+with potentially different values.
+
+5
+00:00:10,520 --> 00:00:12,379
+In this module, we'll look at how to
+
+6
+00:00:12,380 --> 00:00:13,209
+write functions
+
+7
+00:00:13,210 --> 00:00:15,199
+in Rust. The functions
+
+8
+00:00:15,200 --> 00:00:17,089
+we write will use variables, which
+
+9
+00:00:17,090 --> 00:00:18,850
+we introduced in module 3,
+
+10
+00:00:19,160 --> 00:00:21,049
+and primitive data types from module
+
+11
+00:00:21,050 --> 00:00:21,610
+4.
+
+12
+00:00:22,620 --> 00:00:24,899
+We are going to cover the syntax for defining
+
+13
+00:00:24,900 --> 00:00:26,360
+and calling functions,
+
+14
+00:00:26,640 --> 00:00:28,469
+and talk about the idiomatic way
+
+15
+00:00:28,470 --> 00:00:30,440
+to return values from functions.
+
+16
+00:00:31,720 --> 00:00:32,529
+Let's get started
+
+17
+00:00:32,530 --> 00:00:34,320
+with how to define a function.
+
+18
+00:00:35,360 --> 00:00:37,389
+Here's what function definitions look
+
+19
+00:00:37,390 --> 00:00:39,399
+like in general: they start
+
+20
+00:00:39,400 --> 00:00:41,100
+with the fn keyword,
+
+21
+00:00:41,230 --> 00:00:43,179
+followed by  whatever name you want to give
+
+22
+00:00:43,180 --> 00:00:44,070
+your function.
+
+23
+00:00:44,380 --> 00:00:46,359
+Within parentheses, list each
+
+24
+00:00:46,360 --> 00:00:48,279
+parameter the function takes by
+
+25
+00:00:48,280 --> 00:00:50,379
+giving the parameter name, then a colon,
+
+26
+00:00:50,380 --> 00:00:52,239
+then specifying the type
+
+27
+00:00:52,240 --> 00:00:53,250
+of that parameter.
+
+28
+00:00:53,920 --> 00:00:55,959
+Separate each name/type pair
+
+29
+00:00:55,960 --> 00:00:57,849
+with a comma. Your function
+
+30
+00:00:57,850 --> 00:00:59,770
+can take as many parameters as you want.
+
+31
+00:01:01,400 --> 00:01:03,450
+If the function returns a value,
+
+32
+00:01:03,650 --> 00:01:05,809
+put a hyphen, then a greater than sign
+
+33
+00:01:05,810 --> 00:01:06,910
+to make an arrow,
+
+34
+00:01:07,280 --> 00:01:09,720
+and then specify the type of the return value.
+
+35
+00:01:10,980 --> 00:01:13,220
+If the function doesn't return a value,
+
+36
+00:01:13,380 --> 00:01:14,269
+leave off the arrow
+
+37
+00:01:14,270 --> 00:01:15,410
+and the return type.
+
+38
+00:01:16,900 --> 00:01:19,290
+Then, open a set of curly brackets,
+
+39
+00:01:19,470 --> 00:01:21,960
+put the code you want to be the body of the function,
+
+40
+00:01:22,390 --> 00:01:23,790
+and close the curly brackets.
+
+41
+00:01:24,610 --> 00:01:26,469
+There are more complicated function signatures
+
+42
+00:01:26,470 --> 00:01:27,330
+possible.
+
+43
+00:01:27,490 --> 00:01:29,329
+
+
+44
+00:01:29,330 --> 00:01:30,420
+
+
+45
+00:01:31,700 --> 00:01:33,250
+Here's a concrete example.
+
+46
+00:01:34,060 --> 00:01:36,390
+This function, named next_birthday,
+
+47
+00:01:36,790 --> 00:01:39,039
+has two parameters: name,
+
+48
+00:01:39,040 --> 00:01:40,440
+which is a string slice,
+
+49
+00:01:40,900 --> 00:01:43,260
+and current_age, which is a u8.
+
+50
+00:01:44,140 --> 00:01:46,000
+This function doesn't return a value.
+
+51
+00:01:47,260 --> 00:01:49,149
+The function body figures out how
+
+52
+00:01:49,150 --> 00:01:51,440
+old the person will be on their next birthday
+
+53
+00:01:51,730 --> 00:01:53,859
+and prints a sentence using the person's name
+
+54
+00:01:53,860 --> 00:01:54,990
+and their next age.
+
+55
+00:01:56,060 --> 00:01:58,400
+Now, let's see what calling a function looks like.
+
+56
+00:01:59,650 --> 00:02:01,460
+Once we have a function defined,
+
+57
+00:02:01,690 --> 00:02:03,999
+we can call a function by using its name
+
+58
+00:02:04,000 --> 00:02:05,520
+followed by parentheses
+
+59
+00:02:05,950 --> 00:02:08,019
+with the values for the parameters, called
+
+60
+00:02:08,020 --> 00:02:09,820
+the arguments to this function call.
+
+61
+00:02:11,090 --> 00:02:12,679
+Here's what calling the next_birthday
+
+62
+00:02:12,680 --> 00:02:13,990
+function looks like –
+
+63
+00:02:14,570 --> 00:02:16,189
+first, with the values Jake
+
+64
+00:02:16,190 --> 00:02:17,230
+and 33,
+
+65
+00:02:20,280 --> 00:02:22,039
+and next with the values Vivian
+
+66
+00:02:22,040 --> 00:02:22,890
+and 0.
+
+67
+00:02:29,680 --> 00:02:30,879
+Running this prints out
+
+68
+00:02:30,880 --> 00:02:32,829
+Hi Jake, on your next birthday, you'll
+
+69
+00:02:32,830 --> 00:02:33,810
+be 34!,
+
+70
+00:02:33,990 --> 00:02:36,099
+and Hi Vivian, on your next birthday
+
+71
+00:02:36,100 --> 00:02:37,170
+you'll be 1!.
+
+72
+00:02:38,750 --> 00:02:40,639
+Finally, let's look at a function that returns
+
+73
+00:02:40,640 --> 00:02:41,650
+a value.
+
+74
+00:02:42,080 --> 00:02:43,999
+We'll write a function that takes the number
+
+75
+00:02:44,000 --> 00:02:45,870
+and returns the square of that number.
+
+76
+00:02:47,110 --> 00:02:49,200
+Note that the last line in the body
+
+77
+00:02:49,300 --> 00:02:51,030
+doesn't have a semicolon at the end.
+
+78
+00:02:51,890 --> 00:02:53,769
+This tells Rust we want the resulting
+
+79
+00:02:53,770 --> 00:02:55,659
+value of that expression returned out of
+
+80
+00:02:55,660 --> 00:02:56,670
+the function body.
+
+81
+00:02:58,180 --> 00:03:00,009
+This main function will print The
+
+82
+00:03:00,010 --> 00:03:01,110
+answer is 9.
+
+83
+00:03:02,780 --> 00:03:05,170
+If we've defined the function signature
+
+84
+00:03:05,330 --> 00:03:07,009
+such that it returns the value,
+
+85
+00:03:07,010 --> 00:03:08,869
+but we accidentally put a semicolon
+
+86
+00:03:08,870 --> 00:03:10,370
+after the last expression,
+
+87
+00:03:10,670 --> 00:03:11,830
+we'll get an error.
+
+88
+00:03:12,550 --> 00:03:14,409
+Rust gives us a helpful hint
+
+89
+00:03:14,410 --> 00:03:16,419
+that we probably meant to not put that semicolon
+
+90
+00:03:16,420 --> 00:03:17,080
+there.
+
+91
+00:03:18,270 --> 00:03:20,099
+There is a return keyword that you
+
+92
+00:03:20,100 --> 00:03:22,510
+can use to return from a function early,
+
+93
+00:03:22,850 --> 00:03:25,160
+and you can use it at the end of a function if you want.
+
+94
+00:03:25,560 --> 00:03:27,539
+However, idiomatic style
+
+95
+00:03:27,540 --> 00:03:30,140
+is to implicitly return the last expression.
+
+96
+00:03:31,760 --> 00:03:33,289
+Now you know how to define
+
+97
+00:03:33,290 --> 00:03:35,530
+and call functions that have parameters
+
+98
+00:03:35,600 --> 00:03:37,300
+and return values in Rust.
+
+99
+00:03:37,580 --> 00:03:38,300
+Next,
+
+100
+00:03:38,450 --> 00:03:40,910
+let's look at control flow  features available in Rust.
+

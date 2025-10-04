@@ -1,0 +1,400 @@
+﻿1
+00:00:00,040 --> 00:00:00,860
+Welcome to module
+
+2
+00:00:00,860 --> 00:00:03,630
+7, Lifetime parameters are descriptive, 
+
+3
+00:00:03,640 --> 00:00:04,740
+not prescriptive.
+
+4
+00:00:06,340 --> 00:00:13,150
+In this module, we'll clear up some common misconceptions about lifetime parameters by explaining what the title of this module means.
+
+5
+00:00:13,640 --> 00:00:20,050
+We'll talk about what lifetime parameters do in terms of describing and what they don't do in terms of prescribing.
+
+6
+00:00:21,140 --> 00:00:25,150
+We'll discuss the special 'static lifetime and what it does and doesn't do.
+
+7
+00:00:26,240 --> 00:00:31,150
+And we'll wrap up with some questions to consider when you're getting compiler errors related to lifetimes.
+
+8
+00:00:32,740 --> 00:00:36,340
+Let's start with what we mean by lifetime parameters being descriptive.
+
+9
+00:00:37,940 --> 00:00:46,450
+Lifetime parameters are descriptive in the sense that we programmers use them to describe to the compiler how the lifetimes of references are related.
+
+10
+00:00:47,970 --> 00:00:49,540
+The generic lifetime parameters
+
+11
+00:00:49,540 --> 00:00:50,470
+we specify
+
+12
+00:00:50,480 --> 00:00:52,470
+get filled in with concrete lifetimes
+
+13
+00:00:52,470 --> 00:00:53,750
+when our code is used.
+
+14
+00:00:54,340 --> 00:00:59,650
+The lifetime parameters don't have any control over or knowledge of what those concrete lifetimes will be.
+
+15
+00:01:00,240 --> 00:01:03,340
+We're only able to say when there are concrete lifetimes,
+
+16
+00:01:03,340 --> 00:01:04,850
+they will have this relationship.
+
+17
+00:01:06,440 --> 00:01:11,040
+So, now, let's talk about what we mean by lifetime parameters not being prescriptive.
+
+18
+00:01:12,640 --> 00:01:18,050
+Lifetime parameters don't prescribe, by which we mean they don't order code to behave a certain way.
+
+19
+00:01:18,600 --> 00:01:23,400
+They don't specify how long a concrete lifetime of a value or a reference must be.
+
+20
+00:01:24,440 --> 00:01:28,450
+They don't change the concrete lifetimes of values or references.
+
+21
+00:01:29,490 --> 00:01:31,640
+Lifetime parameters aren't setting lifetimes,
+
+22
+00:01:31,650 --> 00:01:35,050
+assigning lifetimes, or forcing lifetimes to be a certain length.
+
+23
+00:01:36,110 --> 00:01:41,390
+And adding lifetime parameters won't make a reference live long enough to be valid for that code.
+
+24
+00:01:42,940 --> 00:01:44,040
+Let's take another look
+
+25
+00:01:44,050 --> 00:01:44,790
+at an example
+
+26
+00:01:44,790 --> 00:01:50,180
+from the module on visualizing lifetimes to understand borrow checker errors, where we tried to return
+
+27
+00:01:50,180 --> 00:01:52,550
+a reference from the return_first_two function.
+
+28
+00:01:53,540 --> 00:02:00,160
+The reference being returned points to the list vector created within the function. When we looked at the lifetimes
+
+29
+00:02:00,160 --> 00:02:00,870
+previously,
+
+30
+00:02:01,090 --> 00:02:04,880
+we saw list goes out of scope and gets cleaned up at the end of the
+
+31
+00:02:04,880 --> 00:02:05,930
+return_first_two function.
+
+32
+00:02:07,020 --> 00:02:11,430
+The returned reference is invalid because it outlives the value it's pointing to.
+
+33
+00:02:13,020 --> 00:02:14,220
+When we compile this code,
+
+34
+00:02:14,230 --> 00:02:15,610
+we get an error that says,
+
+35
+00:02:15,620 --> 00:02:24,630
+missinglifetime specifier. Now that we've covered what lifetime specifiers are, let's try adding a lifetime specifier to see what happens.
+
+36
+00:02:26,180 --> 00:02:31,930
+The error message we get with Rust 1.24.1 says that the borrowed value does not live long enough.
+
+37
+00:02:32,520 --> 00:02:40,030
+Adding the lifetime specifier has not changed the list value's lifetime to make it live long enough for us to return a reference to it out of the function.
+
+38
+00:02:41,020 --> 00:02:54,030
+This error message has been improved in newer versions of Rust. With Rust 1.35, the compiler says that we cannot return a value referencing local variable list, and the returned value references data owned by the current function.
+
+39
+00:02:54,620 --> 00:02:58,330
+This error message is more specific about the root cause of the problem.
+
+40
+00:02:59,920 --> 00:03:00,530
+Next,
+
+41
+00:03:00,740 --> 00:03:04,730
+let's go back to the error message we got when we didn't have any lifetime parameters.
+
+42
+00:03:05,720 --> 00:03:06,930
+The error message had some help
+
+43
+00:03:06,930 --> 00:03:07,770
+text that said
+
+44
+00:03:07,950 --> 00:03:10,230
+consider giving it a 'static lifetime.
+
+45
+00:03:11,820 --> 00:03:12,850
+Before we try that,
+
+46
+00:03:12,860 --> 00:03:15,130
+let's talk about what the 'static lifetime even is.
+
+47
+00:03:16,720 --> 00:03:18,760
+The 'static lifetime is a concrete lifetime –
+
+48
+00:03:18,830 --> 00:03:26,830
+the only concrete lifetime you can specify in code. The 'static lifetime is for references that are valid the entire time your program is running.
+
+49
+00:03:27,820 --> 00:03:30,960
+It's named static because it's similar to static variables,
+
+50
+00:03:30,970 --> 00:03:33,130
+which are also valid for the entire program.
+
+51
+00:03:34,120 --> 00:03:38,820
+You can get a reference with the 'static lifetime by taking a reference to static variables,
+
+52
+00:03:39,110 --> 00:03:40,830
+constants, or literals.
+
+53
+00:03:42,370 --> 00:03:46,530
+Let's return to our code and try adding the 'static lifetime to the returned reference.
+
+54
+00:03:47,120 --> 00:03:50,630
+We don't need to declare it because 'static is built into Rust.
+
+55
+00:03:51,660 --> 00:03:53,690
+This gives us the same borrowed value
+
+56
+00:03:53,690 --> 00:03:58,520
+does not live long enough error we got when we used 'a. Again,
+
+57
+00:03:58,570 --> 00:04:02,340
+because lifetimes don't force values or references to live longer,
+
+58
+00:04:02,349 --> 00:04:06,799
+adding 'static doesn't make list live for the entire runtime of the program.
+
+59
+00:04:08,289 --> 00:04:11,709
+Using the 'static lifetime would work if the value we reference is,
+
+60
+00:04:11,709 --> 00:04:12,569
+for example,
+
+61
+00:04:12,579 --> 00:04:14,699
+a static array instead of a vector.
+
+62
+00:04:16,189 --> 00:04:21,269
+This code compiles and runs successfully because the static variable is valid anywhere in the program,
+
+63
+00:04:21,489 --> 00:04:25,199
+so a reference to the static variable is also valid anywhere in the program.
+
+64
+00:04:26,749 --> 00:04:36,999
+Rust suggests that we use the 'static lifetime in the return_first_two function because it's actually the only lifetime that could work for a function returning a reference that has no references in its parameters.
+
+65
+00:04:38,089 --> 00:04:40,859
+There's nothing for the returned reference to be related to,
+
+66
+00:04:40,869 --> 00:04:44,659
+so it must be referencing a value that exists at any time in the program.
+
+67
+00:04:46,189 --> 00:04:46,829
+Finally,
+
+68
+00:04:46,969 --> 00:04:55,329
+let's talk about some questions that will hopefully help you fix errors having to do with lifetime parameters.
+
+69
+00:04:55,339 --> 00:04:57,319
+When you see the error message, borrowed value does not live long enough,
+
+70
+00:04:57,519 --> 00:04:58,189
+it's natural to
+
+71
+00:04:58,189 --> 00:05:05,489
+ask, "How can I make this borrow live long enough?" and try to use lifetime parameters to do that. As we've discussed,
+
+72
+00:05:05,499 --> 00:05:07,419
+that's not what lifetime parameters do.
+
+73
+00:05:07,429 --> 00:05:12,959
+No amount of adding or rearranging lifetime parameters will extend any concrete lifetimes of values.
+
+74
+00:05:13,989 --> 00:05:17,599
+Here are some more useful questions to ask yourself in this situation.
+
+75
+00:05:18,689 --> 00:05:21,599
+Look at the definition containing lifetime parameters.
+
+76
+00:05:22,189 --> 00:05:25,589
+What are the actual reference relationships in the implementation
+
+77
+00:05:25,589 --> 00:05:26,319
+you're writing?
+
+78
+00:05:26,499 --> 00:05:30,899
+And do the generic parameters accurately communicate that relationship to the compiler?
+
+79
+00:05:31,989 --> 00:05:32,639
+Next,
+
+80
+00:05:32,789 --> 00:05:34,899
+look at where you use that definition.
+
+81
+00:05:35,389 --> 00:05:39,439
+What are the concrete lifetimes? Where might there be an invalid
+
+82
+00:05:39,439 --> 00:05:41,799
+reference because of a value getting cleaned up?
+
+83
+00:05:42,329 --> 00:05:43,299
+In other words,
+
+84
+00:05:43,309 --> 00:05:46,499
+where is the use-after-free problem the compiler is preventing?
+
+85
+00:05:47,589 --> 00:05:50,459
+Then, think about how to rearrange the definition,
+
+86
+00:05:50,469 --> 00:05:54,199
+the lifetime parameters, or the usage, so that they're all consistent with each other.
+
+87
+00:05:55,249 --> 00:05:56,369
+And if you're still stuck,
+
+88
+00:05:56,379 --> 00:05:58,699
+consider if references are right for your case.
+
+89
+00:05:59,259 --> 00:06:02,559
+Some lifetime problems happen because there's data without an owner,
+
+90
+00:06:02,798 --> 00:06:04,818
+so using references will never work.
+
+91
+00:06:05,388 --> 00:06:06,268
+Other times,
+
+92
+00:06:06,298 --> 00:06:08,248
+cloning data can get the code working,
+
+93
+00:06:08,428 --> 00:06:16,358
+and then you can profile to see if there are performance problems that justify figuring out how to use references.
+
+94
+00:06:16,368 --> 00:06:20,318
+In this module, we discussed that lifetime parameters describe relationships between references.
+
+95
+00:06:21,408 --> 00:06:25,608
+Lifetime parameters don't prescribe how long values or references live.
+
+96
+00:06:26,708 --> 00:06:30,958
+The 'static lifetime is for references that will be valid at any point in the program.
+
+97
+00:06:30,968 --> 00:06:38,768
+But specifying 'static won't make a value live that long if it doesn't already.
+
+98
+00:06:38,778 --> 00:06:43,218
+Given these properties of lifetime parameters, we talked about questions that will hopefully help next time you're getting errors about lifetimes.
+
+99
+00:06:44,808 --> 00:06:45,458
+Next,
+
+100
+00:06:45,488 --> 00:06:47,118
+we'll cover lifetime elision.
+

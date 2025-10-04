@@ -1,0 +1,468 @@
+﻿1
+00:00:02,610 --> 00:00:05,210
+Welcome to Unit 2, Ownership and Borrowing.
+
+2
+00:00:05,460 --> 00:00:07,509
+In this unit, you'll learn about the concepts
+
+3
+00:00:07,510 --> 00:00:09,629
+of ownership and borrowing that you'll encounter
+
+4
+00:00:09,630 --> 00:00:11,900
+in most non-trivial Rust programs.
+
+5
+00:00:12,680 --> 00:00:14,599
+These ideas provide much of Rust's memory-
+
+6
+00:00:14,600 --> 00:00:16,030
+safety guarantees,
+
+7
+00:00:16,040 --> 00:00:17,899
+and understanding them will help you understand
+
+8
+00:00:17,900 --> 00:00:20,020
+many compiler errors you'll encounter.
+
+9
+00:00:21,420 --> 00:00:23,599
+A large amount of programming can be boiled down
+
+10
+00:00:23,600 --> 00:00:25,519
+to getting some data, doing something
+
+11
+00:00:25,520 --> 00:00:26,410
+with that data,
+
+12
+00:00:26,450 --> 00:00:28,000
+and returning some other data.
+
+13
+00:00:28,340 --> 00:00:29,680
+Consider a web browser:
+
+14
+00:00:29,930 --> 00:00:32,110
+it takes a URL that someone wants to visit,
+
+15
+00:00:32,150 --> 00:00:34,690
+it figures out where that URL is referencing,
+
+16
+00:00:34,820 --> 00:00:36,729
+and it fetches the HTML data that goes
+
+17
+00:00:36,730 --> 00:00:37,549
+with that URL
+
+18
+00:00:37,550 --> 00:00:38,500
+and displays it.
+
+19
+00:00:40,270 --> 00:00:42,099
+Every programming language provides a way
+
+20
+00:00:42,100 --> 00:00:44,109
+to manage this data, which includes
+
+21
+00:00:44,110 --> 00:00:46,029
+answering questions like: where
+
+22
+00:00:46,030 --> 00:00:47,460
+does this data get stored?
+
+23
+00:00:47,740 --> 00:00:49,959
+How do different parts of the program access
+
+24
+00:00:49,960 --> 00:00:50,790
+this data?
+
+25
+00:00:51,220 --> 00:00:53,199
+What happens to the data when the program
+
+26
+00:00:53,200 --> 00:00:54,090
+is done with it?
+
+27
+00:00:55,640 --> 00:00:57,549
+You can think of the different locations of data
+
+28
+00:00:57,550 --> 00:00:59,890
+management as your kitchen when you're cooking.
+
+29
+00:01:00,320 --> 00:01:01,399
+Working from the largest
+
+30
+00:01:01,400 --> 00:01:02,839
+and slowest to the smallest
+
+31
+00:01:02,840 --> 00:01:03,610
+and fastest,
+
+32
+00:01:03,980 --> 00:01:05,268
+we have the cloud,
+
+33
+00:01:05,269 --> 00:01:07,300
+or data available over a network.
+
+34
+00:01:07,850 --> 00:01:09,769
+This is effectively an infinite amount
+
+35
+00:01:09,770 --> 00:01:10,619
+of space,
+
+36
+00:01:10,620 --> 00:01:12,589
+but it's relatively slow to get data stored
+
+37
+00:01:12,590 --> 00:01:13,150
+there.
+
+38
+00:01:13,580 --> 00:01:15,160
+This is like the grocery store.
+
+39
+00:01:15,360 --> 00:01:17,770
+There's way more space there than in your kitchen,
+
+40
+00:01:18,020 --> 00:01:19,069
+but you have to plan
+
+41
+00:01:19,070 --> 00:01:21,100
+and travel to get ingredients from there.
+
+42
+00:01:22,950 --> 00:01:24,980
+Next, there's local disk space.
+
+43
+00:01:25,200 --> 00:01:27,119
+This is often in the hundreds of gigabytes
+
+44
+00:01:27,120 --> 00:01:28,259
+range these days.
+
+45
+00:01:28,260 --> 00:01:29,459
+It's not infinite,
+
+46
+00:01:29,460 --> 00:01:31,499
+but still a lot of room. Data
+
+47
+00:01:31,500 --> 00:01:33,359
+on disk is quicker to access than the
+
+48
+00:01:33,360 --> 00:01:35,510
+cloud, but it still takes some time.
+
+49
+00:01:36,180 --> 00:01:38,189
+Disk space is like your kitchen cabinets,
+
+50
+00:01:38,190 --> 00:01:39,029
+refrigerator,
+
+51
+00:01:39,030 --> 00:01:39,890
+and freezer.
+
+52
+00:01:40,140 --> 00:01:42,359
+You can store a decent amount of ingredients there,
+
+53
+00:01:42,360 --> 00:01:44,249
+but sometimes it takes time to find what you
+
+54
+00:01:44,250 --> 00:01:44,780
+need.
+
+55
+00:01:46,450 --> 00:01:48,429
+Next is RAM – your computer's working
+
+56
+00:01:48,430 --> 00:01:49,140
+memory.
+
+57
+00:01:49,330 --> 00:01:51,369
+This is frequently in the tens of gigabytes,
+
+58
+00:01:51,370 --> 00:01:53,140
+so it's smaller than disk space.
+
+59
+00:01:53,490 --> 00:01:56,010
+Accessing data in RAM is relatively fast.
+
+60
+00:01:56,140 --> 00:01:57,999
+When a program is running and actively
+
+61
+00:01:58,000 --> 00:02:00,129
+working on some data, that data is stored
+
+62
+00:02:00,130 --> 00:02:00,870
+in RAM.
+
+63
+00:02:01,870 --> 00:02:03,789
+This is like your kitchen counter, where you're actively
+
+64
+00:02:03,790 --> 00:02:05,160
+working on preparing food.
+
+65
+00:02:05,790 --> 00:02:08,070
+Managing this space is much more important.
+
+66
+00:02:08,320 --> 00:02:10,710
+You need a strategy for cleaning up as you go.
+
+67
+00:02:10,930 --> 00:02:12,819
+Otherwise, you'll run out of space and not be able
+
+68
+00:02:12,820 --> 00:02:14,670
+to do work as efficiently
+
+69
+00:02:14,680 --> 00:02:16,570
+or maybe not do any more work at all.
+
+70
+00:02:17,960 --> 00:02:19,809
+Rust deals with memory management using the
+
+71
+00:02:19,810 --> 00:02:21,099
+concepts of ownership
+
+72
+00:02:21,100 --> 00:02:22,030
+and borrowing.
+
+73
+00:02:22,180 --> 00:02:24,150
+And that's what we'll be covering in this unit.
+
+74
+00:02:25,550 --> 00:02:27,779
+In module 2, we'll define ownership
+
+75
+00:02:27,780 --> 00:02:29,659
+and explore the concept in the context
+
+76
+00:02:29,660 --> 00:02:31,489
+of the String type. We'll have an
+
+77
+00:02:31,490 --> 00:02:33,960
+exercise for you to try at the end of the module.
+
+78
+00:02:35,340 --> 00:02:37,379
+In module 3, we'll talk about possible
+
+79
+00:02:37,380 --> 00:02:39,539
+solutions to the exercise, problems
+
+80
+00:02:39,540 --> 00:02:40,600
+you might have run into,
+
+81
+00:02:40,720 --> 00:02:42,779
+and why solving this exercise is different
+
+82
+00:02:42,780 --> 00:02:44,150
+from other languages.
+
+83
+00:02:45,560 --> 00:02:46,670
+In module 4,
+
+84
+00:02:46,750 --> 00:02:48,799
+we'll get into borrowing. Borrowing
+
+85
+00:02:48,800 --> 00:02:49,119
+lets
+
+86
+00:02:49,120 --> 00:02:51,219
+other parts of the program access data without
+
+87
+00:02:51,220 --> 00:02:53,229
+transferring ownership. We'll show
+
+88
+00:02:53,230 --> 00:02:55,089
+solutions to the exercise that use
+
+89
+00:02:55,090 --> 00:02:56,410
+borrowing instead.
+
+90
+00:02:57,860 --> 00:02:59,090
+In module 5,
+
+91
+00:02:59,120 --> 00:03:01,249
+we'll generalize these ideas to data types
+
+92
+00:03:01,250 --> 00:03:03,079
+other than String. We'll talk about
+
+93
+00:03:03,080 --> 00:03:04,069
+slices of arrays
+
+94
+00:03:04,070 --> 00:03:06,139
+or vectors and borrowing of custom
+
+95
+00:03:06,140 --> 00:03:06,940
+types.
+
+96
+00:03:08,330 --> 00:03:10,439
+In module 6, we'll talk about the rules
+
+97
+00:03:10,440 --> 00:03:12,269
+around borrowing and mutability
+
+98
+00:03:12,270 --> 00:03:14,319
+that govern how to modify borrowed data
+
+99
+00:03:14,320 --> 00:03:15,110
+safely.
+
+100
+00:03:16,510 --> 00:03:17,550
+In module 7,
+
+101
+00:03:17,620 --> 00:03:19,689
+we'll demonstrate some code patterns that arise
+
+102
+00:03:19,690 --> 00:03:21,219
+due to how borrowing interacts
+
+103
+00:03:21,220 --> 00:03:22,460
+with the rest of our code.
+
+104
+00:03:23,810 --> 00:03:24,790
+And in module 8,
+
+105
+00:03:25,010 --> 00:03:26,959
+we'll explore how ownership actually applies
+
+106
+00:03:26,960 --> 00:03:29,059
+to more than just memory. This concept
+
+107
+00:03:29,060 --> 00:03:30,889
+helps manage resources like files
+
+108
+00:03:30,890 --> 00:03:31,990
+and sockets too.
+
+109
+00:03:33,340 --> 00:03:34,329
+By the end of this unit,
+
+110
+00:03:34,330 --> 00:03:35,109
+you'll feel comfortable
+
+111
+00:03:35,110 --> 00:03:36,369
+with the concepts of ownership
+
+112
+00:03:36,370 --> 00:03:37,199
+and borrowing
+
+113
+00:03:37,200 --> 00:03:39,489
+and be equipped to address common error messages
+
+114
+00:03:39,490 --> 00:03:41,439
+the borrow checker part of the compiler might
+
+115
+00:03:41,440 --> 00:03:42,120
+give you.
+
+116
+00:03:43,440 --> 00:03:45,650
+Now that we know what's being covered in this unit,
+
+117
+00:03:45,840 --> 00:03:47,550
+let's get started learning about ownership.
+

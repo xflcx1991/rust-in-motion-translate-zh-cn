@@ -1,0 +1,1196 @@
+﻿1
+00:00:00,270 --> 00:00:01,740
+Welcome to module 5
+
+2
+00:00:01,990 --> 00:00:04,169
+on the advantages of Rust's error handling
+
+3
+00:00:04,369 --> 00:00:04,770
+strategy.
+
+4
+00:00:06,300 --> 00:00:08,369
+Now that we've covered how to handle errors
+
+5
+00:00:08,569 --> 00:00:10,349
+in Rust, in this module,
+
+6
+00:00:10,549 --> 00:00:12,299
+we'll editorialize a bit about
+
+7
+00:00:12,499 --> 00:00:14,369
+the benefits that we've seen from separating
+
+8
+00:00:14,569 --> 00:00:16,220
+bugs from recoverable errors.
+
+9
+00:00:17,870 --> 00:00:18,620
+With bugs,
+
+10
+00:00:18,830 --> 00:00:20,670
+the advantages include failing loudly, fast, and
+
+11
+00:00:20,870 --> 00:00:22,370
+close to the cause,
+
+12
+00:00:22,920 --> 00:00:24,799
+and documenting and enforcing assumptions
+
+13
+00:00:24,999 --> 00:00:25,790
+that the code has made
+
+14
+00:00:25,990 --> 00:00:27,910
+and needs to be true in order to work.
+
+15
+00:00:29,520 --> 00:00:31,100
+For recoverable errors,
+
+16
+00:00:31,620 --> 00:00:34,169
+the advantages include knowing about the possibility
+
+17
+00:00:34,369 --> 00:00:35,940
+of errors from the type system,
+
+18
+00:00:36,470 --> 00:00:38,579
+and the compiler making sure you don't forget
+
+19
+00:00:38,779 --> 00:00:39,690
+to handle errors.
+
+20
+00:00:41,340 --> 00:00:43,649
+Then, because all engineering choices
+
+21
+00:00:43,849 --> 00:00:44,460
+come with trade-offs,
+
+22
+00:00:45,270 --> 00:00:46,220
+we'll end the module
+
+23
+00:00:46,420 --> 00:00:48,030
+by talking about the disadvantages
+
+24
+00:00:48,230 --> 00:00:49,620
+of Rust's error handling strategy,
+
+25
+00:00:49,980 --> 00:00:51,660
+and how it affects your development flow,
+
+26
+00:00:51,860 --> 00:00:53,699
+and how it can be tricky when there are multiple
+
+27
+00:00:53,899 --> 00:00:54,950
+error types that can happen.
+
+28
+00:00:56,490 --> 00:00:58,619
+Let's start by recapping the difference
+
+29
+00:00:58,819 --> 00:00:59,520
+between bugs
+
+30
+00:00:59,720 --> 00:01:00,860
+and recoverable errors.
+
+31
+00:01:02,360 --> 00:01:03,640
+In previous modules,
+
+32
+00:01:03,840 --> 00:01:05,540
+we talked about panic! and Result,
+
+33
+00:01:06,050 --> 00:01:07,879
+and we talked about situations in which to
+
+34
+00:01:08,079 --> 00:01:08,600
+use each.
+
+35
+00:01:09,110 --> 00:01:11,750
+To review, panics are for situations
+
+36
+00:01:11,950 --> 00:01:13,700
+that indicate we're in a bad state
+
+37
+00:01:14,000 --> 00:01:15,650
+from which there's no way to recover,
+
+38
+00:01:16,100 --> 00:01:17,929
+or a bug that would need to be fixed by
+
+39
+00:01:18,129 --> 00:01:18,570
+a programmer.
+
+40
+00:01:19,600 --> 00:01:21,410
+Results are for situations
+
+41
+00:01:21,610 --> 00:01:23,230
+we expect to happen sometimes,
+
+42
+00:01:23,480 --> 00:01:25,449
+that the program might be able to take some
+
+43
+00:01:25,649 --> 00:01:26,710
+action to recover from,
+
+44
+00:01:27,190 --> 00:01:29,109
+possibly with the help from the end user
+
+45
+00:01:29,309 --> 00:01:31,209
+of the program, as opposed to needing
+
+46
+00:01:31,409 --> 00:01:32,710
+to change the code of the program.
+
+47
+00:01:34,330 --> 00:01:36,070
+Many other programming languages
+
+48
+00:01:36,270 --> 00:01:38,109
+use the same mechanism for handling
+
+49
+00:01:38,309 --> 00:01:40,060
+both bugs and recoverable errors,
+
+50
+00:01:40,540 --> 00:01:42,460
+but they're actually separate situations
+
+51
+00:01:42,660 --> 00:01:44,380
+that deserve separate handling.
+
+52
+00:01:44,900 --> 00:01:46,840
+Rust builds appropriate handling
+
+53
+00:01:47,040 --> 00:01:48,190
+into panic! and Result
+
+54
+00:01:48,630 --> 00:01:51,190
+if you use the one that best fits the situation.
+
+55
+00:01:52,680 --> 00:01:54,509
+So, let's talk about the advantages you
+
+56
+00:01:54,709 --> 00:01:56,400
+get from Rust's handling of bugs,
+
+57
+00:01:56,910 --> 00:01:58,859
+starting with how panics cause your program
+
+58
+00:01:59,059 --> 00:02:00,570
+to fail loudly, fast,
+
+59
+00:02:00,770 --> 00:02:01,890
+and close to the cause.
+
+60
+00:02:03,380 --> 00:02:05,430
+We're going to compare a Rust program
+
+61
+00:02:05,630 --> 00:02:07,649
+and a C program that both have the same
+
+62
+00:02:07,849 --> 00:02:09,630
+bug: reading past the end
+
+63
+00:02:09,830 --> 00:02:10,619
+of a data structure.
+
+64
+00:02:11,160 --> 00:02:12,989
+This type of problem is known as a
+
+65
+00:02:13,189 --> 00:02:14,130
+buffer overread.
+
+66
+00:02:15,690 --> 00:02:17,790
+These two programs both initialize
+
+67
+00:02:17,990 --> 00:02:19,950
+a collection of integers named accts,
+
+68
+00:02:20,150 --> 00:02:21,210
+containing two values,
+
+69
+00:02:21,780 --> 00:02:23,670
+and then print the value at position
+
+70
+00:02:23,870 --> 00:02:25,619
+11 in the collection, which is out
+
+71
+00:02:25,819 --> 00:02:26,220
+of bounds.
+
+72
+00:02:26,760 --> 00:02:28,740
+Now we're going to illustrate what we mean
+
+73
+00:02:28,940 --> 00:02:30,450
+by failing loudly, fast,
+
+74
+00:02:30,650 --> 00:02:31,650
+and close to the cause.
+
+75
+00:02:33,110 --> 00:02:34,300
+By fail loudly,
+
+76
+00:02:34,690 --> 00:02:36,410
+we mean that when your program encounters a
+
+77
+00:02:36,610 --> 00:02:38,529
+problem, it lets you know
+
+78
+00:02:38,729 --> 00:02:39,940
+in a really obvious way,
+
+79
+00:02:40,390 --> 00:02:42,040
+as opposed to failing silently
+
+80
+00:02:42,240 --> 00:02:44,050
+and continuing on without any way
+
+81
+00:02:44,250 --> 00:02:45,580
+for you to tell that something is wrong.
+
+82
+00:02:47,120 --> 00:02:49,129
+The Rust program compiles without any
+
+83
+00:02:49,329 --> 00:02:49,780
+errors,
+
+84
+00:02:50,030 --> 00:02:52,029
+but when we run it, the program panics
+
+85
+00:02:52,229 --> 00:02:54,260
+with the message index out of bounds–
+
+86
+00:02:54,740 --> 00:02:56,560
+that's a loud, obvious failure.
+
+87
+00:02:58,060 --> 00:03:00,070
+The C program also compiles,
+
+88
+00:03:00,430 --> 00:03:02,540
+but when we run it, there's no error,
+
+89
+00:03:02,800 --> 00:03:05,409
+it just prints an unexpected
+
+90
+00:03:05,609 --> 00:03:06,730
+and incorrect result.
+
+91
+00:03:07,210 --> 00:03:08,150
+I get 0 –
+
+92
+00:03:08,470 --> 00:03:09,700
+you might get something different.
+
+93
+00:03:10,480 --> 00:03:12,060
+The program has silently continued
+
+94
+00:03:12,260 --> 00:03:12,950
+with bad data.
+
+95
+00:03:14,410 --> 00:03:16,360
+The advantage is that loud failures
+
+96
+00:03:16,560 --> 00:03:18,440
+are more likely to be noticed during the development
+
+97
+00:03:18,640 --> 00:03:20,490
+or testing of a feature, rather
+
+98
+00:03:20,690 --> 00:03:22,449
+than getting out to production where such
+
+99
+00:03:22,649 --> 00:03:24,070
+failures affect end users.
+
+100
+00:03:25,540 --> 00:03:27,369
+This example also illustrates
+
+101
+00:03:27,569 --> 00:03:29,110
+what we mean by fail fast.
+
+102
+00:03:29,560 --> 00:03:31,449
+As soon as the Rust program was asked
+
+103
+00:03:31,649 --> 00:03:33,610
+to perform an invalid operation,
+
+104
+00:03:33,820 --> 00:03:34,420
+it stopped.
+
+105
+00:03:35,360 --> 00:03:37,400
+The C program continued on without
+
+106
+00:03:37,600 --> 00:03:38,200
+ever stopping.
+
+107
+00:03:38,840 --> 00:03:41,270
+We could have performed all sorts of operations
+
+108
+00:03:41,470 --> 00:03:42,440
+on the invalid data.
+
+109
+00:03:43,930 --> 00:03:44,670
+Exploits
+
+110
+00:03:44,870 --> 00:03:46,790
+take advantage of a program continuing
+
+111
+00:03:46,990 --> 00:03:48,729
+with bad data to get programs
+
+112
+00:03:48,929 --> 00:03:50,830
+to do something they're not supposed to do.
+
+113
+00:03:51,030 --> 00:03:52,780
+The pervasive usage of panics
+
+114
+00:03:52,980 --> 00:03:54,160
+in Rust's standard library
+
+115
+00:03:54,360 --> 00:03:56,290
+and the ecosystem don't give hackers
+
+116
+00:03:56,490 --> 00:03:57,280
+that opportunity.
+
+117
+00:03:58,840 --> 00:04:00,849
+Related to failing fast is failing
+
+118
+00:04:01,049 --> 00:04:02,799
+close to the source.
+
+119
+00:04:02,999 --> 00:04:04,390
+When debugging, it takes longer
+
+120
+00:04:04,590 --> 00:04:06,250
+if you have to trace through lots of code
+
+121
+00:04:06,550 --> 00:04:08,410
+to figure out where an unexpected value
+
+122
+00:04:08,610 --> 00:04:08,980
+came from.
+
+123
+00:04:10,500 --> 00:04:12,369
+While you don't typically want your Rust
+
+124
+00:04:12,569 --> 00:04:14,219
+programs to panic, at least
+
+125
+00:04:14,419 --> 00:04:14,870
+when they do,
+
+126
+00:04:15,130 --> 00:04:17,110
+it'll be easier to figure out why
+
+127
+00:04:17,310 --> 00:04:19,028
+because the panic! happened right where
+
+128
+00:04:19,228 --> 00:04:19,910
+the problem occurred.
+
+129
+00:04:21,430 --> 00:04:23,289
+Next, let's look at how using
+
+130
+00:04:23,489 --> 00:04:25,359
+panic! to enforce expectations
+
+131
+00:04:25,559 --> 00:04:26,440
+can catch bugs.
+
+132
+00:04:27,960 --> 00:04:30,090
+There is a method on Result and Option
+
+133
+00:04:30,290 --> 00:04:32,279
+called expect that has similar
+
+134
+00:04:32,479 --> 00:04:34,220
+behavior to this match expression
+
+135
+00:04:34,420 --> 00:04:36,209
+we used in the module on Result and
+
+136
+00:04:36,409 --> 00:04:36,750
+Option.
+
+137
+00:04:37,230 --> 00:04:38,880
+If the value is the Ok
+
+138
+00:04:39,080 --> 00:04:41,120
+or Some variant, it returns
+
+139
+00:04:41,320 --> 00:04:42,010
+the inner value.
+
+140
+00:04:43,010 --> 00:04:44,600
+If the value is the Err
+
+141
+00:04:44,800 --> 00:04:46,630
+or None variant, it panics
+
+142
+00:04:46,830 --> 00:04:48,619
+with the message given as an argument to
+
+143
+00:04:48,819 --> 00:04:49,190
+expect.
+
+144
+00:04:50,650 --> 00:04:52,700
+This is useful when you have a Result or
+
+145
+00:04:52,900 --> 00:04:54,539
+Option, and you're mostly
+
+146
+00:04:54,739 --> 00:04:56,370
+sure the operation will succeed
+
+147
+00:04:56,570 --> 00:04:57,640
+or produce a value.
+
+148
+00:04:57,960 --> 00:05:00,009
+The expect documents that assumption
+
+149
+00:05:00,209 --> 00:05:00,650
+of yours,
+
+150
+00:05:01,040 --> 00:05:02,960
+and if you're ever wrong, you'll get a loud
+
+151
+00:05:03,160 --> 00:05:03,450
+failure.
+
+152
+00:05:04,960 --> 00:05:06,850
+Now, let's look at the advantages you get
+
+153
+00:05:07,050 --> 00:05:09,110
+from using Result for recoverable errors,
+
+154
+00:05:09,640 --> 00:05:11,529
+starting with how it makes the possibility
+
+155
+00:05:11,729 --> 00:05:12,460
+of errors clear.
+
+156
+00:05:13,960 --> 00:05:15,879
+When a function such as serde_json::from_str ﻿
+
+157
+00:05:16,079 --> 00:05:17,770
+returns a Result,
+
+158
+00:05:18,250 --> 00:05:20,199
+we know right away, from looking at the signature
+
+159
+00:05:20,399 --> 00:05:22,029
+in the docs, that the operation
+
+160
+00:05:22,229 --> 00:05:22,869
+this function performs
+
+161
+00:05:23,069 --> 00:05:24,030
+might fail.
+
+162
+00:05:25,510 --> 00:05:27,310
+If we write a function that calls
+
+163
+00:05:27,510 --> 00:05:28,740
+serde_json::from_str,
+
+164
+00:05:29,110 --> 00:05:31,599
+our function needs to either handle the possibility
+
+165
+00:05:31,799 --> 00:05:32,230
+of failure
+
+166
+00:05:32,530 --> 00:05:33,840
+or also return Result,
+
+167
+00:05:34,300 --> 00:05:36,189
+thus communicating to code that calls our
+
+168
+00:05:36,389 --> 00:05:38,320
+function that there is a possibility of failure
+
+169
+00:05:38,680 --> 00:05:40,810
+even without looking at the implementation.
+
+170
+00:05:42,320 --> 00:05:43,250
+In contrast,
+
+171
+00:05:43,520 --> 00:05:45,290
+here's the Ruby documentation for JSON.parse,
+
+172
+00:05:45,670 --> 00:05:47,539
+which serves the same
+
+173
+00:05:47,739 --> 00:05:49,500
+purpose as serde_json::from_str.
+
+174
+00:05:50,410 --> 00:05:52,279
+There's no indication of failure in the
+
+175
+00:05:52,479 --> 00:05:53,690
+parse function's signature.
+
+176
+00:05:55,190 --> 00:05:57,069
+If we write a function that calls
+
+177
+00:05:57,269 --> 00:05:59,239
+JSON.parse, our function signature
+
+178
+00:05:59,439 --> 00:06:01,190
+doesn't convey that information either.
+
+179
+00:06:01,670 --> 00:06:03,890
+It's hard to tell what kinds of exceptions
+
+180
+00:06:04,090 --> 00:06:05,779
+a function in Ruby might raise that we
+
+181
+00:06:05,979 --> 00:06:06,790
+might want to handle.
+
+182
+00:06:08,250 --> 00:06:10,199
+Beyond being able to easily see
+
+183
+00:06:10,399 --> 00:06:11,850
+there's a possibility of failure,
+
+184
+00:06:12,270 --> 00:06:14,129
+the Rust compiler also makes sure
+
+185
+00:06:14,329 --> 00:06:16,140
+that we handle that possibility somehow.
+
+186
+00:06:17,620 --> 00:06:19,740
+As we saw in the module on Result
+
+187
+00:06:19,940 --> 00:06:21,639
+and Option, we can't use
+
+188
+00:06:21,839 --> 00:06:23,619
+the inner value from a Result without
+
+189
+00:06:23,819 --> 00:06:25,449
+doing something explicit to handle the
+
+190
+00:06:25,649 --> 00:06:26,200
+possibility of errors.
+
+191
+00:06:27,820 --> 00:06:29,799
+Even if we call expect to turn
+
+192
+00:06:29,999 --> 00:06:31,150
+an Err into a panic!,
+
+193
+00:06:31,570 --> 00:06:33,460
+when we decide to implement better error
+
+194
+00:06:33,660 --> 00:06:35,650
+handling, we can search for expect
+
+195
+00:06:35,850 --> 00:06:37,870
+and find all the places we need to update.
+
+196
+00:06:39,390 --> 00:06:41,820
+In contrast are the error handling conventions
+
+197
+00:06:42,020 --> 00:06:42,300
+in Go.
+
+198
+00:06:42,810 --> 00:06:44,610
+Functions that might fail return
+
+199
+00:06:44,810 --> 00:06:45,900
+both a success value
+
+200
+00:06:46,100 --> 00:06:47,999
+and an error value, rather
+
+201
+00:06:48,199 --> 00:06:49,830
+than one or the other as Rust does.
+
+202
+00:06:50,790 --> 00:06:52,679
+The convention is to check whether the
+
+203
+00:06:52,879 --> 00:06:54,809
+error value is nil right after a
+
+204
+00:06:55,009 --> 00:06:56,639
+function call, so close to
+
+205
+00:06:56,839 --> 00:06:58,499
+the source of the problem, which is
+
+206
+00:06:58,699 --> 00:06:58,740
+good.
+
+207
+00:07:00,220 --> 00:07:02,080
+The trouble is that the Go compiler
+
+208
+00:07:02,280 --> 00:07:03,330
+doesn't help you remember to
+
+209
+00:07:03,530 --> 00:07:04,270
+do this check
+
+210
+00:07:04,470 --> 00:07:05,780
+or help you check correctly.
+
+211
+00:07:06,750 --> 00:07:08,699
+It's possible to ignore failure by
+
+212
+00:07:08,899 --> 00:07:10,980
+assigning the error value to _
+
+213
+00:07:11,180 --> 00:07:12,830
+and only using the success value.
+
+214
+00:07:13,810 --> 00:07:15,850
+It's hard to search for underscores later
+
+215
+00:07:16,050 --> 00:07:17,580
+to add better error handling.
+
+216
+00:07:19,090 --> 00:07:20,949
+It's also possible to forget to
+
+217
+00:07:21,149 --> 00:07:22,750
+assign the error to a variable
+
+218
+00:07:23,140 --> 00:07:25,330
+and then check an uninitialized variable
+
+219
+00:07:25,530 --> 00:07:27,429
+instead, which makes it look
+
+220
+00:07:27,629 --> 00:07:29,349
+like you're checking for errors even though
+
+221
+00:07:29,549 --> 00:07:31,299
+you're not. This problem has
+
+222
+00:07:31,499 --> 00:07:32,340
+occurred in real code.
+
+223
+00:07:32,950 --> 00:07:34,809
+In Rust, the compiler helps you
+
+224
+00:07:35,009 --> 00:07:36,400
+avoid these kinds of problems.
+
+225
+00:07:37,910 --> 00:07:39,739
+Now that we've covered the advantages
+
+226
+00:07:39,939 --> 00:07:41,510
+of Rust's error handling strategy,
+
+227
+00:07:41,960 --> 00:07:43,879
+we'd be remiss if we didn't also
+
+228
+00:07:44,079 --> 00:07:46,069
+acknowledge the disadvantages, starting
+
+229
+00:07:46,269 --> 00:07:47,180
+with your development flow.
+
+230
+00:07:48,690 --> 00:07:50,519
+When you're not quite sure what you're building
+
+231
+00:07:50,719 --> 00:07:50,840
+yet
+
+232
+00:07:51,360 --> 00:07:53,369
+or what all the operations a function
+
+233
+00:07:53,569 --> 00:07:53,940
+needs to do are,
+
+234
+00:07:54,570 --> 00:07:56,400
+it can be annoying to be forced to think about
+
+235
+00:07:56,600 --> 00:07:58,770
+which operations might fail in which ways
+
+236
+00:07:58,980 --> 00:08:00,150
+and what should be done about that.
+
+237
+00:08:01,660 --> 00:08:03,549
+As a former Rubyist, it's a lot
+
+238
+00:08:03,749 --> 00:08:05,379
+smoother to just start writing code
+
+239
+00:08:05,579 --> 00:08:07,299
+in Ruby and get some functionality up
+
+240
+00:08:07,499 --> 00:08:07,810
+and running.
+
+241
+00:08:08,590 --> 00:08:10,539
+It's nice to go through the entire happy path
+
+242
+00:08:10,739 --> 00:08:12,549
+of an application feature without being
+
+243
+00:08:12,749 --> 00:08:14,440
+slowed down by thinking about errors.
+
+244
+00:08:15,970 --> 00:08:17,859
+I will say, though, that, in Ruby, I've
+
+245
+00:08:18,059 --> 00:08:19,660
+gotten more errors in production,
+
+246
+00:08:19,980 --> 00:08:21,850
+forgotten about more edge cases,
+
+247
+00:08:22,090 --> 00:08:23,979
+and in some cases never figured out why
+
+248
+00:08:24,179 --> 00:08:25,760
+my code wasn't behaving correctly
+
+249
+00:08:26,020 --> 00:08:27,850
+because it's hard to see when you're not
+
+250
+00:08:28,050 --> 00:08:29,050
+handling failures that happen.
+
+251
+00:08:30,540 --> 00:08:31,649
+When I'm starting a program
+
+252
+00:08:31,849 --> 00:08:34,050
+in Rust, I make liberal use of expect
+
+253
+00:08:34,250 --> 00:08:36,329
+to defer thinking about errors immediately,
+
+254
+00:08:36,780 --> 00:08:38,639
+but I found that knowing where errors might
+
+255
+00:08:38,839 --> 00:08:40,649
+happen, and being encouraged to handle errors
+
+256
+00:08:40,849 --> 00:08:42,479
+correctly, has made my code work
+
+257
+00:08:42,679 --> 00:08:43,450
+better in production.
+
+258
+00:08:45,010 --> 00:08:46,839
+Finally, let's talk about functions
+
+259
+00:08:47,039 --> 00:08:48,730
+that perform operations that result
+
+260
+00:08:48,930 --> 00:08:50,170
+in multiple error types.
+
+261
+00:08:51,650 --> 00:08:53,479
+For example, here's a function that
+
+262
+00:08:53,679 --> 00:08:55,040
+reads an environment variable,
+
+263
+00:08:55,310 --> 00:08:57,349
+then parses the environment variable string
+
+264
+00:08:57,549 --> 00:08:58,700
+value into a number
+
+265
+00:08:58,900 --> 00:08:59,820
+and adds 1 to it.
+
+266
+00:09:01,310 --> 00:09:03,350
+The function,env::var, returns
+
+267
+00:09:03,550 --> 00:09:05,360
+a Result with an error type of
+
+268
+00:09:05,560 --> 00:09:07,630
+env::VarError. The environment variable
+
+269
+00:09:07,830 --> 00:09:08,660
+might not be present
+
+270
+00:09:08,870 --> 00:09:10,550
+or it might not be valid Unicode.
+
+271
+00:09:11,660 --> 00:09:13,499
+Parsing might not work if the environment
+
+272
+00:09:13,699 --> 00:09:15,360
+variable's value isn't a number.
+
+273
+00:09:15,810 --> 00:09:17,730
+In that case, the parse function returns
+
+274
+00:09:17,930 --> 00:09:19,230
+a num::ParseIntError.
+
+275
+00:09:20,780 --> 00:09:22,739
+What do we put as our function's error
+
+276
+00:09:22,939 --> 00:09:23,190
+type?
+
+277
+00:09:23,780 --> 00:09:25,910
+And what do we do if we add more functionality
+
+278
+00:09:26,110 --> 00:09:27,320
+with different error types?
+
+279
+00:09:28,280 --> 00:09:29,480
+This is a bit tricky.
+
+280
+00:09:29,870 --> 00:09:31,849
+The next module is going to explore different
+
+281
+00:09:32,049 --> 00:09:33,370
+ways to handle this situation.
+
+282
+00:09:34,880 --> 00:09:35,810
+In this module,
+
+283
+00:09:36,170 --> 00:09:38,150
+we discussed how Rust treats bugs
+
+284
+00:09:38,350 --> 00:09:39,890
+and recoverable errors differently.
+
+285
+00:09:40,400 --> 00:09:42,040
+The way Rust handles bugs
+
+286
+00:09:42,260 --> 00:09:44,409
+helps you find bugs sooner in the development
+
+287
+00:09:44,609 --> 00:09:44,930
+cycle
+
+288
+00:09:45,290 --> 00:09:47,209
+and leaves fewer opportunities for
+
+289
+00:09:47,409 --> 00:09:48,350
+exploiting your program.
+
+290
+00:09:48,860 --> 00:09:51,020
+The way Rust handles recoverable errors
+
+291
+00:09:51,290 --> 00:09:53,780
+helps you to remember to handle all situations
+
+292
+00:09:53,980 --> 00:09:55,790
+and makes for a more reliable program.
+
+293
+00:09:56,330 --> 00:09:58,249
+This comes at a cost of added
+
+294
+00:09:58,449 --> 00:09:59,770
+friction when starting development
+
+295
+00:10:00,080 --> 00:10:02,089
+because Rust forces you to think about more
+
+296
+00:10:02,289 --> 00:10:02,900
+than the happy path.
+
+297
+00:10:03,410 --> 00:10:05,210
+Also, functions that can fail
+
+298
+00:10:05,410 --> 00:10:07,100
+in multiple ways are tricky to write,
+
+299
+00:10:07,580 --> 00:10:09,100
+which is what the next module is about.
+

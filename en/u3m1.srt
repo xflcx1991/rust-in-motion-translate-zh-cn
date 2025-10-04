@@ -1,0 +1,296 @@
+﻿1
+00:00:00,270 --> 00:00:01,700
+Welcome to unit 3
+
+2
+00:00:01,980 --> 00:00:03,170
+on error handling.
+
+3
+00:00:04,820 --> 00:00:06,650
+Errors will happen no matter
+
+4
+00:00:06,850 --> 00:00:07,760
+how hard we try.
+
+5
+00:00:09,520 --> 00:00:11,660
+Errors include programming bugs
+
+6
+00:00:11,860 --> 00:00:13,500
+such as trying to access an
+
+7
+00:00:13,700 --> 00:00:15,310
+element beyond the end of a vector;
+
+8
+00:00:16,180 --> 00:00:16,900
+interactions
+
+9
+00:00:17,100 --> 00:00:18,939
+with systems outside of our control
+
+10
+00:00:19,139 --> 00:00:20,200
+that don't go as planned,
+
+11
+00:00:20,800 --> 00:00:22,810
+such as a network request timing out;
+
+12
+00:00:23,780 --> 00:00:25,639
+or unexpected inputs, such
+
+13
+00:00:25,839 --> 00:00:27,460
+as a user of our program entering
+
+14
+00:00:27,660 --> 00:00:28,860
+data that wasn't planned for.
+
+15
+00:00:30,790 --> 00:00:32,739
+Forgetting to handle these cases can
+
+16
+00:00:32,939 --> 00:00:35,080
+lead to frustrating user experiences,
+
+17
+00:00:35,650 --> 00:00:37,210
+unintended consequences,
+
+18
+00:00:37,410 --> 00:00:39,020
+and security vulnerabilities.
+
+19
+00:00:40,810 --> 00:00:42,939
+Rust is designed to help you remember
+
+20
+00:00:43,139 --> 00:00:44,770
+that errors are a possibility
+
+21
+00:00:44,970 --> 00:00:46,420
+and to handle them appropriately.
+
+22
+00:00:48,320 --> 00:00:50,639
+The type system indicates when an operation
+
+23
+00:00:50,839 --> 00:00:51,390
+might fail,
+
+24
+00:00:51,720 --> 00:00:53,969
+and the compiler won't let you ignore a possible
+
+25
+00:00:54,169 --> 00:00:54,550
+failure.
+
+26
+00:00:56,590 --> 00:00:58,629
+Handling errors appropriately might
+
+27
+00:00:58,829 --> 00:01:01,150
+include stopping the program immediately,
+
+28
+00:01:01,660 --> 00:01:03,670
+trying a different operation to recover,
+
+29
+00:01:04,209 --> 00:01:05,560
+using default values,
+
+30
+00:01:06,190 --> 00:01:08,080
+returning an error for some other programmer
+
+31
+00:01:08,280 --> 00:01:08,650
+to handle,
+
+32
+00:01:09,250 --> 00:01:11,320
+or giving a nice error message to the user
+
+33
+00:01:11,520 --> 00:01:12,890
+and allowing them to try again.
+
+34
+00:01:15,080 --> 00:01:17,000
+Rust's error handling philosophy
+
+35
+00:01:17,200 --> 00:01:19,220
+might feel different than in other languages,
+
+36
+00:01:19,730 --> 00:01:21,740
+especially when you first start a prototype
+
+37
+00:01:21,940 --> 00:01:23,000
+and you're mostly concerned
+
+38
+00:01:23,200 --> 00:01:24,560
+with getting the happy path to work.
+
+39
+00:01:25,520 --> 00:01:26,550
+In the long term,
+
+40
+00:01:26,750 --> 00:01:28,770
+and for larger programs, Rust's
+
+41
+00:01:28,970 --> 00:01:30,659
+strategy for handling errors goes
+
+42
+00:01:30,859 --> 00:01:32,869
+a long way towards making more reliable
+
+43
+00:01:33,069 --> 00:01:33,550
+programs.
+
+44
+00:01:35,430 --> 00:01:37,680
+In this unit, we'll get you comfortable
+
+45
+00:01:37,880 --> 00:01:39,419
+with the idiomatic ways to deal
+
+46
+00:01:39,619 --> 00:01:40,710
+with errors in Rust.
+
+47
+00:01:42,640 --> 00:01:43,370
+Module 2
+
+48
+00:01:43,670 --> 00:01:45,110
+is about the panic! macro,
+
+49
+00:01:45,710 --> 00:01:47,720
+which stops programs from continuing
+
+50
+00:01:47,920 --> 00:01:49,720
+when they're in invalid states that
+
+51
+00:01:49,920 --> 00:01:51,809
+indicate a programming mistake has been made.
+
+52
+00:01:52,009 --> 00:01:52,209
+
+
+53
+00:01:54,020 --> 00:01:54,950
+In module 3,
+
+54
+00:01:55,220 --> 00:01:57,170
+we'll talk about the Standard Library types
+
+55
+00:01:57,370 --> 00:01:58,700
+Result and Option
+
+56
+00:01:59,120 --> 00:02:01,129
+and what they indicate when a function returns
+
+57
+00:02:01,329 --> 00:02:01,480
+them.
+
+58
+00:02:03,650 --> 00:02:05,599
+Module 4 covers how to write
+
+59
+00:02:05,799 --> 00:02:07,460
+a function that returns a Result,
+
+60
+00:02:07,940 --> 00:02:10,310
+and propagate any errors that happen in the function
+
+61
+00:02:10,520 --> 00:02:11,309
+to the caller
+
+62
+00:02:11,509 --> 00:02:13,010
+using the ? operator.
+
+63
+00:02:14,920 --> 00:02:16,749
+After covering how to handle errors
+
+64
+00:02:16,949 --> 00:02:18,520
+in Rust, module 5
+
+65
+00:02:18,720 --> 00:02:20,559
+discusses why Rust's strategy is
+
+66
+00:02:20,759 --> 00:02:21,060
+helpful.
+
+67
+00:02:22,940 --> 00:02:24,919
+In module 6, we'll show how
+
+68
+00:02:25,119 --> 00:02:27,260
+you can make your own custom error types.
+
+69
+00:02:28,750 --> 00:02:30,580
+Module 7 will go over how some
+
+70
+00:02:30,780 --> 00:02:31,839
+crates can make working
+
+71
+00:02:32,039 --> 00:02:33,010
+with errors easier.
+
+72
+00:02:34,500 --> 00:02:36,650
+And, finally, module 8 demonstrates
+
+73
+00:02:36,850 --> 00:02:38,790
+a bunch of useful methods on the Result
+
+74
+00:02:38,990 --> 00:02:40,890
+and Option types. Let's dive in!
+

@@ -1,0 +1,600 @@
+﻿1
+00:00:04,810 --> 00:00:06,999
+Hopefully, you've had a chance to try the exercise
+
+2
+00:00:07,000 --> 00:00:09,390
+we introduced at the end of the previous module.
+
+3
+00:00:09,580 --> 00:00:11,469
+We're going to be talking all about that exercise
+
+4
+00:00:11,470 --> 00:00:12,460
+in this video.
+
+5
+00:00:13,890 --> 00:00:15,719
+First, we're going to take a look at the starting
+
+6
+00:00:15,720 --> 00:00:18,160
+code of the exercise in a bit more detail.
+
+7
+00:00:18,540 --> 00:00:20,699
+Then, we'll see one possible way
+
+8
+00:00:20,700 --> 00:00:22,340
+to complete the exercise.
+
+9
+00:00:23,010 --> 00:00:25,259
+After that, we'll take a look at some solutions
+
+10
+00:00:25,260 --> 00:00:27,019
+you might have tried that don't work
+
+11
+00:00:27,020 --> 00:00:29,240
+and result in compiler errors instead.
+
+12
+00:00:29,700 --> 00:00:30,779
+Getting compiler errors
+
+13
+00:00:30,780 --> 00:00:33,200
+and fixing them is where the learning happens.
+
+14
+00:00:33,720 --> 00:00:35,939
+If you got errors while you're working on the exercise,
+
+15
+00:00:35,940 --> 00:00:37,799
+that's awesome! We'll be addressing some
+
+16
+00:00:37,800 --> 00:00:40,190
+of the common ones that might be what you've seen.
+
+17
+00:00:40,830 --> 00:00:42,839
+We'll round out this module by talking about why
+
+18
+00:00:42,840 --> 00:00:44,669
+this task feels harder than it would
+
+19
+00:00:44,670 --> 00:00:45,920
+in other languages.
+
+20
+00:00:47,270 --> 00:00:49,159
+Let's take a close look at the starting code of
+
+21
+00:00:49,160 --> 00:00:50,290
+the exercise.
+
+22
+00:00:51,610 --> 00:00:53,439
+There are a few things to notice in this code that are
+
+23
+00:00:53,440 --> 00:00:54,720
+affected by ownership.
+
+24
+00:00:55,480 --> 00:00:57,960
+s is a String, which owns its data.
+
+25
+00:00:58,420 --> 00:01:00,289
+We want to use s when we call the
+
+26
+00:01:00,290 --> 00:01:01,660
+pluralize function.
+
+27
+00:01:02,330 --> 00:01:04,409
+We also want to use s in the println!
+
+28
+00:01:04,410 --> 00:01:06,730
+call after the call to pluralize.
+
+29
+00:01:08,180 --> 00:01:10,849
+There are many possible solutions to this exercise.
+
+30
+00:01:10,850 --> 00:01:12,280
+Let's take a look at one of them.
+
+31
+00:01:13,680 --> 00:01:16,080
+We'll start by filling in the pluralize function.
+
+32
+00:01:16,660 --> 00:01:18,609
+We want the function to take one parameter
+
+33
+00:01:18,610 --> 00:01:19,680
+of type String,
+
+34
+00:01:19,810 --> 00:01:20,939
+and we'll call that parameter
+
+35
+00:01:20,940 --> 00:01:22,939
+singular. The return
+
+36
+00:01:22,940 --> 00:01:25,270
+type of the function will also be a String.
+
+37
+00:01:26,720 --> 00:01:28,809
+The body of pluralize will take singular
+
+38
+00:01:28,810 --> 00:01:30,860
+and add the string, s, to the end.
+
+39
+00:01:31,720 --> 00:01:33,579
+Because we don't have a semicolon at the end of the
+
+40
+00:01:33,580 --> 00:01:34,200
+line,
+
+41
+00:01:34,420 --> 00:01:36,459
+the concatenated string will be the return value
+
+42
+00:01:36,460 --> 00:01:37,320
+of the function.
+
+43
+00:01:38,820 --> 00:01:40,699
+Now we can call the pluralize function from
+
+44
+00:01:40,700 --> 00:01:42,989
+main. The arguments of pluralize
+
+45
+00:01:42,990 --> 00:01:44,870
+will be a clone of s
+
+46
+00:01:44,970 --> 00:01:47,409
+and we'll store the result in a new variable,
+
+47
+00:01:47,410 --> 00:01:49,439
+pl. Now we can
+
+48
+00:01:49,440 --> 00:01:50,799
+use both s
+
+49
+00:01:50,800 --> 00:01:53,090
+and pl in the println! call.
+
+50
+00:01:54,540 --> 00:01:55,619
+This solution works;
+
+51
+00:01:55,620 --> 00:01:56,540
+here's some proof.
+
+52
+00:01:58,580 --> 00:02:00,899
+OK. Now, let's take a look at some solutions
+
+53
+00:02:00,900 --> 00:02:02,210
+that don't quite work,
+
+54
+00:02:02,270 --> 00:02:04,970
+and we'll learn more about ownership in the process.
+
+55
+00:02:06,390 --> 00:02:07,709
+If we didn't clone s
+
+56
+00:02:07,710 --> 00:02:09,899
+and pass the cloned string to pluralize,
+
+57
+00:02:09,900 --> 00:02:10,959
+we'd get an error.
+
+58
+00:02:14,640 --> 00:02:16,789
+The error says use of moved value:
+
+59
+00:02:16,790 --> 00:02:18,889
+`s` and shows that s was moved
+
+60
+00:02:18,890 --> 00:02:20,260
+into pluralize.
+
+61
+00:02:21,100 --> 00:02:23,019
+That means pluralize now owns s,
+
+62
+00:02:23,020 --> 00:02:25,510
+and s will be cleaned up at the end of pluralize.
+
+63
+00:02:25,630 --> 00:02:27,609
+So, we can't use s again in the println!
+
+64
+00:02:27,610 --> 00:02:28,800
+in main.
+
+65
+00:02:29,610 --> 00:02:31,909
+That's why the working solution clones s.
+
+66
+00:02:31,910 --> 00:02:33,929
+The clone is what is moved into pluralize,
+
+67
+00:02:33,930 --> 00:02:36,470
+and main continues to own s.
+
+68
+00:02:37,940 --> 00:02:39,799
+If we clone s in the println!
+
+69
+00:02:39,800 --> 00:02:42,049
+instead of as the argument to pluralize,
+
+70
+00:02:42,050 --> 00:02:43,810
+we'll get essentially the same error.
+
+71
+00:02:45,650 --> 00:02:47,479
+Again, we can't use s at all in the
+
+72
+00:02:47,480 --> 00:02:50,170
+println! because it's been moved into pluralize.
+
+73
+00:02:50,990 --> 00:02:53,299
+While calling clone is part of the correct solution,
+
+74
+00:02:53,300 --> 00:02:55,210
+it does matter where we call it.
+
+75
+00:02:56,560 --> 00:02:58,899
+You might not have used an intermediate variable.
+
+76
+00:02:58,900 --> 00:03:00,759
+You might have called pluralize from the println!
+
+77
+00:03:00,760 --> 00:03:02,589
+directly.
+
+78
+00:03:02,590 --> 00:03:03,819
+As long as you called clone,
+
+79
+00:03:03,820 --> 00:03:05,210
+this would also work.
+
+80
+00:03:08,510 --> 00:03:10,389
+However, if the clone isn't in
+
+81
+00:03:10,390 --> 00:03:12,459
+the pluralize call, we'll get slightly different
+
+82
+00:03:12,460 --> 00:03:13,200
+errors.
+
+83
+00:03:15,040 --> 00:03:16,899
+This time, the error says, cannot
+
+84
+00:03:16,900 --> 00:03:19,020
+move out of `s`because it is borrowed.
+
+85
+00:03:19,860 --> 00:03:21,689
+This happens because println! borrows its
+
+86
+00:03:21,690 --> 00:03:22,480
+arguments.
+
+87
+00:03:23,130 --> 00:03:24,800
+So, it borrows s first,
+
+88
+00:03:25,010 --> 00:03:26,879
+and then we try to move s into the
+
+89
+00:03:26,880 --> 00:03:27,950
+pluralize call.
+
+90
+00:03:29,360 --> 00:03:31,249
+We haven't talked about borrowing yet, but
+
+91
+00:03:31,250 --> 00:03:32,760
+we will in the next module.
+
+92
+00:03:33,050 --> 00:03:34,879
+The important thing to know for now is that you
+
+93
+00:03:34,880 --> 00:03:37,020
+can't move a value while it's borrowed.
+
+94
+00:03:38,410 --> 00:03:40,629
+This exercise involves some string manipulation
+
+95
+00:03:40,630 --> 00:03:43,110
+and a function. In many languages,
+
+96
+00:03:43,150 --> 00:03:44,979
+this would be a very straightforward exercise
+
+97
+00:03:44,980 --> 00:03:45,730
+to complete.
+
+98
+00:03:46,090 --> 00:03:47,910
+So, why is it so hard in Rust?
+
+99
+00:03:49,240 --> 00:03:51,319
+This code seems difficult to write in Rust because
+
+100
+00:03:51,320 --> 00:03:52,569
+ownership is a different paradigm
+
+101
+00:03:52,570 --> 00:03:55,040
+than we are used to from other languages.
+
+102
+00:03:56,250 --> 00:03:58,099
+Rust has performance as a primary
+
+103
+00:03:58,100 --> 00:04:00,169
+goal, which rules out having a garbage
+
+104
+00:04:00,170 --> 00:04:02,620
+collector as found in many high-level languages,
+
+105
+00:04:02,660 --> 00:04:04,540
+as we discussed in the previous module.
+
+106
+00:04:05,060 --> 00:04:06,949
+However, manual memory management,
+
+107
+00:04:06,950 --> 00:04:09,100
+as found in C, is too error-prone.
+
+108
+00:04:09,470 --> 00:04:10,930
+What else is left?
+
+109
+00:04:12,420 --> 00:04:14,429
+Rust takes a third approach, different from most
+
+110
+00:04:14,430 --> 00:04:15,239
+other languages,
+
+111
+00:04:15,240 --> 00:04:17,450
+and helps you manage memory using ownership,
+
+112
+00:04:17,610 --> 00:04:19,439
+which prevents bugs by cleaning up when
+
+113
+00:04:19,440 --> 00:04:20,620
+the owner goes out of scope.
+
+114
+00:04:21,040 --> 00:04:23,090
+Rust makes you conscious of performance
+
+115
+00:04:23,100 --> 00:04:25,109
+by making slow operations, like cloning,
+
+116
+00:04:25,110 --> 00:04:25,850
+explicit.
+
+117
+00:04:27,360 --> 00:04:29,189
+Working within the system of ownership
+
+118
+00:04:29,190 --> 00:04:31,130
+can feel different than what you're used to.
+
+119
+00:04:31,530 --> 00:04:33,389
+The benefit of working within the ownership
+
+120
+00:04:33,390 --> 00:04:35,309
+system is that you get control over
+
+121
+00:04:35,310 --> 00:04:37,199
+performance while still maintaining
+
+122
+00:04:37,200 --> 00:04:39,410
+memory safety and avoiding errors.
+
+123
+00:04:40,780 --> 00:04:43,029
+The good news is that, as you get more experience
+
+124
+00:04:43,030 --> 00:04:45,219
+working with ownership, it will get easier
+
+125
+00:04:45,220 --> 00:04:47,319
+and easier to think in the way that Rust works
+
+126
+00:04:47,320 --> 00:04:48,920
+and code "with the grain."
+
+127
+00:04:50,360 --> 00:04:52,219
+So, will all of our code have calls to
+
+128
+00:04:52,220 --> 00:04:53,800
+.clone() scattered everywhere?
+
+129
+00:04:54,080 --> 00:04:56,149
+Probably not. The working solution
+
+130
+00:04:56,150 --> 00:04:58,249
+we showed for this example actually isn't
+
+131
+00:04:58,250 --> 00:05:00,169
+idiomatic Rust. What
+
+132
+00:05:00,170 --> 00:05:02,089
+is idiomatic uses a feature of Rust
+
+133
+00:05:02,090 --> 00:05:04,009
+called borrowing. The next
+
+134
+00:05:04,010 --> 00:05:05,899
+module will introduce and explain
+
+135
+00:05:05,900 --> 00:05:08,269
+how we can use borrowing to make this solution
+
+136
+00:05:08,270 --> 00:05:10,720
+less annoying, less verbose,
+
+137
+00:05:10,890 --> 00:05:12,040
+and more efficient.
+
+138
+00:05:13,420 --> 00:05:15,329
+To sum up this module, we looked
+
+139
+00:05:15,330 --> 00:05:17,199
+at one way of solving an exercise
+
+140
+00:05:17,200 --> 00:05:18,129
+involving strings
+
+141
+00:05:18,130 --> 00:05:20,049
+and functions using cloning to move
+
+142
+00:05:20,050 --> 00:05:21,909
+data into a function without giving
+
+143
+00:05:21,910 --> 00:05:22,740
+up ownership.
+
+144
+00:05:23,380 --> 00:05:25,530
+We looked at some solutions that didn't work
+
+145
+00:05:25,660 --> 00:05:26,889
+because the data wasn't cloned
+
+146
+00:05:26,890 --> 00:05:28,370
+or moved in the right way.
+
+147
+00:05:29,400 --> 00:05:31,259
+We talked about why this feels difficult in
+
+148
+00:05:31,260 --> 00:05:33,509
+Rust because of Rust's memory management
+
+149
+00:05:33,510 --> 00:05:34,910
+and ownership features.
+
+150
+00:05:35,580 --> 00:05:38,220
+Now, we're ready to talk all about borrowing.
+

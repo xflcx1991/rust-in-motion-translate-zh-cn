@@ -1,0 +1,400 @@
+﻿1
+00:00:00,040 --> 00:00:00,920
+Welcome to module
+
+2
+00:00:00,930 --> 00:00:01,330
+8 on
+
+3
+00:00:01,460 --> 00:00:05,310
+lifetime elision. In this module,
+
+4
+00:00:05,320 --> 00:00:07,710
+we'll define what lifetime elision means.
+
+5
+00:00:08,740 --> 00:00:13,750
+We'll go through the three rules the compiler uses to figure out what any elided lifetimes are.
+
+6
+00:00:14,840 --> 00:00:19,190
+And we'll review some examples from previous modules that involve lifetime elision,
+
+7
+00:00:19,250 --> 00:00:20,850
+which we glossed over at the time.
+
+8
+00:00:22,340 --> 00:00:25,650
+Let's get started by talking about what lifetime elision is.
+
+9
+00:00:27,240 --> 00:00:31,750
+Elision is a relatively uncommon English word that means omitting or leaving out.
+
+10
+00:00:32,340 --> 00:00:35,200
+Lifetime elision is a concept unique to Rust.
+
+11
+00:00:35,740 --> 00:00:42,800
+It's a set of rules programmed into the compiler that were added so that you don't have to add generic lifetime parameters on every reference.
+
+12
+00:00:43,840 --> 00:00:48,250
+The people who worked on Rust noticed that there were many common patterns for using lifetimes.
+
+13
+00:00:48,770 --> 00:00:53,420
+They coded rules into the compiler to apply default generic lifetime parameters to use
+
+14
+00:00:53,420 --> 00:00:54,450
+in these cases.
+
+15
+00:00:55,540 --> 00:00:59,500
+These rules only take into account the signatures of functions and methods.
+
+16
+00:01:00,110 --> 00:01:03,050
+The bodies don't have any influence over lifetime elision.
+
+17
+00:01:04,640 --> 00:01:05,100
+If,
+
+18
+00:01:05,150 --> 00:01:06,480
+after applying the rules,
+
+19
+00:01:06,490 --> 00:01:10,550
+Rust still can't figure out the lifetime parameters for all of the references in the signature,
+
+20
+00:01:10,780 --> 00:01:17,470
+you'll get a compiler error that says you need to add lifetime parameters.
+
+21
+00:01:17,510 --> 00:01:20,850
+If you want to do something other than the defaults, you can add lifetime parameters to specify a different relationship.
+
+22
+00:01:21,940 --> 00:01:23,820
+If you want to annotate lifetimes,
+
+23
+00:01:23,830 --> 00:01:26,680
+even in cases where lifetime elision would let you leave them out,
+
+24
+00:01:26,800 --> 00:01:29,950
+feel free, even though this isn't idiomatic Rust.
+
+25
+00:01:31,540 --> 00:01:32,190
+Next,
+
+26
+00:01:32,240 --> 00:01:34,850
+let's look at what the three lifetime elision rules are.
+
+27
+00:01:36,440 --> 00:01:41,550
+The first rule says that each parameter that's a reference is considered to have its own lifetime parameter.
+
+28
+00:01:42,640 --> 00:01:43,380
+For example,
+
+29
+00:01:43,390 --> 00:01:45,720
+if we enter this function that has three parameters,
+
+30
+00:01:45,730 --> 00:01:57,920
+the compiler interprets the first two parameters that are references as having their own lifetime annotations, shown here as 'a and 'b.
+
+31
+00:01:57,990 --> 00:02:00,050
+The second rule says that if there's only one lifetime in the parameters, a returned reference gets that lifetime.
+
+32
+00:02:01,140 --> 00:02:01,950
+For example,
+
+33
+00:02:01,960 --> 00:02:04,820
+if we enter this function that has one reference parameter,
+
+34
+00:02:05,030 --> 00:02:08,050
+the first rule says that the reference gets its own lifetime,
+
+35
+00:02:08,330 --> 00:02:11,450
+and the second rule says the returned reference gets that lifetime as well.
+
+36
+00:02:13,040 --> 00:02:18,580
+This is because any other association would be invalid unless the return type's lifetime is 'static,
+
+37
+00:02:18,660 --> 00:02:20,530
+as we discussed in the previous module,
+
+38
+00:02:20,760 --> 00:02:22,350
+which we would need to add manually.
+
+39
+00:02:23,440 --> 00:02:29,640
+The third rule only applies to methods. It gives return types the same lifetime as the self parameter,
+
+40
+00:02:29,880 --> 00:02:32,550
+even if there are other parameters with different lifetimes.
+
+41
+00:02:33,580 --> 00:02:34,480
+For example,
+
+42
+00:02:34,550 --> 00:02:37,650
+in this get_value method implemented on a Config struct,
+
+43
+00:02:38,040 --> 00:02:43,150
+the compiler would use the first rule to assign different lifetimes to the self and key parameters.
+
+44
+00:02:44,140 --> 00:02:49,330
+Then, the third rule tells the compiler to assume the returned string slice has the same lifetime as self,
+
+45
+00:02:49,340 --> 00:02:51,050
+which would be 'a here.
+
+46
+00:02:52,070 --> 00:02:54,570
+This is because it's very common for methods to return
+
+47
+00:02:54,570 --> 00:02:56,150
+a reference to a part of self.
+
+48
+00:02:57,680 --> 00:02:59,610
+Now that we've covered all three rules,
+
+49
+00:02:59,700 --> 00:03:04,450
+let's re-examine the three examples that demonstrated the rules to see if those examples would compile.
+
+50
+00:03:06,040 --> 00:03:07,660
+In the first example we looked at,
+
+51
+00:03:07,670 --> 00:03:10,310
+neither the second nor the third rules apply.
+
+52
+00:03:10,890 --> 00:03:13,360
+The returned reference still doesn't have a lifetime,
+
+53
+00:03:13,380 --> 00:03:16,750
+so we'd get a compiler error saying we need to add lifetime parameters.
+
+54
+00:03:17,840 --> 00:03:19,060
+In the second example,
+
+55
+00:03:19,150 --> 00:03:20,820
+after applying the second rule,
+
+56
+00:03:20,960 --> 00:03:23,290
+all references in the signature have a lifetime.
+
+57
+00:03:23,570 --> 00:03:28,050
+So this example would compile successfully, as long as the body aligns with the assumed relationship.
+
+58
+00:03:29,140 --> 00:03:29,980
+Similarly,
+
+59
+00:03:30,110 --> 00:03:34,950
+the third example also has lifetimes for all the references and compilation can continue.
+
+60
+00:03:36,540 --> 00:03:37,100
+Finally,
+
+61
+00:03:37,110 --> 00:03:45,340
+let's look at some examples from previous modules to see how lifetime elision affects them.
+
+62
+00:03:45,350 --> 00:03:54,440
+Way back in the module on concrete lifetimes, we introduced this example with the return_first_two function that has a reference as a parameter and returns a reference. In the module introducing generic lifetimes,
+
+63
+00:03:54,450 --> 00:03:57,190
+we said that the return_first_two has a generic lifetime,
+
+64
+00:03:57,200 --> 00:03:59,650
+which we represented with an orange dotted line.
+
+65
+00:04:00,640 --> 00:04:09,800
+We didn't look at this example in the module where we learned the syntax for adding generic lifetime parameters because it doesn't need any. Because of the second lifetime elision rule,
+
+66
+00:04:09,820 --> 00:04:12,850
+the returned reference gets the same lifetime as the one parameter and this code compiles.
+
+67
+00:04:12,880 --> 00:04:18,240
+In the module on generic lifetime parameters,
+
+68
+00:04:18,350 --> 00:04:19,960
+we looked at an example with the Stemmer
+
+69
+00:04:19,960 --> 00:04:22,050
+struct that has this stem method.
+
+70
+00:04:23,040 --> 00:04:25,380
+When we compiled this without any lifetimes,
+
+71
+00:04:25,390 --> 00:04:26,260
+we got an error
+
+72
+00:04:26,260 --> 00:04:26,920
+that said,
+
+73
+00:04:27,230 --> 00:04:30,450
+this parameter and the return type are declared with different lifetimes....
+
+74
+00:04:31,480 --> 00:04:33,790
+You may have been wondering why the compiler said that,
+
+75
+00:04:33,870 --> 00:04:37,550
+seeing as how the method doesn't appear to contain any declared lifetimes.
+
+76
+00:04:38,080 --> 00:04:41,550
+Lifetime elision is why the compiler thinks that there are lifetimes here.
+
+77
+00:04:42,640 --> 00:04:46,140
+The first rule gives self and word separate lifetimes.
+
+78
+00:04:46,310 --> 00:04:52,150
+And the third rule assumes that the lifetime of the return type was the same as the lifetime of self–'a here.
+
+79
+00:04:52,840 --> 00:04:58,450
+When the compiler proceeded to verifying that the references were valid according to the specified lifetime relationships,
+
+80
+00:04:58,760 --> 00:05:02,660
+it sees that the implementation doesn't align with the lifetimes it assumes from elision,
+
+81
+00:05:02,730 --> 00:05:03,720
+and we get an error.
+
+82
+00:05:04,740 --> 00:05:11,930
+We fixed this error by associating the returned reference's lifetime with the word parameter instead. And, again, because of lifetime elision,
+
+83
+00:05:11,940 --> 00:05:14,850
+we didn't need to add a lifetime for the self parameter.
+
+84
+00:05:15,440 --> 00:05:18,750
+The first elision rule will assume it's a different lifetime than word.
+
+85
+00:05:19,340 --> 00:05:21,160
+So, when we fixed this example earlier,
+
+86
+00:05:21,170 --> 00:05:26,150
+we only specified one lifetime parameter.
+
+87
+00:05:26,160 --> 00:05:30,440
+In this module, we discussed how lifetime elision is a feature that lets us leave out generic lifetime parameters
+
+88
+00:05:30,440 --> 00:05:31,650
+in common cases.
+
+89
+00:05:32,640 --> 00:05:37,150
+We covered the three rules the compiler uses to figure out lifetimes when they're omitted.
+
+90
+00:05:37,740 --> 00:05:40,120
+Each reference parameter gets its own lifetime.
+
+91
+00:05:40,370 --> 00:05:42,060
+If there's one parameter lifetime,
+
+92
+00:05:42,070 --> 00:05:45,240
+a returned reference gets that lifetime, and with methods,
+
+93
+00:05:45,250 --> 00:05:48,150
+a returned reference gets the lifetime of the self parameter.
+
+94
+00:05:49,390 --> 00:05:56,950
+And we looked at some cases where lifetime elision lets us leave some generic lifetime parameters out, in the return_first_two function and the stem method.
+
+95
+00:05:57,980 --> 00:05:59,020
+Congratulations!
+
+96
+00:05:59,030 --> 00:06:01,150
+You've made it to the end of the Rust in Motion video
+
+97
+00:06:01,150 --> 00:06:01,800
+course.
+
+98
+00:06:03,340 --> 00:06:08,080
+Now would be a great time to write some Rust code by doing some programming practice problems like rustlings
+
+99
+00:06:08,080 --> 00:06:12,700
+or exercism, or working on a project like writing a command-line utility. Happy
+
+100
+00:06:12,700 --> 00:06:13,260
+Rusting!
+

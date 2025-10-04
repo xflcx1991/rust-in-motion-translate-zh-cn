@@ -1,0 +1,1232 @@
+﻿1
+00:00:00,240 --> 00:00:02,099
+Welcome to module 2 about
+
+2
+00:00:02,299 --> 00:00:02,790
+panicking.
+
+3
+00:00:04,360 --> 00:00:06,489
+In this module, we'll define what panic
+
+4
+00:00:06,689 --> 00:00:07,360
+means in Rust,
+
+5
+00:00:07,780 --> 00:00:09,850
+and then we'll look at how to use the panic! macro
+
+6
+00:00:10,050 --> 00:00:11,410
+to cause your program to panic.
+
+7
+00:00:11,870 --> 00:00:13,689
+We'll discuss situations in which you
+
+8
+00:00:13,889 --> 00:00:15,190
+should cause your program to panic
+
+9
+00:00:15,390 --> 00:00:16,540
+and look at some examples.
+
+10
+00:00:17,080 --> 00:00:19,059
+And we'll round out this module by looking
+
+11
+00:00:19,259 --> 00:00:21,009
+at some other macros that ultimately call
+
+12
+00:00:21,209 --> 00:00:21,940
+the panic! macro
+
+13
+00:00:22,330 --> 00:00:24,159
+but provide different semantics for some other
+
+14
+00:00:24,359 --> 00:00:24,990
+situations.
+
+15
+00:00:26,540 --> 00:00:28,340
+So, what is panicking?
+
+16
+00:00:29,870 --> 00:00:31,730
+Imagine a thread of your program
+
+17
+00:00:31,970 --> 00:00:33,560
+as a machine in a factory
+
+18
+00:00:33,980 --> 00:00:36,229
+chugging along, happily processing
+
+19
+00:00:36,429 --> 00:00:37,370
+the data that it's given.
+
+20
+00:00:38,850 --> 00:00:40,830
+Then, it comes across a value
+
+21
+00:00:41,030 --> 00:00:42,450
+that doesn't make any sense.
+
+22
+00:00:42,990 --> 00:00:45,090
+Processing that value in the same way
+
+23
+00:00:45,290 --> 00:00:46,650
+as the values that make sense
+
+24
+00:00:47,010 --> 00:00:49,350
+would result in garbage at best
+
+25
+00:00:49,550 --> 00:00:51,920
+and would open up the system to vulnerabilities
+
+26
+00:00:52,120 --> 00:00:52,970
+at worst.
+
+27
+00:00:54,750 --> 00:00:56,879
+Rather than continuing normal processing
+
+28
+00:00:57,079 --> 00:00:58,140
+with an invalid input,
+
+29
+00:00:58,500 --> 00:01:00,359
+panicking is like an emergency stop
+
+30
+00:01:00,559 --> 00:01:00,810
+button.
+
+31
+00:01:01,890 --> 00:01:03,540
+Pushing the emergency stop button
+
+32
+00:01:03,930 --> 00:01:05,789
+causes the thread to stop what it's doing
+
+33
+00:01:05,989 --> 00:01:06,680
+immediately instead.
+
+34
+00:01:08,280 --> 00:01:10,380
+This prevents the program from continuing
+
+35
+00:01:10,580 --> 00:01:12,330
+with garbage that might be incorrect
+
+36
+00:01:12,530 --> 00:01:13,250
+or dangerous.
+
+37
+00:01:14,820 --> 00:01:16,620
+Here's an example in a program.
+
+38
+00:01:17,230 --> 00:01:19,020
+Say we're writing a command-line program
+
+39
+00:01:19,220 --> 00:01:21,030
+that can process data for Windows,
+
+40
+00:01:21,230 --> 00:01:22,680
+Linux, or macOS.
+
+41
+00:01:23,190 --> 00:01:25,229
+The user of the program will specify
+
+42
+00:01:25,429 --> 00:01:27,270
+the operating system they want to process data
+
+43
+00:01:27,470 --> 00:01:28,990
+for by using the -p
+
+44
+00:01:29,220 --> 00:01:30,710
+flag for platform.
+
+45
+00:01:32,270 --> 00:01:33,600
+What should the program do
+
+46
+00:01:33,800 --> 00:01:36,140
+if the user enters a value like oranges
+
+47
+00:01:36,340 --> 00:01:38,240
+that isn't one of the operating systems it
+
+48
+00:01:38,440 --> 00:01:39,720
+knows how to process data for?
+
+49
+00:01:41,250 --> 00:01:43,500
+Picking an arbitrary operating system
+
+50
+00:01:43,700 --> 00:01:45,480
+and continuing would be incorrect.
+
+51
+00:01:46,080 --> 00:01:48,200
+The user clearly meant to specify something,
+
+52
+00:01:48,510 --> 00:01:50,720
+but we're not likely to guess what they wanted correctly.
+
+53
+00:01:52,260 --> 00:01:54,089
+The right thing to do in this case is to
+
+54
+00:01:54,289 --> 00:01:55,020
+stop the thread
+
+55
+00:01:55,220 --> 00:01:56,990
+with a message to the user that the
+
+56
+00:01:57,190 --> 00:01:58,319
+program can't do anything
+
+57
+00:01:58,519 --> 00:01:59,550
+with this invalid value,
+
+58
+00:01:59,880 --> 00:02:01,440
+and they need to start the program again
+
+59
+00:02:01,640 --> 00:02:02,480
+with a different value.
+
+60
+00:02:04,030 --> 00:02:05,470
+Let's see how to write this in code
+
+61
+00:02:05,670 --> 00:02:06,610
+with the panic! macro.
+
+62
+00:02:08,130 --> 00:02:10,138
+You can call the panic! macro at any point
+
+63
+00:02:10,338 --> 00:02:10,700
+in your code.
+
+64
+00:02:11,340 --> 00:02:13,180
+In this first example, we're calling
+
+65
+00:02:13,380 --> 00:02:15,089
+panic! as the only action taken in
+
+66
+00:02:15,289 --> 00:02:15,450
+main.
+
+67
+00:02:16,940 --> 00:02:18,920
+If we don't specify any arguments,
+
+68
+00:02:19,250 --> 00:02:21,710
+when we run this code, we'll see the message,
+
+69
+00:02:21,910 --> 00:02:24,050
+thread 'main' panicked at 'explicit panic',
+
+70
+00:02:24,590 --> 00:02:26,490
+and the location in our code where the panic
+
+71
+00:02:26,690 --> 00:02:27,230
+came from.
+
+72
+00:02:28,730 --> 00:02:30,960
+If we specify a message as an argument
+
+73
+00:02:31,160 --> 00:02:31,490
+to panic!,
+
+74
+00:02:32,520 --> 00:02:34,290
+then that message appears in the output
+
+75
+00:02:34,570 --> 00:02:36,010
+instead of 'explicit panic'.
+
+76
+00:02:37,470 --> 00:02:39,389
+You can also give panic! the same kinds
+
+77
+00:02:39,589 --> 00:02:41,370
+of arguments you can give to println!:
+
+78
+00:02:41,790 --> 00:02:42,659
+a format string
+
+79
+00:02:42,859 --> 00:02:43,620
+with placeholders
+
+80
+00:02:43,920 --> 00:02:44,819
+and variables that go
+
+81
+00:02:45,019 --> 00:02:45,900
+with those placeholders.
+
+82
+00:02:46,560 --> 00:02:48,660
+This lets you explain better what you got
+
+83
+00:02:48,860 --> 00:02:49,800
+that wasn't expected.
+
+84
+00:02:51,330 --> 00:02:52,870
+This panic! call prints
+
+85
+00:02:53,140 --> 00:02:54,350
+'Something's not right here!
+
+86
+00:02:54,700 --> 00:02:57,100
+Got value: no' as its message.
+
+87
+00:02:58,460 --> 00:02:59,580
+Let's put into code
+
+88
+00:02:59,780 --> 00:03:01,680
+the logic we talked about for the command-line
+
+89
+00:03:01,880 --> 00:03:03,819
+application that can produce
+
+90
+00:03:04,019 --> 00:03:05,679
+different output for different operating
+
+91
+00:03:05,879 --> 00:03:06,340
+systems.
+
+92
+00:03:06,690 --> 00:03:08,800
+Here, we've defined an enum
+
+93
+00:03:09,000 --> 00:03:09,760
+for the platforms
+
+94
+00:03:09,960 --> 00:03:11,020
+our program supports.
+
+95
+00:03:11,500 --> 00:03:13,330
+We have a parse function, defined
+
+96
+00:03:13,530 --> 00:03:14,770
+as a function associated
+
+97
+00:03:14,970 --> 00:03:16,100
+with the Platform enum
+
+98
+00:03:16,710 --> 00:03:18,370
+that takes an argument named platform_arg.
+
+99
+00:03:18,570 --> 00:03:19,000
+
+
+100
+00:03:19,410 --> 00:03:21,250
+platform_arg represents
+
+101
+00:03:21,450 --> 00:03:23,530
+the value you would get from the command-line argument.
+
+102
+00:03:24,310 --> 00:03:26,230
+We've excluded the actual command-line argument
+
+103
+00:03:26,430 --> 00:03:28,190
+parsing to simplify this example.
+
+104
+00:03:28,720 --> 00:03:30,609
+The parse function checks to see if
+
+105
+00:03:30,809 --> 00:03:31,990
+the platform_arg value
+
+106
+00:03:32,290 --> 00:03:34,140
+is any of the values we expect
+
+107
+00:03:34,840 --> 00:03:36,669
+and, if so, returns
+
+108
+00:03:36,869 --> 00:03:38,260
+the corresponding enum variant.
+
+109
+00:03:38,830 --> 00:03:40,719
+In the else case, we call the
+
+110
+00:03:40,919 --> 00:03:41,680
+panic! macro
+
+111
+00:03:41,880 --> 00:03:43,680
+with the value that we didn't recognize
+
+112
+00:03:43,880 --> 00:03:44,830
+and stop the program.
+
+113
+00:03:46,360 --> 00:03:48,610
+In main, we call the parse function
+
+114
+00:03:48,820 --> 00:03:50,919
+and then we have a println! that uses
+
+115
+00:03:51,119 --> 00:03:52,320
+the returned platform value.
+
+116
+00:03:53,800 --> 00:03:55,090
+If we run this example
+
+117
+00:03:55,290 --> 00:03:57,369
+with the string "windows" for platform_arg,
+
+118
+00:03:57,569 --> 00:03:59,209
+that value is
+
+119
+00:03:59,409 --> 00:04:01,070
+recognized and we get to the final println!.
+
+120
+00:04:01,270 --> 00:04:01,420
+
+
+121
+00:04:02,910 --> 00:04:04,710
+If we change the platform_arg value
+
+122
+00:04:04,910 --> 00:04:06,540
+to something that we don't recognize
+
+123
+00:04:06,740 --> 00:04:07,680
+as an operating system,
+
+124
+00:04:08,670 --> 00:04:10,559
+when we run it, the program stops with the
+
+125
+00:04:10,759 --> 00:04:11,430
+panic! message
+
+126
+00:04:11,630 --> 00:04:13,120
+and never gets to the final println!.
+
+127
+00:04:14,640 --> 00:04:17,010
+Let's talk some more about when it's good to panic
+
+128
+00:04:17,279 --> 00:04:18,810
+and look at a few more examples.
+
+129
+00:04:20,279 --> 00:04:22,018
+If you're trying to decide whether
+
+130
+00:04:22,218 --> 00:04:24,079
+or not to panic, consider whether
+
+131
+00:04:24,279 --> 00:04:26,039
+taking the next action would ever be
+
+132
+00:04:26,239 --> 00:04:27,870
+valid given the situation you're in.
+
+133
+00:04:28,350 --> 00:04:30,330
+For example, there is no default
+
+134
+00:04:30,530 --> 00:04:32,100
+all users would find reasonable.
+
+135
+00:04:32,940 --> 00:04:34,830
+The command-line argument example fits
+
+136
+00:04:35,030 --> 00:04:35,850
+into this case.
+
+137
+00:04:37,350 --> 00:04:39,329
+Another example is out-of-bounds
+
+138
+00:04:39,529 --> 00:04:41,550
+memory access, which we discussed
+
+139
+00:04:41,750 --> 00:04:43,700
+in the Slices module in unit 2.
+
+140
+00:04:44,190 --> 00:04:46,259
+If we have, say, a vector of three
+
+141
+00:04:46,459 --> 00:04:46,890
+items
+
+142
+00:04:47,340 --> 00:04:48,690
+and we try to access an item
+
+143
+00:04:48,890 --> 00:04:49,800
+in index 50,
+
+144
+00:04:51,330 --> 00:04:53,040
+when we run this, Rust will panic
+
+145
+00:04:53,240 --> 00:04:54,990
+and say the index is out of bounds.
+
+146
+00:04:56,490 --> 00:04:58,540
+In this case, panicking is important
+
+147
+00:04:58,740 --> 00:05:00,510
+to prevent a security vulnerability
+
+148
+00:05:00,710 --> 00:05:02,150
+called a buffer overread.
+
+149
+00:05:02,970 --> 00:05:04,889
+C will happily return to you memory
+
+150
+00:05:05,089 --> 00:05:07,080
+that doesn't belong to the current data structure
+
+151
+00:05:07,590 --> 00:05:09,470
+and this has been an entry point of lots
+
+152
+00:05:09,670 --> 00:05:10,320
+of exploits.
+
+153
+00:05:11,810 --> 00:05:13,759
+Another aspect to consider is that,
+
+154
+00:05:13,959 --> 00:05:16,069
+by panicking, you're making the decision
+
+155
+00:05:16,269 --> 00:05:17,870
+for any code calling this function that
+
+156
+00:05:18,330 --> 00:05:20,209
+there's no way for it to try to recover
+
+157
+00:05:20,409 --> 00:05:22,069
+either. We're going to talk
+
+158
+00:05:22,269 --> 00:05:24,470
+about recovering from errors in the coming modules.
+
+159
+00:05:25,960 --> 00:05:28,029
+Another time to panic is when the problem
+
+160
+00:05:28,229 --> 00:05:29,650
+must be fixed by a programmer
+
+161
+00:05:29,850 --> 00:05:31,690
+changing buggy code, not
+
+162
+00:05:31,890 --> 00:05:33,100
+a user changing their input.
+
+163
+00:05:34,110 --> 00:05:35,610
+Let's look at an example from the http
+
+164
+00:05:36,140 --> 00:05:36,400
+crate.
+
+165
+00:05:37,910 --> 00:05:39,859
+This is the documentation for the HeaderName
+
+166
+00:05:40,059 --> 00:05:41,630
+from_static function,
+
+167
+00:05:42,020 --> 00:05:44,390
+one of the ways to create a HeaderName instance.
+
+168
+00:05:45,900 --> 00:05:47,700
+This function takes a string literal,
+
+169
+00:05:47,900 --> 00:05:49,230
+which you'll recall from the Slices
+
+170
+00:05:49,430 --> 00:05:51,300
+module in unit 2 is a string
+
+171
+00:05:51,500 --> 00:05:53,090
+that literally appears in your source code.
+
+172
+00:05:53,760 --> 00:05:55,589
+If the string literal provided
+
+173
+00:05:55,789 --> 00:05:57,509
+isn't a valid HeaderName, such
+
+174
+00:05:57,709 --> 00:05:59,430
+as a string containing special characters,
+
+175
+00:06:00,460 --> 00:06:02,260
+this function will panic to alert you
+
+176
+00:06:02,460 --> 00:06:04,430
+that your hardcoded string is incorrect.
+
+177
+00:06:05,990 --> 00:06:07,939
+The only way to fix this panic is
+
+178
+00:06:08,139 --> 00:06:08,980
+to edit the string literal
+
+179
+00:06:09,180 --> 00:06:10,570
+in the code and recompile.
+
+180
+00:06:10,960 --> 00:06:12,949
+There's no way an end user could fix
+
+181
+00:06:13,149 --> 00:06:13,370
+this.
+
+182
+00:06:14,890 --> 00:06:16,450
+A time when you shouldn't panic
+
+183
+00:06:16,870 --> 00:06:18,820
+is when failure is a normal occurrence
+
+184
+00:06:19,020 --> 00:06:20,320
+given the operation you're doing.
+
+185
+00:06:21,810 --> 00:06:23,730
+For example, web browsers
+
+186
+00:06:23,930 --> 00:06:26,040
+might receive malformed HTML.
+
+187
+00:06:26,880 --> 00:06:28,049
+If your browser panicked
+
+188
+00:06:28,249 --> 00:06:30,059
+and shut down every time you visited
+
+189
+00:06:30,259 --> 00:06:32,270
+a site that didn't have valid HTML,
+
+190
+00:06:32,660 --> 00:06:33,840
+you'd probably get frustrated
+
+191
+00:06:34,040 --> 00:06:35,070
+and use a different browser.
+
+192
+00:06:36,570 --> 00:06:38,729
+Instead, your browser takes various
+
+193
+00:06:38,929 --> 00:06:39,870
+efforts to recover
+
+194
+00:06:40,200 --> 00:06:42,059
+and present what it can in the face
+
+195
+00:06:42,259 --> 00:06:43,350
+of invalid HTML.
+
+196
+00:06:44,840 --> 00:06:46,160
+Despite these guidelines,
+
+197
+00:06:46,400 --> 00:06:48,379
+you can always choose to panic before you've
+
+198
+00:06:48,579 --> 00:06:50,000
+decided how to handle errors,
+
+199
+00:06:50,540 --> 00:06:52,370
+then you can search for calls to panic
+
+200
+00:06:52,570 --> 00:06:54,440
+to update your error handling code later.
+
+201
+00:06:55,940 --> 00:06:56,570
+Finally,
+
+202
+00:06:56,780 --> 00:06:58,610
+let's talk about a few other macros
+
+203
+00:06:58,810 --> 00:07:00,290
+provided by the standard library
+
+204
+00:07:00,530 --> 00:07:01,720
+that also cause a panic!.
+
+205
+00:07:03,200 --> 00:07:05,110
+First is the unreachable! macro.
+
+206
+00:07:06,020 --> 00:07:08,180
+This is useful for indicating to the compiler
+
+207
+00:07:08,450 --> 00:07:10,490
+that it's impossible to get to a certain point
+
+208
+00:07:10,690 --> 00:07:11,060
+in the code.
+
+209
+00:07:12,550 --> 00:07:14,649
+This is useful when we're required to cover
+
+210
+00:07:14,849 --> 00:07:16,479
+all cases that the compiler thinks are
+
+211
+00:07:16,679 --> 00:07:17,080
+possible,
+
+212
+00:07:17,650 --> 00:07:19,120
+but because of some other constraint,
+
+213
+00:07:19,570 --> 00:07:21,489
+we as humans know certain cases aren't
+
+214
+00:07:21,689 --> 00:07:22,040
+possible.
+
+215
+00:07:23,530 --> 00:07:25,480
+For example, here's a program
+
+216
+00:07:25,680 --> 00:07:27,370
+with an enum for the state of a door,
+
+217
+00:07:27,820 --> 00:07:28,810
+which can be Opened
+
+218
+00:07:29,010 --> 00:07:29,500
+or Closed.
+
+219
+00:07:30,550 --> 00:07:32,439
+We also have an enum for the actions that
+
+220
+00:07:32,639 --> 00:07:34,419
+can be taken on the door, which
+
+221
+00:07:34,619 --> 00:07:35,830
+are Open and Close.
+
+222
+00:07:36,810 --> 00:07:38,670
+In a function that takes the current state
+
+223
+00:07:38,870 --> 00:07:40,559
+of a door and an action to take
+
+224
+00:07:40,759 --> 00:07:41,100
+on the door,
+
+225
+00:07:41,880 --> 00:07:43,709
+we need to handle how to close an open
+
+226
+00:07:43,909 --> 00:07:44,070
+door
+
+227
+00:07:44,490 --> 00:07:46,080
+and how to open a closed door.
+
+228
+00:07:47,010 --> 00:07:48,959
+The other two states, opening an open
+
+229
+00:07:49,159 --> 00:07:50,820
+door and closing a closed door,
+
+230
+00:07:51,240 --> 00:07:52,240
+shouldn't ever happen.
+
+231
+00:07:53,230 --> 00:07:55,210
+Rust requires a match expression
+
+232
+00:07:55,410 --> 00:07:57,129
+to cover all cases, so
+
+233
+00:07:57,329 --> 00:07:59,210
+we can use the underscore to catch the impossible
+
+234
+00:07:59,410 --> 00:08:01,510
+cases and call the unreachable! macro.
+
+235
+00:08:03,980 --> 00:08:04,820
+If we're wrong
+
+236
+00:08:05,020 --> 00:08:06,739
+and somehow the program does get to
+
+237
+00:08:06,939 --> 00:08:08,599
+this spot in the code, such
+
+238
+00:08:08,799 --> 00:08:10,519
+as with this main function where we're calling
+
+239
+00:08:10,719 --> 00:08:12,410
+the function with the unsupported values,
+
+240
+00:08:13,340 --> 00:08:15,230
+the unreachable! macro will call the panic!
+
+241
+00:08:15,430 --> 00:08:15,770
+macro
+
+242
+00:08:16,100 --> 00:08:17,900
+with the message, 'internal error:
+
+243
+00:08:18,100 --> 00:08:19,280
+entered unreachable code'.
+
+244
+00:08:20,810 --> 00:08:22,890
+It's preferable to use unreachable!
+
+245
+00:08:23,090 --> 00:08:24,810
+rather than a panic! in this situation
+
+246
+00:08:25,200 --> 00:08:27,269
+because it conveys our intent to future
+
+247
+00:08:27,469 --> 00:08:28,290
+readers of this code.
+
+248
+00:08:29,780 --> 00:08:31,880
+The next macro, unimplemented!,
+
+249
+00:08:32,299 --> 00:08:34,570
+is useful when starting work on a new feature.
+
+250
+00:08:35,330 --> 00:08:37,259
+This macro communicates that we intend
+
+251
+00:08:37,459 --> 00:08:38,870
+to write code that goes in its place
+
+252
+00:08:39,070 --> 00:08:39,710
+but we haven't yet.
+
+253
+00:08:41,230 --> 00:08:43,450
+In our previous example, where we had comments
+
+254
+00:08:43,650 --> 00:08:45,340
+showing where we would add code to handle
+
+255
+00:08:45,540 --> 00:08:47,259
+door actions, we could instead
+
+256
+00:08:47,459 --> 00:08:49,450
+have put calls to the unimplemented! macro.
+
+257
+00:08:51,060 --> 00:08:53,310
+If a program gets to an unimplemented case,
+
+258
+00:08:53,760 --> 00:08:55,690
+it will panic with the message, 'not yet
+
+259
+00:08:55,890 --> 00:08:56,180
+implemented'.
+
+260
+00:08:58,030 --> 00:09:00,100
+The assert family of macros will panic
+
+261
+00:09:00,300 --> 00:09:01,990
+if a given condition isn't true.
+
+262
+00:09:02,620 --> 00:09:03,700
+assert! takes a Boolean
+
+263
+00:09:03,900 --> 00:09:05,710
+value and panics if it is false.
+
+264
+00:09:06,340 --> 00:09:08,240
+assert_eq! takes two values
+
+265
+00:09:08,440 --> 00:09:10,150
+and panics if they aren't equivalent,
+
+266
+00:09:10,690 --> 00:09:12,729
+and assert_ne! takes two
+
+267
+00:09:12,929 --> 00:09:14,859
+values and panics if they are equivalent.
+
+268
+00:09:15,059 --> 00:09:15,259
+
+
+269
+00:09:16,570 --> 00:09:18,489
+These macros are commonly used in
+
+270
+00:09:18,689 --> 00:09:19,600
+two situations.
+
+271
+00:09:20,840 --> 00:09:23,210
+The first situation is to check preconditions
+
+272
+00:09:23,410 --> 00:09:24,590
+at the beginning of a function.
+
+273
+00:09:25,100 --> 00:09:26,360
+In the rest of the function,
+
+274
+00:09:26,570 --> 00:09:28,609
+you can proceed knowing these conditions
+
+275
+00:09:28,809 --> 00:09:30,679
+are true and not have to check them in multiple
+
+276
+00:09:30,879 --> 00:09:32,539
+locations because the program
+
+277
+00:09:32,739 --> 00:09:34,640
+would have stopped earlier if they weren't true.
+
+278
+00:09:36,190 --> 00:09:38,260
+The second, much more common, situation
+
+279
+00:09:38,460 --> 00:09:40,209
+the assert macros are used in, is in
+
+280
+00:09:40,409 --> 00:09:40,780
+tests.
+
+281
+00:09:41,800 --> 00:09:43,750
+The way test functions work in Rust
+
+282
+00:09:43,950 --> 00:09:45,729
+is that if the code inside a test function
+
+283
+00:09:45,929 --> 00:09:47,590
+panics, that test fails.
+
+284
+00:09:48,330 --> 00:09:50,259
+The assert macros make it convenient to write
+
+285
+00:09:50,459 --> 00:09:52,239
+clear tests that compare the values
+
+286
+00:09:52,439 --> 00:09:53,570
+you expect with the values
+
+287
+00:09:53,770 --> 00:09:55,210
+the code under test produces.
+
+288
+00:09:56,730 --> 00:09:57,630
+In this module,
+
+289
+00:09:57,830 --> 00:10:00,090
+we discussed that panicking is stopping the program
+
+290
+00:10:00,290 --> 00:10:01,710
+if it's in an invalid state
+
+291
+00:10:02,220 --> 00:10:04,410
+and that we do this by calling the panic! macro
+
+292
+00:10:04,610 --> 00:10:05,790
+with an optional message.
+
+293
+00:10:06,810 --> 00:10:08,740
+We discussed how it's a good idea to panic
+
+294
+00:10:08,940 --> 00:10:10,470
+when continuing would be incorrect,
+
+295
+00:10:10,950 --> 00:10:12,840
+there is no way for the calling code to recover,
+
+296
+00:10:13,350 --> 00:10:15,209
+the problem must be fixed by changing the
+
+297
+00:10:15,409 --> 00:10:16,770
+code rather than inputs,
+
+298
+00:10:17,280 --> 00:10:19,590
+when failure isn't expected to happen regularly,
+
+299
+00:10:20,070 --> 00:10:21,810
+and when we haven't decided how we want
+
+300
+00:10:22,080 --> 00:10:23,070
+to handle errors.
+
+301
+00:10:24,070 --> 00:10:26,020
+We talked about other macros that panic,
+
+302
+00:10:26,590 --> 00:10:27,830
+including unreachable!,
+
+303
+00:10:28,270 --> 00:10:29,290
+unimplemented!, and
+
+304
+00:10:29,840 --> 00:10:31,110
+the assert macros.
+
+305
+00:10:32,620 --> 00:10:33,610
+In the next module,
+
+306
+00:10:33,880 --> 00:10:35,710
+we'll talk about recoverable errors
+
+307
+00:10:35,910 --> 00:10:38,080
+and how to handle them using the typesResult
+
+308
+00:10:38,280 --> 00:10:38,710
+and Option.
+

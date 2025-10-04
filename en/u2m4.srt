@@ -1,0 +1,896 @@
+﻿1
+00:00:01,730 --> 00:00:03,809
+In the last module, we had a working solution
+
+2
+00:00:04,009 --> 00:00:05,340
+to the pluralize exercise
+
+3
+00:00:05,660 --> 00:00:07,859
+that cloned the string passed to the pluralize
+
+4
+00:00:08,059 --> 00:00:08,370
+function.
+
+5
+00:00:09,070 --> 00:00:10,830
+This allowed the pluralize function to take
+
+6
+00:00:11,030 --> 00:00:12,340
+ownership of the cloned value
+
+7
+00:00:12,660 --> 00:00:14,490
+while the original value could still be used
+
+8
+00:00:14,690 --> 00:00:15,510
+in the main function.
+
+9
+00:00:17,120 --> 00:00:18,990
+However, having the pluralize function
+
+10
+00:00:19,190 --> 00:00:20,849
+take an owned string value isn't the
+
+11
+00:00:21,049 --> 00:00:22,260
+most idiomatic solution.
+
+12
+00:00:23,010 --> 00:00:25,049
+The most idiomatic solution uses the Rust
+
+13
+00:00:25,249 --> 00:00:26,520
+feature called borrowing.
+
+14
+00:00:28,060 --> 00:00:28,760
+In this module,
+
+15
+00:00:28,960 --> 00:00:30,490
+we'll talk about what borrowing is
+
+16
+00:00:30,690 --> 00:00:32,380
+and reasons your code might want to borrow
+
+17
+00:00:32,580 --> 00:00:33,670
+instead of taking ownership.
+
+18
+00:00:34,530 --> 00:00:36,519
+Borrowing a value may feel similar to using
+
+19
+00:00:36,719 --> 00:00:37,699
+a pointer if you're familiar
+
+20
+00:00:37,899 --> 00:00:39,190
+with languages that use pointers.
+
+21
+00:00:39,460 --> 00:00:41,529
+But there are important differences in Rust
+
+22
+00:00:41,729 --> 00:00:42,340
+that we'll go over.
+
+23
+00:00:43,370 --> 00:00:45,500
+Finally, we'll update the pluralize function
+
+24
+00:00:45,700 --> 00:00:47,390
+to borrow instead of taking ownership,
+
+25
+00:00:47,770 --> 00:00:49,670
+and we'll talk about why it's more idiomatic.
+
+26
+00:00:51,220 --> 00:00:52,930
+So, what is borrowing?
+
+27
+00:00:54,410 --> 00:00:56,450
+Borrowing is a way to allow some code
+
+28
+00:00:56,650 --> 00:00:58,640
+to use a value without moving ownership.
+
+29
+00:00:59,420 --> 00:01:01,429
+It's like letting someone borrow one of your toys
+
+30
+00:01:01,629 --> 00:01:02,010
+for a little while.
+
+31
+00:01:04,450 --> 00:01:06,370
+Even though someone else is using your toy,
+
+32
+00:01:06,580 --> 00:01:07,360
+you still own it,
+
+33
+00:01:07,560 --> 00:01:09,369
+and it's still your responsibility to clean
+
+34
+00:01:09,569 --> 00:01:10,780
+it up when everyone's done.
+
+35
+00:01:13,890 --> 00:01:15,470
+Let's look at an example in code.
+
+36
+00:01:16,200 --> 00:01:18,480
+We have a Person struct that has a name field.
+
+37
+00:01:19,050 --> 00:01:20,970
+We also have a function called congratulate,
+
+38
+00:01:21,330 --> 00:01:23,190
+which takes a person as a parameter.
+
+39
+00:01:24,090 --> 00:01:26,009
+Since the congratulate function doesn't need
+
+40
+00:01:26,209 --> 00:01:27,510
+to have ownership of the person,
+
+41
+00:01:27,750 --> 00:01:30,059
+it borrows the person, which is indicated
+
+42
+00:01:30,259 --> 00:01:32,190
+by the ampersand before the type name.
+
+43
+00:01:33,330 --> 00:01:34,010
+In main,
+
+44
+00:01:34,290 --> 00:01:36,240
+we first create an instance of a Person,
+
+45
+00:01:36,540 --> 00:01:38,360
+and then we call the congratulate function
+
+46
+00:01:38,560 --> 00:01:40,229
+and pass it a reference to the Person
+
+47
+00:01:40,429 --> 00:01:41,580
+instance as an argument.
+
+48
+00:01:42,240 --> 00:01:44,159
+We create the reference by again using an
+
+49
+00:01:44,359 --> 00:01:44,790
+ampersand.
+
+50
+00:01:46,060 --> 00:01:48,350
+p retains ownership of the Person instance;
+
+51
+00:01:48,730 --> 00:01:50,020
+we can still use it in main,
+
+52
+00:01:50,260 --> 00:01:52,149
+we didn't have to clone it, and it gets
+
+53
+00:01:52,349 --> 00:01:53,460
+cleaned up at the end of main
+
+54
+00:01:53,660 --> 00:01:55,470
+when p goes out of scope – not in
+
+55
+00:01:55,670 --> 00:01:56,620
+the congratulate function.
+
+56
+00:01:58,190 --> 00:02:00,050
+This code compiles without any errors
+
+57
+00:02:00,250 --> 00:02:01,880
+and prints both the congratulations
+
+58
+00:02:02,080 --> 00:02:03,620
+and the message at the end of main.
+
+59
+00:02:05,270 --> 00:02:06,560
+So, why would we want to borrow?
+
+60
+00:02:08,120 --> 00:02:10,038
+The reason we want the ability to borrow is
+
+61
+00:02:10,238 --> 00:02:10,970
+for performance.
+
+62
+00:02:11,510 --> 00:02:13,329
+If a function doesn't need ownership of
+
+63
+00:02:13,529 --> 00:02:15,020
+a value that has allocated memory,
+
+64
+00:02:15,470 --> 00:02:17,359
+instead of cloning the value and giving that to the
+
+65
+00:02:17,559 --> 00:02:17,810
+function,
+
+66
+00:02:18,200 --> 00:02:20,089
+we can give the function a reference to the original
+
+67
+00:02:20,289 --> 00:02:20,390
+value.
+
+68
+00:02:21,030 --> 00:02:22,610
+The function can borrow the value
+
+69
+00:02:22,810 --> 00:02:24,360
+and no extra allocation is needed.
+
+70
+00:02:26,020 --> 00:02:27,969
+For example, pretend that the Person struct
+
+71
+00:02:28,169 --> 00:02:29,750
+had 10 fields and the congratulate
+
+72
+00:02:29,950 --> 00:02:31,720
+function only needed to use one of them.
+
+73
+00:02:32,270 --> 00:02:34,170
+If we had to clone the whole Person instance
+
+74
+00:02:34,370 --> 00:02:36,090
+in order to pass it to a function that only uses
+
+75
+00:02:36,290 --> 00:02:36,760
+part of it,
+
+76
+00:02:37,210 --> 00:02:39,099
+we would be wasting the memory space needed to
+
+77
+00:02:39,299 --> 00:02:40,959
+store the cloned instance, and we'd
+
+78
+00:02:41,159 --> 00:02:42,640
+be wasting time making the clone.
+
+79
+00:02:43,330 --> 00:02:44,050
+With borrowing,
+
+80
+00:02:44,260 --> 00:02:46,110
+no cloning of anything is necessary.
+
+81
+00:02:47,700 --> 00:02:49,810
+Borrowing is also a signal of intent.
+
+82
+00:02:50,400 --> 00:02:52,860
+When you look at a function signature in the documentation
+
+83
+00:02:53,130 --> 00:02:54,690
+and see that it borrows its parameters,
+
+84
+00:02:55,050 --> 00:02:56,309
+you know it wants nothing to do
+
+85
+00:02:56,509 --> 00:02:57,179
+with the allocation
+
+86
+00:02:57,379 --> 00:02:58,860
+or deallocation of that data.
+
+87
+00:03:00,360 --> 00:03:02,229
+Borrowing and references may remind you
+
+88
+00:03:02,429 --> 00:03:03,909
+of pointers in languages like C
+
+89
+00:03:04,109 --> 00:03:06,219
+and C++. References
+
+90
+00:03:06,419 --> 00:03:07,180
+in Rust are similar –
+
+91
+00:03:07,450 --> 00:03:09,580
+there is one big, important difference.
+
+92
+00:03:11,030 --> 00:03:13,009
+In safe Rust, the borrow checker
+
+93
+00:03:13,209 --> 00:03:14,670
+ensures, at compile time,
+
+94
+00:03:14,970 --> 00:03:17,070
+that you'll never have an invalid reference –
+
+95
+00:03:17,270 --> 00:03:18,870
+a reference that points to nothing
+
+96
+00:03:19,070 --> 00:03:20,130
+or to invalid memory.
+
+97
+00:03:20,550 --> 00:03:22,350
+This prevents a lot of bugs.
+
+98
+00:03:23,910 --> 00:03:25,739
+For example, here are some bugs you may have
+
+99
+00:03:25,939 --> 00:03:27,120
+seen in other languages.
+
+100
+00:03:27,790 --> 00:03:29,580
+If you've ever gotten a "seg fault" in C
+
+101
+00:03:29,780 --> 00:03:30,660
+or C++,
+
+102
+00:03:30,860 --> 00:03:32,669
+or errors like undefined method for nil class
+
+103
+00:03:32,869 --> 00:03:33,570
+in Ruby,
+
+104
+00:03:33,770 --> 00:03:35,910
+or undefined is not a function in JavaScript,
+
+105
+00:03:36,240 --> 00:03:38,159
+you've experienced a runtime bug caused
+
+106
+00:03:38,359 --> 00:03:39,330
+by an invalid reference
+
+107
+00:03:39,540 --> 00:03:41,400
+that's a compile time error in Rust.
+
+108
+00:03:42,170 --> 00:03:44,009
+These runtime errors happen only in certain
+
+109
+00:03:44,209 --> 00:03:44,880
+circumstances
+
+110
+00:03:45,090 --> 00:03:46,620
+and can be very hard to track down.
+
+111
+00:03:47,250 --> 00:03:49,260
+Rust catches these errors every time
+
+112
+00:03:49,500 --> 00:03:51,359
+and won't let you try to even run code
+
+113
+00:03:51,559 --> 00:03:52,080
+with this problem.
+
+114
+00:03:53,010 --> 00:03:54,810
+Let's see what happens when we try to create
+
+115
+00:03:55,010 --> 00:03:56,070
+an invalid reference.
+
+116
+00:03:56,700 --> 00:03:58,410
+You may think that this code should work.
+
+117
+00:03:58,610 --> 00:03:59,910
+If so, don't feel bad –
+
+118
+00:04:00,240 --> 00:04:02,100
+lots of people think that this code should work.
+
+119
+00:04:03,000 --> 00:04:05,430
+The function name doesn't take any arguments.
+
+120
+00:04:05,630 --> 00:04:07,579
+It allocates a new String and attempts
+
+121
+00:04:07,779 --> 00:04:09,270
+to return a reference to that String.
+
+122
+00:04:10,930 --> 00:04:13,170
+When we try to compile this, we get an error saying
+
+123
+00:04:13,370 --> 00:04:14,910
+missing lifetime specifier.
+
+124
+00:04:15,340 --> 00:04:17,219
+We're going to talk all about lifetimes in unit
+
+125
+00:04:17,419 --> 00:04:19,109
+4. But for now, trust
+
+126
+00:04:19,309 --> 00:04:21,119
+me that adding a lifetime specifier here won't
+
+127
+00:04:21,319 --> 00:04:21,930
+fix the problem.
+
+128
+00:04:22,650 --> 00:04:24,270
+The help text gives more of a hint:
+
+129
+00:04:24,780 --> 00:04:26,609
+this function's return type contains
+
+130
+00:04:26,809 --> 00:04:27,450
+a borrowed value,
+
+131
+00:04:27,720 --> 00:04:30,030
+but there is no value for it to be borrowed from.
+
+132
+00:04:31,620 --> 00:04:32,790
+Looking at the code again,
+
+133
+00:04:32,990 --> 00:04:34,829
+the problem is that the variablenis
+
+134
+00:04:35,029 --> 00:04:36,530
+the owner of the allocated String.
+
+135
+00:04:36,960 --> 00:04:39,119
+﻿ But n goes out of scope at the end of the name
+
+136
+00:04:39,319 --> 00:04:40,969
+function. Rust
+
+137
+00:04:41,169 --> 00:04:42,830
+doesn't let us return a reference to n
+
+138
+00:04:43,030 --> 00:04:44,779
+from this function because there's nothing for
+
+139
+00:04:44,979 --> 00:04:46,040
+that reference to point to
+
+140
+00:04:46,240 --> 00:04:47,330
+once the function is over.
+
+141
+00:04:48,050 --> 00:04:49,879
+If we were able to do this, the
+
+142
+00:04:50,079 --> 00:04:51,800
+variable my_name in main
+
+143
+00:04:52,010 --> 00:04:53,690
+would contain an invalid reference.
+
+144
+00:04:55,220 --> 00:04:57,290
+In general, you can't return a reference
+
+145
+00:04:57,490 --> 00:04:59,269
+from a function that points to something that
+
+146
+00:04:59,469 --> 00:05:00,980
+was created within that function –
+
+147
+00:05:01,300 --> 00:05:02,329
+n will go out of scope
+
+148
+00:05:02,529 --> 00:05:04,120
+and get cleaned up at the end of the function.
+
+149
+00:05:05,530 --> 00:05:06,430
+To fix this code,
+
+150
+00:05:06,700 --> 00:05:08,470
+change the name function to return an
+
+151
+00:05:08,670 --> 00:05:10,379
+owned String instead of a borrowed
+
+152
+00:05:10,579 --> 00:05:11,290
+string slice
+
+153
+00:05:11,490 --> 00:05:12,850
+and return the String directly.
+
+154
+00:05:13,510 --> 00:05:15,400
+This way, ownership is returned
+
+155
+00:05:15,600 --> 00:05:16,360
+out of the function
+
+156
+00:05:16,560 --> 00:05:17,830
+and the String doesn't get cleaned up.
+
+157
+00:05:19,560 --> 00:05:21,600
+Now, let's take this knowledge about borrowing
+
+158
+00:05:21,800 --> 00:05:23,880
+and apply it to the pluralize exercise.
+
+159
+00:05:25,380 --> 00:05:27,479
+Here's the first solution we went over in the previous
+
+160
+00:05:27,679 --> 00:05:29,400
+module, where we cloneds
+
+161
+00:05:29,600 --> 00:05:31,529
+and passed the cloned value to the pluralize
+
+162
+00:05:31,729 --> 00:05:32,090
+function.
+
+163
+00:05:33,780 --> 00:05:35,380
+Instead of cloning s in main,
+
+164
+00:05:35,680 --> 00:05:37,630
+we're going to pass a borrowed string slice
+
+165
+00:05:37,830 --> 00:05:39,490
+of s to pluralize.
+
+166
+00:05:40,430 --> 00:05:42,260
+This means we have to change the signature
+
+167
+00:05:42,460 --> 00:05:44,170
+of pluralize to expect a string
+
+168
+00:05:44,370 --> 00:05:46,220
+slice as the type of the singular argument.
+
+169
+00:05:47,240 --> 00:05:48,910
+We'll talk about why this is &amp;str,
+
+170
+00:05:49,110 --> 00:05:50,750
+a string slice,
+
+171
+00:05:51,260 --> 00:05:53,089
+rather than &amp;String, in
+
+172
+00:05:53,289 --> 00:05:53,840
+the next module.
+
+173
+00:05:55,400 --> 00:05:57,560
+If we compile at this point, we'll get an error
+
+174
+00:05:57,760 --> 00:05:59,690
+because we need to fix the body of pluralize.
+
+175
+00:06:00,130 --> 00:06:01,969
+The error message tells us we can't use the
+
+176
+00:06:02,169 --> 00:06:03,830
+plus operator to concatenate
+
+177
+00:06:04,030 --> 00:06:05,030
+two string slices.
+
+178
+00:06:05,810 --> 00:06:07,700
+The help text explains more about why.
+
+179
+00:06:08,240 --> 00:06:10,069
+The plus operator puts the result of
+
+180
+00:06:10,269 --> 00:06:11,929
+the concatenation into the string on
+
+181
+00:06:12,129 --> 00:06:13,910
+the left. So, the string on the left
+
+182
+00:06:14,180 --> 00:06:16,099
+needs to be able to be reallocated to
+
+183
+00:06:16,299 --> 00:06:17,600
+make more space for the result.
+
+184
+00:06:18,110 --> 00:06:19,640
+String slices are borrowed
+
+185
+00:06:19,840 --> 00:06:20,990
+and can't reallocate.
+
+186
+00:06:21,750 --> 00:06:22,340
+The help text
+
+187
+00:06:22,540 --> 00:06:23,930
+also tells us how to fix this
+
+188
+00:06:24,260 --> 00:06:25,069
+by adding to_owned()
+
+189
+00:06:25,269 --> 00:06:26,480
+to create a String.
+
+190
+00:06:27,170 --> 00:06:28,670
+This does allocate memory.
+
+191
+00:06:30,280 --> 00:06:31,240
+Let's make that change
+
+192
+00:06:31,440 --> 00:06:32,980
+and call to_owned on singular.
+
+193
+00:06:34,930 --> 00:06:36,189
+Now the solution compiles
+
+194
+00:06:36,389 --> 00:06:38,400
+and runs, producing the output we expect.
+
+195
+00:06:39,860 --> 00:06:41,870
+In this case, changing to borrowing
+
+196
+00:06:42,070 --> 00:06:43,820
+isn't about saving an allocation,
+
+197
+00:06:44,060 --> 00:06:45,920
+as we're still needing to make that allocation
+
+198
+00:06:46,120 --> 00:06:47,899
+for the new String created from the concate
+
+199
+00:06:48,099 --> 00:06:48,370
+nation.
+
+200
+00:06:49,220 --> 00:06:51,289
+We still think that borrowing is a more idiomatic
+
+201
+00:06:51,489 --> 00:06:53,300
+solution than the solution where we cloned
+
+202
+00:06:53,500 --> 00:06:54,200
+s in main.
+
+203
+00:06:54,800 --> 00:06:57,229
+Here, the allocation is an implementation
+
+204
+00:06:57,429 --> 00:06:59,329
+detail encapsulated in the pluralize
+
+205
+00:06:59,529 --> 00:07:01,300
+function rather than making that
+
+206
+00:07:01,500 --> 00:07:03,080
+a concern of the code calling
+
+207
+00:07:03,280 --> 00:07:04,000
+pluralize.
+
+208
+00:07:05,560 --> 00:07:07,389
+We've shown that borrowing is a way to lend
+
+209
+00:07:07,589 --> 00:07:08,120
+out a value,
+
+210
+00:07:08,320 --> 00:07:10,209
+instead of transferring ownership to allow
+
+211
+00:07:10,409 --> 00:07:11,800
+other code to use the value.
+
+212
+00:07:13,010 --> 00:07:15,070
+Rust code uses borrowing to reduce
+
+213
+00:07:15,270 --> 00:07:17,259
+allocations, which can improve the runtime
+
+214
+00:07:17,459 --> 00:07:19,290
+performance and memory usage of our code.
+
+215
+00:07:20,460 --> 00:07:22,660
+Borrowing in Rust is less error-prone
+
+216
+00:07:22,860 --> 00:07:24,400
+than using pointers in other languages
+
+217
+00:07:24,640 --> 00:07:26,559
+because Rust makes sure that the references are
+
+218
+00:07:26,759 --> 00:07:28,539
+always valid. In
+
+219
+00:07:28,739 --> 00:07:30,470
+general, having functions borrow
+
+220
+00:07:30,670 --> 00:07:32,409
+values rather than take ownership is
+
+221
+00:07:32,609 --> 00:07:33,340
+more idiomatic.
+
+222
+00:07:35,120 --> 00:07:36,770
+These are the basics about borrowing.
+
+223
+00:07:36,970 --> 00:07:38,809
+There are more details that we're going to get into
+
+224
+00:07:39,009 --> 00:07:39,610
+in the next module.
+

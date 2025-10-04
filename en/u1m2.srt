@@ -1,0 +1,788 @@
+﻿1
+00:00:01,220 --> 00:00:02,470
+Let's get you set up!
+
+2
+00:00:03,110 --> 00:00:04,150
+In this module,
+
+3
+00:00:04,220 --> 00:00:06,139
+we'll go through how to install Rust using
+
+4
+00:00:06,140 --> 00:00:08,089
+rustup – a tool to manage
+
+5
+00:00:08,090 --> 00:00:09,100
+Rust versions.
+
+6
+00:00:10,160 --> 00:00:12,430
+We'll take a look at how to create new projects,
+
+7
+00:00:12,560 --> 00:00:13,480
+compile them,
+
+8
+00:00:13,910 --> 00:00:15,979
+and run them using Cargo – Rust's
+
+9
+00:00:15,980 --> 00:00:16,819
+package manager
+
+10
+00:00:16,820 --> 00:00:17,830
+and build tool.
+
+11
+00:00:18,840 --> 00:00:21,059
+We'll talk about where you can find documentation,
+
+12
+00:00:21,060 --> 00:00:22,460
+both online and off,
+
+13
+00:00:23,140 --> 00:00:24,959
+and we'll wrap up talking about the editor we're
+
+14
+00:00:24,960 --> 00:00:27,320
+using in this course – Visual Studio Code.
+
+15
+00:00:29,190 --> 00:00:30,440
+First things first:
+
+16
+00:00:31,020 --> 00:00:32,548
+the best way to install Rust is
+
+17
+00:00:32,549 --> 00:00:33,440
+with rustup.
+
+18
+00:00:34,570 --> 00:00:36,419
+rustup is a command-line tool to
+
+19
+00:00:36,420 --> 00:00:38,249
+manage the installation of Rust's versions
+
+20
+00:00:38,250 --> 00:00:40,130
+and optional components.
+
+21
+00:00:41,010 --> 00:00:42,989
+A new stable version of Rust comes out every
+
+22
+00:00:42,990 --> 00:00:44,000
+6 weeks,
+
+23
+00:00:44,250 --> 00:00:46,370
+and rustup makes it easy to stay up to date.
+
+24
+00:00:48,320 --> 00:00:49,540
+Visit rustup.rs,
+
+25
+00:00:50,210 --> 00:00:52,139
+which will give you a command to run that will
+
+26
+00:00:52,140 --> 00:00:54,199
+install rustup and the latest stable version
+
+27
+00:00:54,200 --> 00:00:56,119
+of Rust.
+
+28
+00:00:56,120 --> 00:00:57,589
+We'll show what this process looks like on Linux
+
+29
+00:00:57,590 --> 00:00:59,980
+and macOS first, then Windows.
+
+30
+00:01:00,620 --> 00:01:02,459
+On Linux and macOS, rustup.rs
+
+31
+00:01:02,460 --> 00:01:04,309
+shows a command for you to
+
+32
+00:01:04,310 --> 00:01:05,989
+copy and paste into your terminal
+
+33
+00:01:05,990 --> 00:01:06,670
+and run.
+
+34
+00:01:07,520 --> 00:01:09,139
+Feel free to first download the script
+
+35
+00:01:09,140 --> 00:01:11,029
+and inspect what it is going to do before
+
+36
+00:01:11,030 --> 00:01:12,079
+piping it to the shell to
+
+37
+00:01:12,080 --> 00:01:13,440
+run it, if you'd like.
+
+38
+00:01:23,090 --> 00:01:24,979
+On Windows, the process is a little bit
+
+39
+00:01:24,980 --> 00:01:27,409
+different. rustup.rs
+
+40
+00:01:27,410 --> 00:01:29,389
+will give you a link to download
+
+41
+00:01:29,390 --> 00:01:30,350
+rustup-init.exe.
+
+42
+00:01:31,100 --> 00:01:32,959
+Once you have that file, double-click
+
+43
+00:01:32,960 --> 00:01:35,130
+on it to run it, and follow the instructions.
+
+44
+00:01:48,340 --> 00:01:49,150
+At this point,
+
+45
+00:01:49,330 --> 00:01:50,940
+no matter what platform you're on,
+
+46
+00:01:51,170 --> 00:01:53,559
+you should have the latest stable version of Rust
+
+47
+00:01:53,560 --> 00:01:55,379
+installed by default for you by
+
+48
+00:01:55,380 --> 00:01:55,950
+rustup.
+
+49
+00:01:57,010 --> 00:01:58,210
+Open a terminal window.
+
+50
+00:01:58,390 --> 00:02:00,660
+Run rustc --version
+
+51
+00:02:01,150 --> 00:02:03,099
+and you should see a version number that looks similar
+
+52
+00:02:03,100 --> 00:02:04,150
+to what we have here.
+
+53
+00:02:06,330 --> 00:02:08,429
+Rust 1.24 is what we are using
+
+54
+00:02:08,430 --> 00:02:10,299
+in this course. You'll
+
+55
+00:02:10,300 --> 00:02:11,790
+likely get a newer version
+
+56
+00:02:11,860 --> 00:02:13,200
+and that's just fine.
+
+57
+00:02:13,600 --> 00:02:15,720
+The stability guarantees Rust makes
+
+58
+00:02:15,880 --> 00:02:17,919
+mean the code we write in this course
+
+59
+00:02:17,920 --> 00:02:19,389
+will compile and run successfully
+
+60
+00:02:19,390 --> 00:02:20,679
+with any Rust version
+
+61
+00:02:20,680 --> 00:02:22,200
+with a major version of 1
+
+62
+00:02:22,390 --> 00:02:24,540
+and a minor version of at least 24.
+
+63
+00:02:26,680 --> 00:02:28,629
+If any part of this installation hasn't worked
+
+64
+00:02:28,630 --> 00:02:29,310
+for you,
+
+65
+00:02:29,740 --> 00:02:31,569
+hop over to the Rust Beginner's chat on
+
+66
+00:02:31,570 --> 00:02:33,180
+the Mozilla IRC network.
+
+67
+00:02:33,910 --> 00:02:35,850
+We've provided a link to a web-based IRC
+
+68
+00:02:36,070 --> 00:02:37,740
+client that will take you right there.
+
+69
+00:02:38,950 --> 00:02:40,929
+The channel is full of folks eager to help people
+
+70
+00:02:40,930 --> 00:02:41,930
+new to Rust.
+
+71
+00:02:43,830 --> 00:02:45,670
+We highly recommend using rustup.
+
+72
+00:02:45,960 --> 00:02:47,930
+It's the smoothest way to install Rust.
+
+73
+00:02:48,360 --> 00:02:50,500
+However, if you don't want to use rustup,
+
+74
+00:02:50,760 --> 00:02:51,839
+there are other ways –
+
+75
+00:02:51,840 --> 00:02:54,020
+see the Rust website for more details.
+
+76
+00:02:56,040 --> 00:02:57,569
+Rust comes with a package manager
+
+77
+00:02:57,570 --> 00:02:59,360
+and build tool called Cargo.
+
+78
+00:03:00,000 --> 00:03:01,700
+Let's see what Cargo does for us.
+
+79
+00:03:03,720 --> 00:03:05,909
+First, check that Cargo is installed
+
+80
+00:03:05,910 --> 00:03:07,730
+by running cargo --version.
+
+81
+00:03:08,640 --> 00:03:10,750
+If you get a version number back, you're good.
+
+82
+00:03:11,340 --> 00:03:13,460
+The number won't match the rustc --version.
+
+83
+00:03:13,590 --> 00:03:15,680
+Cargo has its own version numbering scheme.
+
+84
+00:03:18,060 --> 00:03:20,099
+Next, go into whatever directory
+
+85
+00:03:20,100 --> 00:03:21,440
+you like to keep code in,
+
+86
+00:03:21,810 --> 00:03:24,020
+and run cargo new --bin
+
+87
+00:03:24,120 --> 00:03:25,490
+and pick a project name.
+
+88
+00:03:26,220 --> 00:03:28,100
+We've chosen the name myproject here.
+
+89
+00:03:29,100 --> 00:03:31,190
+This creates a new binary crate
+
+90
+00:03:31,230 --> 00:03:33,020
+that will produce an executable.
+
+91
+00:03:35,020 --> 00:03:37,059
+Binary crates are what we're going to be using
+
+92
+00:03:37,060 --> 00:03:38,340
+in most of the course.
+
+93
+00:03:38,980 --> 00:03:40,899
+The other choice is library crates
+
+94
+00:03:40,900 --> 00:03:42,990
+that are meant to be used from other projects.
+
+95
+00:03:43,510 --> 00:03:45,489
+You'd create a library crate by specifying
+
+96
+00:03:45,490 --> 00:03:46,389
+--lib
+
+97
+00:03:46,390 --> 00:03:47,160
+instead.
+
+98
+00:03:48,730 --> 00:03:50,409
+Cargo has created a directory
+
+99
+00:03:50,410 --> 00:03:52,020
+with the name that we specified.
+
+100
+00:03:52,300 --> 00:03:54,090
+So, change into that directory;
+
+101
+00:03:55,030 --> 00:03:57,090
+in here is a Cargo.toml file
+
+102
+00:03:57,280 --> 00:03:58,530
+and a source directory.
+
+103
+00:03:59,140 --> 00:04:01,359
+The Cargo.toml file contains some metadata
+
+104
+00:04:01,360 --> 00:04:02,430
+about our project.
+
+105
+00:04:03,210 --> 00:04:04,049
+Cargo fills this in
+
+106
+00:04:04,050 --> 00:04:05,729
+with information from your environment,
+
+107
+00:04:05,730 --> 00:04:06,740
+if it's available.
+
+108
+00:04:07,710 --> 00:04:09,740
+Feel free to fix any of this if it's incorrect.
+
+109
+00:04:11,130 --> 00:04:13,019
+Cargo.toml is also where we'd list
+
+110
+00:04:13,020 --> 00:04:13,829
+any dependencies
+
+111
+00:04:13,830 --> 00:04:15,659
+our project has. Right now, we don't
+
+112
+00:04:15,660 --> 00:04:16,310
+have any.
+
+113
+00:04:18,410 --> 00:04:19,780
+In the source directory,
+
+114
+00:04:19,880 --> 00:04:21,889
+Cargo has created a main.rs file
+
+115
+00:04:21,890 --> 00:04:22,720
+for us.
+
+116
+00:04:23,630 --> 00:04:25,819
+This file contains a main function that prints
+
+117
+00:04:25,820 --> 00:04:26,650
+"Hello, world!".
+
+118
+00:04:28,440 --> 00:04:30,689
+To have Cargo compile this code for us,
+
+119
+00:04:30,690 --> 00:04:32,609
+in the project directory, we can run
+
+120
+00:04:32,610 --> 00:04:33,650
+cargo build.
+
+121
+00:04:35,510 --> 00:04:37,360
+This has created some new files:
+
+122
+00:04:37,760 --> 00:04:39,679
+a Cargo.lock﻿, ﻿which we keep track
+
+123
+00:04:39,680 --> 00:04:41,569
+of the exact versions of dependencies that
+
+124
+00:04:41,570 --> 00:04:43,060
+were used, if we had any,
+
+125
+00:04:43,520 --> 00:04:44,860
+and a target directory.
+
+126
+00:04:46,760 --> 00:04:48,589
+In the targ﻿et directory is a debug
+
+127
+00:04:48,590 --> 00:04:49,420
+directory,
+
+128
+00:04:49,890 --> 00:04:52,069
+and in that directory is an executable
+
+129
+00:04:52,070 --> 00:04:53,700
+with the same name as your project.
+
+130
+00:04:54,740 --> 00:04:56,599
+Run that now and you should see it print
+
+131
+00:04:56,600 --> 00:04:57,580
+Hello, world!.
+
+132
+00:04:59,560 --> 00:05:02,120
+The executable is in a debug directory
+
+133
+00:05:02,200 --> 00:05:04,209
+because, by default, Cargo builds
+
+134
+00:05:04,210 --> 00:05:06,430
+with very few optimizations turned on,
+
+135
+00:05:06,670 --> 00:05:09,060
+which makes compiling not take very long
+
+136
+00:05:09,190 --> 00:05:10,059
+and produces builds
+
+137
+00:05:10,060 --> 00:05:11,850
+with debugging information in them.
+
+138
+00:05:14,020 --> 00:05:15,969
+If you plan on doing any analysis
+
+139
+00:05:15,970 --> 00:05:17,830
+of the runtime performance of your code,
+
+140
+00:05:18,400 --> 00:05:20,319
+make sure to build in release mode by
+
+141
+00:05:20,320 --> 00:05:22,770
+using cargo build --release
+
+142
+00:05:22,930 --> 00:05:25,239
+and use the executable that command creates
+
+143
+00:05:25,240 --> 00:05:27,030
+in the target/release directory.
+
+144
+00:05:30,620 --> 00:05:32,519
+When you're developing, it's common to
+
+145
+00:05:32,520 --> 00:05:34,660
+want to build and run the code often.
+
+146
+00:05:35,010 --> 00:05:36,679
+So, rather than running ﻿cargo build﻿
+
+147
+00:05:36,680 --> 00:05:38,170
+and then the executable,
+
+148
+00:05:38,580 --> 00:05:40,489
+there's a cargo run command you can use that
+
+149
+00:05:40,490 --> 00:05:41,920
+does both of those for you.
+
+150
+00:05:43,870 --> 00:05:45,819
+Throughout this course, whenever you want
+
+151
+00:05:45,820 --> 00:05:47,610
+a new project to experiment in,
+
+152
+00:05:48,160 --> 00:05:49,989
+follow the steps we just went through to get
+
+153
+00:05:49,990 --> 00:05:51,340
+a new starting project.
+
+154
+00:05:53,360 --> 00:05:55,459
+You'll probably have questions about Rust code
+
+155
+00:05:55,460 --> 00:05:56,929
+that these videos don't cover
+
+156
+00:05:56,930 --> 00:05:58,420
+at some point in this course.
+
+157
+00:05:59,210 --> 00:06:00,259
+When that happens,
+
+158
+00:06:00,260 --> 00:06:01,890
+try looking in the documentation.
+
+159
+00:06:03,750 --> 00:06:06,240
+There is online documentation at
+
+160
+00:06:06,280 --> 00:06:07,959
+doc.rust-lang.org
+
+161
+00:06:07,960 --> 00:06:08,560
+
+
+162
+00:06:08,950 --> 00:06:11,109
+that includes API documentation,
+
+163
+00:06:11,110 --> 00:06:12,360
+error documentation,
+
+164
+00:06:12,730 --> 00:06:14,619
+and a number of free online books produced by
+
+165
+00:06:14,620 --> 00:06:15,480
+the project.
+
+166
+00:06:17,600 --> 00:06:19,549
+This information is also included
+
+167
+00:06:19,550 --> 00:06:21,400
+with every Rust installation,
+
+168
+00:06:21,830 --> 00:06:24,160
+and rustup makes it really easy to access.
+
+169
+00:06:24,950 --> 00:06:27,340
+In your terminal, run rustup doc
+
+170
+00:06:27,590 --> 00:06:29,689
+and that will open a browser window to the offline
+
+171
+00:06:29,690 --> 00:06:31,410
+documentation that's on your machine.
+
+172
+00:06:33,210 --> 00:06:35,079
+Finally, a word about the editor
+
+173
+00:06:35,080 --> 00:06:36,970
+we're using in this video series.
+
+174
+00:06:39,060 --> 00:06:41,039
+We're using the free, open source
+
+175
+00:06:41,040 --> 00:06:43,070
+Visual Studio Code IDE
+
+176
+00:06:43,200 --> 00:06:45,200
+with the Rust RLS extension.
+
+177
+00:06:46,200 --> 00:06:48,059
+The RLS is the Rust Language
+
+178
+00:06:48,060 --> 00:06:49,949
+Server – a backend that provides
+
+179
+00:06:49,950 --> 00:06:51,769
+information about Rust code to many
+
+180
+00:06:51,770 --> 00:06:52,670
+IDEs.
+
+181
+00:06:53,710 --> 00:06:55,629
+Visual Studio Code is the editor
+
+182
+00:06:55,630 --> 00:06:57,669
+that the RLS team has spent the most time
+
+183
+00:06:57,670 --> 00:06:58,560
+on so far.
+
+184
+00:07:00,240 --> 00:07:01,459
+In Visual Studio Code,
+
+185
+00:07:01,460 --> 00:07:03,779
+you'll get features like autocompletion
+
+186
+00:07:03,780 --> 00:07:05,760
+of methods available on a type
+
+187
+00:07:06,270 --> 00:07:08,459
+and immediate inline errors indicated
+
+188
+00:07:08,460 --> 00:07:09,770
+by red underlines
+
+189
+00:07:09,930 --> 00:07:12,350
+with the error messages available on hover.
+
+190
+00:07:14,260 --> 00:07:16,290
+Feel free to use whatever editor or IDE
+
+191
+00:07:16,600 --> 00:07:17,700
+you're comfortable with.
+
+192
+00:07:18,070 --> 00:07:19,959
+But if you're looking for an IDE, we
+
+193
+00:07:19,960 --> 00:07:21,759
+recommend giving Visual Studio Code
+
+194
+00:07:21,760 --> 00:07:23,670
+and the RLS extension a try.
+
+195
+00:07:25,530 --> 00:07:26,980
+You should be all set up now.
+
+196
+00:07:27,680 --> 00:07:29,099
+Let's write some Rust code, starting
+
+197
+00:07:29,100 --> 00:07:29,940
+with variables.
+

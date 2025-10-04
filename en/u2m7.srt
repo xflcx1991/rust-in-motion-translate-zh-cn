@@ -1,0 +1,868 @@
+﻿1
+00:00:01,680 --> 00:00:05,850
+There are a number of code patterns that you'll see in Rust that are useful because of the borrowing rules.
+
+2
+00:00:06,440 --> 00:00:11,490
+We'll start off by going into more detail about what we mean by borrows happening "at the same time."
+
+3
+00:00:11,980 --> 00:00:15,240
+We mentioned this concept in the previous module on borrowing and mutability,
+
+4
+00:00:15,540 --> 00:00:17,850
+but we didn't go into detail about what that looks like.
+
+5
+00:00:18,070 --> 00:00:18,950
+We'll do so here.
+
+6
+00:00:20,100 --> 00:00:22,770
+Then, we'll take a look at some situations you might find yourself in,
+
+7
+00:00:23,010 --> 00:00:25,290
+and the code patterns to use in those situations.
+
+8
+00:00:26,010 --> 00:00:28,310
+The patterns are introducing new scopes,
+
+9
+00:00:28,620 --> 00:00:30,150
+using temporary variables,
+
+10
+00:00:30,540 --> 00:00:31,900
+using the Entry API,
+
+11
+00:00:32,090 --> 00:00:34,810
+and splitting up a struct into multiple smaller structs.
+
+12
+00:00:35,740 --> 00:00:36,310
+Finally,
+
+13
+00:00:36,320 --> 00:00:37,450
+we'll touch on some improvements
+
+14
+00:00:37,450 --> 00:00:42,450
+eventually coming to the Rust compiler that make the borrow checker match human intuition more closely.
+
+15
+00:00:43,940 --> 00:00:52,550
+Let's get started with some more details on what "at the same time" means. In most cases, when we say borrows happen "at the same time,"
+
+16
+00:00:52,940 --> 00:00:56,250
+that means they're in the same lexical scope created by curly brackets.
+
+17
+00:00:57,740 --> 00:00:58,730
+In this example,
+
+18
+00:00:58,740 --> 00:01:01,350
+we have two immutable borrows "at the same time":
+
+19
+00:01:01,940 --> 00:01:07,350
+the reference stored in list_first lasts from where it's declared until the closing curly brace of main.
+
+20
+00:01:08,180 --> 00:01:13,150
+The reference in list_last is also valid from its declaration until the end of main.
+
+21
+00:01:14,720 --> 00:01:17,750
+This code works fine because both references are immutable,
+
+22
+00:01:18,140 --> 00:01:20,650
+which is allowed under the rules we covered in the previous module.
+
+23
+00:01:22,240 --> 00:01:22,890
+However,
+
+24
+00:01:23,060 --> 00:01:30,710
+if we make the list mutable and introduce a variable named list.first_mut that holds a mutable reference,
+
+25
+00:01:31,240 --> 00:01:37,950
+this example will no longer compile. Because the immutable borrows last until the end of main's scope,
+
+26
+00:01:38,340 --> 00:01:41,880
+they happen at the same time as the mutable borrow we just introduced.
+
+27
+00:01:43,440 --> 00:01:46,450
+Sometimes, "in the same scope" isn't quite accurate.
+
+28
+00:01:46,990 --> 00:01:48,970
+Let's look at another example. Here,
+
+29
+00:01:48,970 --> 00:01:53,010
+we're still calling the method first_mut that returns a mutable reference to list.
+
+30
+00:01:53,380 --> 00:01:55,960
+But rather than storing the mutable reference in a variable,
+
+31
+00:01:56,290 --> 00:01:58,520
+we're using it right away in one expression.
+
+32
+00:01:59,340 --> 00:02:02,710
+Then, we take immutable references after we've mutated list.
+
+33
+00:02:03,240 --> 00:02:07,450
+This example still has a mutable reference and immutable references in the same scope.
+
+34
+00:02:07,630 --> 00:02:09,210
+So, this violates the borrowing rules,
+
+35
+00:02:09,210 --> 00:02:09,550
+right?
+
+36
+00:02:10,940 --> 00:02:11,320
+Nope!
+
+37
+00:02:11,600 --> 00:02:12,750
+This code is actually allowed.
+
+38
+00:02:14,270 --> 00:02:20,780
+The mutable borrow only lasts for the single expression because there's no variable holding on to the reference until the end of the function's
+
+39
+00:02:20,780 --> 00:02:23,470
+scope. Since the mutable borrow ends right away
+
+40
+00:02:23,480 --> 00:02:25,250
+and then the immutable borrows start,
+
+41
+00:02:25,640 --> 00:02:28,420
+the immutable borrows aren't happening at the same time,
+
+42
+00:02:28,650 --> 00:02:30,650
+even though they're happening in the same scope.
+
+43
+00:02:32,040 --> 00:02:33,550
+Here's another variation.
+
+44
+00:02:34,340 --> 00:02:37,000
+We're still using the mutable reference in a single expression,
+
+45
+00:02:37,310 --> 00:02:39,790
+but this time we're mutating the list after we're
+
+46
+00:02:39,790 --> 00:02:43,770
+done using the immutable references. Based on the last example,
+
+47
+00:02:43,980 --> 00:02:45,950
+you might think that this example should work.
+
+48
+00:02:47,440 --> 00:02:52,550
+As of Rust 1.24 – the version that we're using – this example doesn't work.
+
+49
+00:02:53,440 --> 00:03:01,030
+The error shows that because the immutable borrow lasts until the end of main and the mutable borrow happens between the immutable borrow and the end of main,
+
+50
+00:03:01,220 --> 00:03:02,250
+this isn't allowed.
+
+51
+00:03:04,240 --> 00:03:10,200
+You might realize that this could be allowed because the immutable borrow isn't used between the mutable borrow and the end of main.
+
+52
+00:03:10,770 --> 00:03:13,850
+The compiler is being overly conservative in its analysis.
+
+53
+00:03:14,340 --> 00:03:14,910
+However,
+
+54
+00:03:15,340 --> 00:03:17,400
+this code will work in the future, as we'll
+
+55
+00:03:17,400 --> 00:03:18,950
+discuss at the end of this video.
+
+56
+00:03:20,440 --> 00:03:21,150
+Next,
+
+57
+00:03:21,540 --> 00:03:24,970
+let's talk about code patterns influenced by the borrowing rules,
+
+58
+00:03:25,280 --> 00:03:30,420
+starting with adding new scopes. In the example we were just looking at,
+
+59
+00:03:30,570 --> 00:03:34,280
+the problem was that the immutable borrows lasted until the end of main,
+
+60
+00:03:34,590 --> 00:03:41,410
+even though we were finished using them before that point.
+
+61
+00:03:41,410 --> 00:03:42,690
+To tell Rust that we're done with the immutable borrows before the end of main,
+
+62
+00:03:42,950 --> 00:03:44,750
+we can add a new inner scope
+
+63
+00:03:45,140 --> 00:03:46,950
+that ends before the outer scope does.
+
+64
+00:03:48,540 --> 00:03:49,480
+In this example,
+
+65
+00:03:49,700 --> 00:03:50,880
+the inner scope we're adding
+
+66
+00:03:50,880 --> 00:03:55,950
+contains the declarations and usages of the variables containing the immutable borrows.
+
+67
+00:04:01,040 --> 00:04:01,700
+This way,
+
+68
+00:04:01,890 --> 00:04:05,550
+the immutable borrows will end at the closing curly bracket of the inner scope,
+
+69
+00:04:06,040 --> 00:04:11,350
+and the compiler will no longer think that they happen at the same time as the mutable borrow in the last line of main.
+
+70
+00:04:13,070 --> 00:04:17,280
+This code now compiles and runs.
+
+71
+00:04:17,550 --> 00:04:19,590
+Next, let's look at an example where introducing
+
+72
+00:04:19,590 --> 00:04:22,650
+a temporary variable is needed because of the borrowing rules.
+
+73
+00:04:24,340 --> 00:04:25,320
+In this example,
+
+74
+00:04:25,330 --> 00:04:27,850
+we've defined a Player struct that has a score field.
+
+75
+00:04:28,740 --> 00:04:30,720
+Rather than making thescore field public,
+
+76
+00:04:30,940 --> 00:04:33,650
+we've implemented set_score and score methods.
+
+77
+00:04:34,340 --> 00:04:35,070
+In main,
+
+78
+00:04:35,220 --> 00:04:40,240
+we create a new mutable Player, and then try to increment the score by setting it to its previous score
+
+79
+00:04:40,240 --> 00:04:41,050
+plus one.
+
+80
+00:04:42,540 --> 00:04:43,980
+This code doesn't compile;
+
+81
+00:04:44,300 --> 00:04:44,650
+the error
+
+82
+00:04:44,650 --> 00:04:45,650
+message says,
+
+83
+00:04:46,040 --> 00:04:50,550
+cannot borrow `player1` asimmutable because it is also borrowed as mutable.
+
+84
+00:04:51,140 --> 00:04:56,410
+The error message shows that the mutable borrow of player1 starts with the call to set_score
+
+85
+00:04:56,530 --> 00:04:58,850
+because that method borrows mut self.
+
+86
+00:04:59,340 --> 00:05:02,100
+This mutable borrow lasts until the end of the line.
+
+87
+00:05:02,720 --> 00:05:08,370
+The immutable borrow of self that score takes happens at the same time that the mutable borrow is active,
+
+88
+00:05:08,510 --> 00:05:12,080
+which isn't allowed. To fix this,
+
+89
+00:05:12,140 --> 00:05:14,650
+we can introduce a temporary variable to hold
+
+90
+00:05:14,650 --> 00:05:16,050
+the result of the expression.
+
+91
+00:05:16,640 --> 00:05:18,330
+The expression can then be computed,
+
+92
+00:05:18,340 --> 00:05:21,650
+and the borrow will end before a conflicting borrow starts.
+
+93
+00:05:23,540 --> 00:05:24,520
+In this example,
+
+94
+00:05:24,600 --> 00:05:27,010
+the temporary variable will hold the previous score,
+
+95
+00:05:27,070 --> 00:05:33,850
+so that the immutable borrow of player1 from the score method ends before the mutable borrow from set_score begins.
+
+96
+00:05:35,340 --> 00:05:37,450
+This code now compiles and runs.
+
+97
+00:05:38,940 --> 00:05:39,530
+Next,
+
+98
+00:05:39,650 --> 00:05:43,050
+let's look at a method named entry that is a part of some data structure's
+
+99
+00:05:43,050 --> 00:05:43,950
+APIs.
+
+100
+00:05:44,340 --> 00:05:46,360
+We're going to show an example using HashMap.
+
+101
+00:05:47,940 --> 00:05:50,480
+When working with a HashMap of key/value pairs,
+
+102
+00:05:50,520 --> 00:05:52,450
+it's common to look up a key in the HashMap.
+
+103
+00:05:52,940 --> 00:05:54,090
+If the key exists,
+
+104
+00:05:54,190 --> 00:05:55,570
+we want to update the value.
+
+105
+00:05:55,790 --> 00:05:56,920
+But if it doesn't exist,
+
+106
+00:05:57,020 --> 00:05:58,950
+we want to insert an initial value.
+
+107
+00:06:00,540 --> 00:06:01,390
+For example,
+
+108
+00:06:01,450 --> 00:06:03,880
+to count the frequency of words in some text,
+
+109
+00:06:04,340 --> 00:06:07,690
+we could have a HashMap where the words would be the keys and their frequencies, the values.
+
+110
+00:06:07,690 --> 00:06:10,730
+For each word in the text,
+
+111
+00:06:10,740 --> 00:06:11,450
+we'd look it up.
+
+112
+00:06:12,040 --> 00:06:13,250
+If the word was present,
+
+113
+00:06:13,640 --> 00:06:18,780
+we would increase the value to tally another occurrence of the word. If the word was not present,
+
+114
+00:06:19,070 --> 00:06:24,150
+this is the first time we've seen the word, so insert it into the HashMap with a corresponding value of 1.
+
+115
+00:06:25,640 --> 00:06:29,050
+Let's look at an attempt to write this code in Rust that doesn't work.
+
+116
+00:06:30,400 --> 00:06:35,250
+This code looks up each word from the text in the frequencies HashMap using the get_mut method.
+
+117
+00:06:35,940 --> 00:06:37,170
+If the word is found,
+
+118
+00:06:37,370 --> 00:06:40,850
+the Some arm of the match succeeds and we add one to the value.
+
+119
+00:06:41,470 --> 00:06:42,930
+If the word isn't found,
+
+120
+00:06:43,010 --> 00:06:44,570
+get_mut returns None,
+
+121
+00:06:44,580 --> 00:06:47,530
+and we insert the word with the value 1 to record that
+
+122
+00:06:47,530 --> 00:06:49,350
+this is the first time we've seen this word.
+
+123
+00:06:50,840 --> 00:06:52,030
+If we try to compile this,
+
+124
+00:06:52,170 --> 00:06:56,650
+the errors say that we're not allowed to borrow frequencies as mutable more than once at a time.
+
+125
+00:06:57,380 --> 00:07:02,850
+The error shows that the call to get_mut is the first mutable borrow and the call to insert is the second.
+
+126
+00:07:03,640 --> 00:07:04,750
+So, how do we fix this?
+
+127
+00:07:06,330 --> 00:07:09,400
+The solution is to use the entry method defined on HashMap.
+
+128
+00:07:10,240 --> 00:07:11,650
+This method abstracts away
+
+129
+00:07:11,650 --> 00:07:19,050
+the conditionals that handle whether the key is present or absent, and instead exposes methods to customize what to do in those cases.
+
+130
+00:07:20,620 --> 00:07:24,230
+The entry method takes a key and returns an instance of the Entry
+
+131
+00:07:24,240 --> 00:07:29,510
+enum. The Entry enum has two variants: Occupied or Vacant.
+
+132
+00:07:31,040 --> 00:07:39,280
+The or_insert method on Entry will return a mutable reference that, for an Occupied entry, refers to the existing value. And for a Vacant entry,
+
+133
+00:07:39,290 --> 00:07:43,950
+will insert the given value and then return a mutable reference to the now-existing value.
+
+134
+00:07:45,500 --> 00:07:47,640
+If we change the code to use these methods,
+
+135
+00:07:47,760 --> 00:07:49,980
+this one line of code will insert 0
+
+136
+00:07:49,990 --> 00:07:51,550
+if the word is not in the HashMap,
+
+137
+00:07:52,040 --> 00:07:55,650
+and then we'll add 1 to the Entry that was either found or just inserted.
+
+138
+00:07:57,180 --> 00:07:59,400
+This compiles and counts the word frequencies.
+
+139
+00:08:00,880 --> 00:08:01,540
+Finally,
+
+140
+00:08:01,630 --> 00:08:04,550
+let's explore splitting up structs into multiple structs.
+
+141
+00:08:06,040 --> 00:08:09,880
+Here, we have a game with a Monster struct that has fields for health points,
+
+142
+00:08:10,050 --> 00:08:13,300
+spell points, and a list of friends who have a loyalty value.
+
+143
+00:08:14,010 --> 00:08:16,950
+We've defined a method on Monster called final_breath.
+
+144
+00:08:17,340 --> 00:08:19,660
+If the monster is about to run out of health points,
+
+145
+00:08:19,850 --> 00:08:25,790
+one of its friends can save it by giving it hp and using some sp in proportion to their loyalty.
+
+146
+00:08:26,440 --> 00:08:32,150
+Rust understands that it is safe to borrow different fields of the same struct because there's no way that they can conflict.
+
+147
+00:08:32,640 --> 00:08:38,930
+This method borrows self.friends immutably in the call to self.friends.first, and it borrows
+
+148
+00:08:38,930 --> 00:08:47,050
+self.hp and self.sp mutably when updating those values. This code compiles without any errors.
+
+149
+00:08:48,540 --> 00:08:54,450
+Now we want to extract a heal method that takes care of updating hp and sp in order to reuse this code.
+
+150
+00:09:01,440 --> 00:09:03,040
+This code will no longer compile.
+
+151
+00:09:03,260 --> 00:09:09,550
+We get an error that says, cannot borrow `*self` as mutable because `self.friends` is also borrowed as immutable.
+
+152
+00:09:11,180 --> 00:09:16,180
+This is because the heal method now takes a mutable reference to all of self, and Rust
+
+153
+00:09:16,180 --> 00:09:20,640
+doesn't see that the heal method only modifies the hp and sp fields,
+
+154
+00:09:20,760 --> 00:09:22,000
+not the friend field.
+
+155
+00:09:23,540 --> 00:09:24,480
+The pattern to solve
+
+156
+00:09:24,480 --> 00:09:25,930
+this problem is to split up
+
+157
+00:09:25,930 --> 00:09:28,760
+the Monster struct into smaller structs that group
+
+158
+00:09:28,760 --> 00:09:29,420
+the fields that are
+
+159
+00:09:29,420 --> 00:09:35,050
+used together. The methods that only use some of the fields are then defined on the inner struct instead.
+
+160
+00:09:36,640 --> 00:09:40,840
+Here, we're creating a struct called Stats for the hp and sp fields.
+
+161
+00:09:41,090 --> 00:09:43,950
+We move the heal method to the Stats struct.
+
+162
+00:09:44,900 --> 00:09:47,120
+The Monster struct will then have a stats field,
+
+163
+00:09:47,430 --> 00:09:55,150
+and the final_breath method can call self.stats.heal.
+
+164
+00:09:55,240 --> 00:09:56,850
+This code compiles successfully, and as a side effect, it's also a better design.
+
+165
+00:09:57,340 --> 00:10:00,850
+Now we can reuse the Stats struct for something other than monsters.
+
+166
+00:10:02,340 --> 00:10:05,450
+Now that we've looked at some common Rust borrowing patterns,
+
+167
+00:10:05,940 --> 00:10:08,950
+let's talk about how these patterns might change in the future.
+
+168
+00:10:10,540 --> 00:10:12,280
+At the time of recording this video,
+
+169
+00:10:12,460 --> 00:10:14,860
+there's an improvement to the Rust compiler being developed,
+
+170
+00:10:14,870 --> 00:10:16,740
+called Non-Lexical Lifetimes
+
+171
+00:10:16,960 --> 00:10:17,820
+or NLL 
+
+172
+00:10:17,820 --> 00:10:18,450
+for short.
+
+173
+00:10:18,940 --> 00:10:21,490
+This feature teaches the borrow checker some new tricks.
+
+174
+00:10:22,080 --> 00:10:26,550
+The borrow checker learns that borrows don't always have to last until the end of the lexical scope.
+
+175
+00:10:28,040 --> 00:10:28,810
+In this example,
+
+176
+00:10:28,810 --> 00:10:31,190
+where we didn't use the immutable borrows after the println!,
+
+177
+00:10:31,190 --> 00:10:31,510
+
+
+178
+00:10:32,140 --> 00:10:37,850
+the borrow checker will soon understand that and allow this code to compile without having to add an extra inner scope.
+
+179
+00:10:39,240 --> 00:10:43,370
+Another capability that the borrow checker will gain is being able to see that a borrow
+
+180
+00:10:43,370 --> 00:10:47,050
+that's part of an expression can end after computing that part,
+
+181
+00:10:47,320 --> 00:10:49,650
+rather than hanging around for the entire expression.
+
+182
+00:10:51,140 --> 00:10:51,860
+In this example,
+
+183
+00:10:51,860 --> 00:10:53,750
+where we introduced a temporary variable,
+
+184
+00:10:54,200 --> 00:11:03,590
+the borrow checker will understand that the immutable borrow to player1 can end after getting the score, so that it doesn't occur at the same time as the mutable borrow that set_score takes.
+
+185
+00:11:05,240 --> 00:11:12,100
+Another improvement will be making the borrow checker understand when borrows aren't used in all arms of an if or match expression.
+
+186
+00:11:14,000 --> 00:11:23,550
+The initial code we tried in the word frequency example will be allowed because the borrow checker will understand that, in the None arm, there won't be a mutable reference from the call to get_mut.
+
+187
+00:11:23,760 --> 00:11:27,150
+So there's nothing to conflict with the mutable reference that insert needs.
+
+188
+00:11:28,740 --> 00:11:32,150
+There's a few things to keep in mind for when these improvements are completed.
+
+189
+00:11:32,640 --> 00:11:33,390
+Using the Entry
+
+190
+00:11:33,390 --> 00:11:36,520
+API in the example we looked at won't be necessary,
+
+191
+00:11:36,660 --> 00:11:38,550
+but it will still be a common pattern.
+
+192
+00:11:39,080 --> 00:11:41,850
+The Entry API makes code more concise and clear.
+
+193
+00:11:43,240 --> 00:11:43,910
+The Entry API
+
+194
+00:11:43,910 --> 00:11:47,290
+is also more efficient. In the code that uses the match,
+
+195
+00:11:47,300 --> 00:11:50,890
+the hash of the key is computed twice. When using the Entry API,
+
+196
+00:11:51,060 --> 00:11:52,750
+the hash is only computed once.
+
+197
+00:11:54,460 --> 00:11:59,220
+The other example that won't change is the monster example, where we split the struct into smaller structs,
+
+198
+00:11:59,230 --> 00:12:00,750
+based on how the fields are used.
+
+199
+00:12:01,240 --> 00:12:05,340
+This pattern will still be useful because methods will still borrow the entire struct,
+
+200
+00:12:05,570 --> 00:12:07,350
+which will count as "at the same time."
+
+201
+00:12:08,840 --> 00:12:17,050
+Keep in mind that the NLL improvements are fixing cases where the borrow checker was being overly conservative and rejecting code that was actually valid.
+
+202
+00:12:17,590 --> 00:12:19,650
+It will still reject invalid code.
+
+203
+00:12:21,240 --> 00:12:21,980
+For instance,
+
+204
+00:12:22,050 --> 00:12:28,820
+in the example where we tried to take a mutable reference between when immutable references were created and used, the borrows are still happening
+
+205
+00:12:28,820 --> 00:12:29,830
+at the same time,
+
+206
+00:12:30,050 --> 00:12:31,850
+no matter how you analyze the code.
+
+207
+00:12:32,570 --> 00:12:35,950
+This code still won't compile after NLL is done.
+
+208
+00:12:37,540 --> 00:12:38,130
+Finally,
+
+209
+00:12:38,320 --> 00:12:42,020
+if you're looking at code written before the NLL improvements were completed,
+
+210
+00:12:42,110 --> 00:12:44,950
+or that needs to be able to compile with an older version of Rust,
+
+211
+00:12:45,340 --> 00:12:48,250
+you'll likely still see the patterns we've covered in this module.
+
+212
+00:12:48,840 --> 00:12:56,140
+It's useful to understand why code with extra scopes and temporary variables was written that way.
+
+213
+00:12:56,150 --> 00:13:02,250
+In this module, we've discussed that in the context of references, "at the same time" usually means in the same lexical scope.
+
+214
+00:13:03,340 --> 00:13:09,650
+We looked at common code patterns that introduced new scopes to tell the borrow checker that a reference is no longer needed,
+
+215
+00:13:10,070 --> 00:13:13,650
+introduced a temporary variable to end one borrow before another,
+
+216
+00:13:14,040 --> 00:13:21,450
+used the Entry API to update or insert into a HashMap, and split up structs to have methods only borrow relevant fields.
+
+217
+00:13:22,340 --> 00:13:31,850
+We also went over the non-lexical lifetime improvements coming soon to a compiler near you. In the next module, we'll show how ownership applies to more than just memory.
+

@@ -1,0 +1,512 @@
+﻿1
+00:00:02,270 --> 00:00:09,620
+Control flow features let you write code that takes one action in some situations and another action in different situations. They're how you express decisions in your code.
+
+2
+00:00:09,620 --> 00:00:28,020
+In this module, we're going to cover if, else if, and else; three different kinds of loops – loop, while, and for; and the match expression. We'll be defining and calling functions in this module,
+
+3
+00:00:28,240 --> 00:00:30,260
+so check out the previous module on functions
+
+4
+00:00:30,270 --> 00:00:31,170
+if you need to review.
+
+5
+00:00:32,740 --> 00:00:48,950
+Let's start with if, else if, and else. We can write code that only uses if by starting with the if keyword, then an expression that evaluates to a Boolean, then curly brackets containing the code that should run if the condition evaluates to true.
+
+6
+00:00:49,840 --> 00:00:51,640
+If the condition evaluates to false,
+
+7
+00:00:51,720 --> 00:00:55,820
+the code in the brackets won't get run.
+
+8
+00:00:55,880 --> 00:01:00,210
+Optionally, you can have an else block that goes with an if block that contains code to run
+
+9
+00:01:00,220 --> 00:01:02,050
+if the condition evaluates to false.
+
+10
+00:01:04,140 --> 00:01:08,470
+You can also have multiple conditions by having an if block, then an else if
+
+11
+00:01:08,470 --> 00:01:10,050
+block with another condition,
+
+12
+00:01:10,540 --> 00:01:12,250
+as many else if blocks as you want,
+
+13
+00:01:13,240 --> 00:01:15,300
+and then an optional else block that is run
+
+14
+00:01:15,310 --> 00:01:20,540
+if all of the conditions evaluate to false.
+
+15
+00:01:20,630 --> 00:01:26,550
+Like with functions, we can get a value from an if or else block by leaving the semicolon off of the last expression in the block.
+
+16
+00:01:27,540 --> 00:01:29,450
+We can then put that value in a variable.
+
+17
+00:01:30,240 --> 00:01:30,500
+Note,
+
+18
+00:01:30,500 --> 00:01:33,350
+we do need a semicolon to end the variable assignment statement.
+
+19
+00:01:34,940 --> 00:01:35,920
+This code prints
+
+20
+00:01:36,070 --> 00:01:37,650
+Your discount is 50!.
+
+21
+00:01:39,980 --> 00:01:44,150
+Note that when we return a value from an if else expression for a variable,
+
+22
+00:01:44,740 --> 00:01:51,350
+there must be an else clause so that the variable always gets a value. And the types of the values must all be the same –
+
+23
+00:01:51,740 --> 00:01:52,450
+in this case,
+
+24
+00:01:52,530 --> 00:01:53,250
+i32.
+
+25
+00:01:55,540 --> 00:01:56,120
+Next,
+
+26
+00:01:56,250 --> 00:01:57,250
+let's talk about loops.
+
+27
+00:01:59,040 --> 00:02:01,220
+Loops let you run the same code repeatedly.
+
+28
+00:02:02,670 --> 00:02:06,750
+The loop keyword lets you specify a block of code that should be run forever.
+
+29
+00:02:07,640 --> 00:02:09,210
+This loop prints hello, world!
+
+30
+00:02:09,220 --> 00:02:10,250
+over and over again.
+
+31
+00:02:12,140 --> 00:02:14,350
+This program will run until the end of time.
+
+32
+00:02:14,940 --> 00:02:16,140
+We've stopped it using Ctrl +C.
+
+33
+00:02:16,140 --> 00:02:16,450
+
+
+34
+00:02:18,240 --> 00:02:20,550
+You can use the break keyword to exit a loop.
+
+35
+00:02:21,940 --> 00:02:23,560
+This code will loop forever,
+
+36
+00:02:23,850 --> 00:02:25,850
+asking What's the secret word?
+
+37
+00:02:26,340 --> 00:02:29,970
+and waiting for input, unless you type in the correct secret word, rust. In that case, we'll break out of the loop.
+
+38
+00:02:30,010 --> 00:02:40,550
+When we run this program and type java, the loop asks us again,
+
+39
+00:02:41,080 --> 00:02:42,280
+and if we type rust,
+
+40
+00:02:42,530 --> 00:02:44,950
+the code breaks out of the loop and the program ends.
+
+41
+00:02:47,640 --> 00:02:48,720
+The code we've written here,
+
+42
+00:02:48,720 --> 00:02:53,150
+using loop, if, and break, could also be written using a while loop.
+
+43
+00:02:54,140 --> 00:03:01,870
+A while loop is written with the while keyword, then an expression that evaluates to true or false, then curly brackets and a block of code.
+
+44
+00:03:03,140 --> 00:03:04,980
+The code in the block runs over and over,
+
+45
+00:03:04,980 --> 00:03:06,990
+while the expression specified is true.
+
+46
+00:03:09,040 --> 00:03:12,350
+Here's the secret word example rewritten using a while loop.
+
+47
+00:03:13,140 --> 00:03:16,250
+It works exactly the same, but is a little bit more concise.
+
+48
+00:03:17,740 --> 00:03:21,250
+The condition for when the loop should exit is now part of the start of the loop,
+
+49
+00:03:21,740 --> 00:03:23,310
+rather than inside the loop somewhere.
+
+50
+00:03:25,990 --> 00:03:28,950
+The for loop is probably the most common loop in Rust code.
+
+51
+00:03:29,880 --> 00:03:32,650
+It lets you run some code for each item in a collection.
+
+52
+00:03:33,870 --> 00:03:36,150
+Unlike for loops in some other languages, like C,
+
+53
+00:03:36,840 --> 00:03:39,980
+you don't need to manage an index into the collection and worry about
+
+54
+00:03:39,980 --> 00:03:44,950
+off-by-one errors.
+
+55
+00:03:45,340 --> 00:03:46,450
+To write a for loop, use the for keyword,
+
+56
+00:03:47,240 --> 00:03:56,750
+then pick a variable name to use inside the loop body to refer to each individual item. Then, put the keyword in, and specify the collection you want to use.
+
+57
+00:03:57,640 --> 00:04:00,810
+Then, put curly brackets and the code that should be run for each item.
+
+58
+00:04:03,540 --> 00:04:09,790
+Here, for the collection, we're using the range syntax – two dots – to create a range of integers,
+
+59
+00:04:09,800 --> 00:04:15,450
+starting from 1 inclusive and ending before 11.
+
+60
+00:04:15,940 --> 00:04:21,450
+For each number in the range, the for loop will print Now serving numberwith the number of the current iteration through the loop.
+
+61
+00:04:22,440 --> 00:04:28,950
+We can see that this code starts by printing Now serving number 1, and ends with printing Now serving number 10.
+
+62
+00:04:31,240 --> 00:04:31,810
+Finally,
+
+63
+00:04:32,050 --> 00:04:33,750
+let's talk about match expressions.
+
+64
+00:04:35,140 --> 00:04:38,050
+match isn't something very many programming languages have.
+
+65
+00:04:38,840 --> 00:04:39,970
+It's sort of like a bunch of
+
+66
+00:04:39,980 --> 00:04:42,920
+if/else ifs and sort of like a switch
+
+67
+00:04:42,930 --> 00:04:43,170
+or case
+
+68
+00:04:43,170 --> 00:04:43,750
+statement,
+
+69
+00:04:44,340 --> 00:04:46,050
+but better for two reasons:
+
+70
+00:04:46,540 --> 00:04:48,550
+pattern matching and exhaustiveness checking.
+
+71
+00:04:50,140 --> 00:04:50,700
+First,
+
+72
+00:04:50,870 --> 00:04:52,250
+let's talk about pattern matching.
+
+73
+00:04:53,740 --> 00:04:57,050
+Pattern matching is a feature available in Rust in multiple places.
+
+74
+00:04:57,940 --> 00:05:01,850
+We actually used pattern matching when we destructured a tuple into parts
+
+75
+00:05:02,280 --> 00:05:03,550
+in the Data types module. Surprise!
+
+76
+00:05:04,040 --> 00:05:09,750
+Pattern matching is especially useful in match expressions.
+
+77
+00:05:10,440 --> 00:05:19,050
+We specify a list of patterns to test a value against, and the match expression tests the value against each pattern and stops if it finds a matching one.
+
+78
+00:05:20,040 --> 00:05:21,980
+Then, it runs the code that goes with that pattern.
+
+79
+00:05:24,740 --> 00:05:26,780
+Here's an example of a match expression.
+
+80
+00:05:27,640 --> 00:05:29,850
+We have an integer stored in the variable x,
+
+81
+00:05:30,340 --> 00:05:32,850
+and we want to match x against some patterns.
+
+82
+00:05:33,640 --> 00:05:34,330
+In this case,
+
+83
+00:05:34,340 --> 00:05:36,070
+the patterns are literal numbers.
+
+84
+00:05:37,940 --> 00:05:40,210
+What Rust does is it takes x,
+
+85
+00:05:40,400 --> 00:05:44,650
+which in this case is 3, and compares it to 1, which doesn't match.
+
+86
+00:05:45,140 --> 00:05:46,810
+So, it moves on to the next pattern,
+
+87
+00:05:46,870 --> 00:05:47,350
+2,
+
+88
+00:05:47,740 --> 00:05:51,020
+which also doesn't match, onto the next pattern,
+
+89
+00:05:51,030 --> 00:05:51,530
+3,
+
+90
+00:05:51,810 --> 00:05:52,900
+which does match.
+
+91
+00:05:53,140 --> 00:05:56,950
+So Rust will print, Three's a crowd, and be done with this match expression.
+
+92
+00:05:58,280 --> 00:06:06,340
+The underscore in the last pattern is a catch-all that will match any value. So the last arm functions like an else in a set of
+
+93
+00:06:06,350 --> 00:06:07,050
+if/else
+
+94
+00:06:07,050 --> 00:06:08,250
+if/else blocks.
+
+95
+00:06:10,040 --> 00:06:13,150
+There are lots of different ideas you can express with pattern matching.
+
+96
+00:06:14,240 --> 00:06:19,050
+This example shows some logic that might be used in a board game where you roll two dice.
+
+97
+00:06:19,640 --> 00:06:22,850
+We've hardcoded the values of the dice roll to simplify this example.
+
+98
+00:06:23,340 --> 00:06:29,130
+The first arm matches a roll where both dice have the value 1. The second arm matches
+
+99
+00:06:29,140 --> 00:06:30,090
+any roll where
+
+100
+00:06:30,090 --> 00:06:31,340
+one of the two dice is 5,
+
+101
+00:06:31,790 --> 00:06:37,450
+but it doesn't matter which one, and we use underscores in the tuple pattern to ignore any other value.
+
+102
+00:06:38,880 --> 00:06:50,240
+The vertical bar between the two patterns means or. Also note that we can have multiple lines of code paired with the pattern by putting curly brackets around them.
+
+103
+00:06:50,250 --> 00:06:55,850
+Again, the last pattern is an underscore that will match any value for the whole tuple that hasn't already been matched.
+
+104
+00:06:57,780 --> 00:06:58,650
+This code prints,
+
+105
+00:06:59,040 --> 00:07:01,080
+You rolled at least one 5! Move and
+
+106
+00:07:01,080 --> 00:07:01,880
+then roll again!.
+
+107
+00:07:04,540 --> 00:07:10,050
+The other reason match expressions are awesome is that they must be exhaustive and cover every case.
+
+108
+00:07:10,740 --> 00:07:14,350
+This prevents bugs that can be caused by forgetting to handle a situation.
+
+109
+00:07:15,640 --> 00:07:16,350
+For example,
+
+110
+00:07:16,840 --> 00:07:19,480
+here's a match statement where we're checking two Booleans:
+
+111
+00:07:19,760 --> 00:07:21,540
+is_confirmed and is_active.
+
+112
+00:07:22,440 --> 00:07:23,490
+We've forgotten the case
+
+113
+00:07:23,490 --> 00:07:26,450
+where is_confirmed is true and is_active is false.
+
+114
+00:07:28,640 --> 00:07:30,790
+If we try to compile this, Rust
+
+115
+00:07:30,790 --> 00:07:34,900
+can see that we haven't covered every possibility. In this case,
+
+116
+00:07:34,960 --> 00:07:37,150
+it's even able to tell us which case we missed –
+
+117
+00:07:37,640 --> 00:07:37,950
+thanks,
+
+118
+00:07:37,950 --> 00:07:38,350
+Rust!
+
+119
+00:07:40,640 --> 00:07:52,780
+We would fix this either by adding the explicit case we missed or by using an underscore to explicitly acknowledge that we want to ignore all other cases.
+
+120
+00:07:52,920 --> 00:07:54,620
+In this module, we've covered the if/else
+
+121
+00:07:54,620 --> 00:07:57,990
+if/else construct that conditionally runs blocks of code;
+
+122
+00:07:59,070 --> 00:08:01,470
+the loop keyword that runs a block repeatedly
+
+123
+00:08:01,470 --> 00:08:04,770
+forever; the while loop that runs code
+
+124
+00:08:04,770 --> 00:08:05,950
+while a condition is true;
+
+125
+00:08:06,980 --> 00:08:17,650
+the for loop that iterates over each element in a collection; and the match expression that uses pattern matching and has exhaustiveness checking to handle all possibilities a value might be.
+
+126
+00:08:18,940 --> 00:08:20,850
+These are the building blocks of complex logic.
+
+127
+00:08:22,540 --> 00:08:23,440
+Next module,
+
+128
+00:08:23,520 --> 00:08:29,050
+let's explore enums – a way to define a custom type that works nicely with match expressions.
+

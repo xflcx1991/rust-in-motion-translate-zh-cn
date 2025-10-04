@@ -1,0 +1,824 @@
+﻿1
+00:00:02,160 --> 00:00:03,930
+Welcome back, fellow Rustaceans!
+
+2
+00:00:04,170 --> 00:00:06,029
+In the previous module on variables,
+
+3
+00:00:06,030 --> 00:00:07,229
+we said that every variable
+
+4
+00:00:07,230 --> 00:00:09,269
+in Rust has a type. You've likely used
+
+5
+00:00:09,270 --> 00:00:11,099
+types similar to Rust's in other
+
+6
+00:00:11,100 --> 00:00:12,869
+languages such as C, Ruby,
+
+7
+00:00:12,870 --> 00:00:13,640
+or Java.
+
+8
+00:00:14,250 --> 00:00:16,109
+In this module, we're going to go through
+
+9
+00:00:16,110 --> 00:00:18,389
+the basic types provided by the core language
+
+10
+00:00:18,390 --> 00:00:20,009
+to get you familiar with how to use them
+
+11
+00:00:20,010 --> 00:00:22,190
+in Rust. In a future module,
+
+12
+00:00:22,290 --> 00:00:24,239
+we'll talk about custom types that you can define
+
+13
+00:00:24,240 --> 00:00:24,880
+yourself.
+
+14
+00:00:26,440 --> 00:00:27,950
+Let's start with Booleans.
+
+15
+00:00:28,780 --> 00:00:30,069
+Booleans are called "bool"
+
+16
+00:00:30,070 --> 00:00:31,839
+in Rust. A Boolean
+
+17
+00:00:31,840 --> 00:00:33,039
+can be either true
+
+18
+00:00:33,040 --> 00:00:35,379
+or false. Booleans are often used
+
+19
+00:00:35,380 --> 00:00:37,329
+in conditional control flow statements
+
+20
+00:00:37,330 --> 00:00:38,880
+like if and while.
+
+21
+00:00:40,210 --> 00:00:42,720
+Here, we have two Boolean variables.
+
+22
+00:00:43,060 --> 00:00:45,000
+Variable a is set to true,
+
+23
+00:00:45,190 --> 00:00:47,060
+and variable b is set to false.
+
+24
+00:00:48,240 --> 00:00:49,499
+The first if statement
+
+25
+00:00:49,500 --> 00:00:50,710
+tests a,
+
+26
+00:00:50,730 --> 00:00:51,839
+and the second tests
+
+27
+00:00:51,840 --> 00:00:54,029
+b. Because only a is
+
+28
+00:00:54,030 --> 00:00:56,399
+true, this code will only execute
+
+29
+00:00:56,400 --> 00:00:58,339
+the first block, printing a is
+
+30
+00:00:58,340 --> 00:00:58,850
+true!.
+
+31
+00:01:00,830 --> 00:01:02,880
+Now, let's turn to integers.
+
+32
+00:01:03,920 --> 00:01:05,869
+Numbers without decimal points are called
+
+33
+00:01:05,870 --> 00:01:07,210
+integers in Rust.
+
+34
+00:01:07,670 --> 00:01:10,089
+There are two types of integers: signed
+
+35
+00:01:10,090 --> 00:01:10,990
+and unsigned.
+
+36
+00:01:11,790 --> 00:01:13,769
+Additionally, you have to decide
+
+37
+00:01:13,770 --> 00:01:15,890
+how much space your integers will use,
+
+38
+00:01:16,140 --> 00:01:18,470
+which affects the values that the integer can hold.
+
+39
+00:01:19,370 --> 00:01:21,359
+This allows your program to use only
+
+40
+00:01:21,360 --> 00:01:22,769
+the amount of memory it needs
+
+41
+00:01:22,770 --> 00:01:23,660
+and no more.
+
+42
+00:01:24,980 --> 00:01:27,060
+The number in each type indicates
+
+43
+00:01:27,080 --> 00:01:28,999
+how many bits it takes to store a value
+
+44
+00:01:29,000 --> 00:01:31,450
+of that type expressed in binary.
+
+45
+00:01:32,480 --> 00:01:33,490
+For example, an
+
+46
+00:01:33,500 --> 00:01:35,920
+i8 takes up 8 bits.
+
+47
+00:01:35,960 --> 00:01:37,870
+Because i means signed,
+
+48
+00:01:38,180 --> 00:01:40,009
+one of those bits is used to store
+
+49
+00:01:40,010 --> 00:01:41,659
+whether the number is positive
+
+50
+00:01:41,660 --> 00:01:42,430
+or negative.
+
+51
+00:01:43,010 --> 00:01:44,869
+The rest of the bits store the value of
+
+52
+00:01:44,870 --> 00:01:45,570
+the number.
+
+53
+00:01:46,500 --> 00:01:48,479
+This means that an i8 can store
+
+54
+00:01:48,480 --> 00:01:51,140
+the values between -128
+
+55
+00:01:51,180 --> 00:01:53,270
+and 127, inclusive.
+
+56
+00:01:55,210 --> 00:01:57,159
+If the number you want to store can only
+
+57
+00:01:57,160 --> 00:01:58,680
+be 0 or positive,
+
+58
+00:01:59,050 --> 00:02:00,579
+you can use an unsigned type
+
+59
+00:02:00,580 --> 00:02:01,260
+instead.
+
+60
+00:02:01,660 --> 00:02:03,519
+An unsigned type uses the letter
+
+61
+00:02:03,520 --> 00:02:05,150
+u instead of i.
+
+62
+00:02:06,040 --> 00:02:07,959
+Because the unsigned types don't
+
+63
+00:02:07,960 --> 00:02:09,739
+use a bit to store the sign,
+
+64
+00:02:10,000 --> 00:02:12,320
+the range of values they can store is different.
+
+65
+00:02:12,330 --> 00:02:14,469
+A u8 can store the values
+
+66
+00:02:14,470 --> 00:02:15,399
+between 0
+
+67
+00:02:15,400 --> 00:02:17,640
+and 255, inclusive.
+
+68
+00:02:18,910 --> 00:02:21,349
+The isize and usize integer types
+
+69
+00:02:21,350 --> 00:02:22,800
+are architecture dependent.
+
+70
+00:02:23,020 --> 00:02:24,939
+If you're on a 32-bit machine,
+
+71
+00:02:24,940 --> 00:02:27,120
+they will take up 32 bits of space.
+
+72
+00:02:27,490 --> 00:02:29,520
+But if you're on a 64-bit machine,
+
+73
+00:02:29,620 --> 00:02:31,200
+they will take up 64 bits.
+
+74
+00:02:31,630 --> 00:02:33,579
+This is the size of a pointer on each
+
+75
+00:02:33,580 --> 00:02:34,730
+of these architectures.
+
+76
+00:02:35,550 --> 00:02:36,689
+You use isize
+
+77
+00:02:36,690 --> 00:02:39,029
+and usize for indexing into collections
+
+78
+00:02:39,030 --> 00:02:40,280
+or counting items.
+
+79
+00:02:41,510 --> 00:02:42,400
+In this code,
+
+80
+00:02:42,900 --> 00:02:44,920
+a ﻿is an array of integers
+
+81
+00:02:45,110 --> 00:02:47,449
+and the 0 used to index into the array
+
+82
+00:02:47,450 --> 00:02:48,990
+has the type usize.
+
+83
+00:02:49,910 --> 00:02:51,790
+We're going to talk more about arrays in a minute.
+
+84
+00:02:52,780 --> 00:02:54,630
+Without any other information,
+
+85
+00:02:54,820 --> 00:02:56,739
+if you write a number without a decimal point in
+
+86
+00:02:56,740 --> 00:02:58,699
+Rust, its type will be i32
+
+87
+00:02:58,700 --> 00:02:59,120
+.
+
+88
+00:02:59,790 --> 00:03:01,869
+This is a decent default if you're not sure
+
+89
+00:03:01,870 --> 00:03:03,360
+which integer type to use.
+
+90
+00:03:04,870 --> 00:03:07,380
+Next, let's talk about floating-point numbers.
+
+91
+00:03:08,340 --> 00:03:10,289
+Numbers with a decimal point are called
+
+92
+00:03:10,290 --> 00:03:11,510
+floating-point numbers.
+
+93
+00:03:12,120 --> 00:03:14,630
+Like integers, they come in different sizes:
+
+94
+00:03:14,960 --> 00:03:16,040
+f32
+
+95
+00:03:16,050 --> 00:03:18,329
+and f64using 32
+
+96
+00:03:18,330 --> 00:03:20,230
+and 64 bits, respectively.
+
+97
+00:03:21,470 --> 00:03:23,359
+The default type of a floating-point number
+
+98
+00:03:23,360 --> 00:03:25,309
+is f64, which
+
+99
+00:03:25,310 --> 00:03:27,760
+offers more precision than an f32.
+
+100
+00:03:28,890 --> 00:03:30,389
+Operating on floating-point numbers
+
+101
+00:03:30,390 --> 00:03:32,140
+in computers can be complicated.
+
+102
+00:03:32,670 --> 00:03:33,569
+If you've never had to deal
+
+103
+00:03:33,570 --> 00:03:34,580
+with them before,
+
+104
+00:03:34,830 --> 00:03:36,280
+please see The Floating-Point Guide.
+
+105
+00:03:37,690 --> 00:03:39,509
+Characters are our last simple
+
+106
+00:03:39,510 --> 00:03:40,290
+data type.
+
+107
+00:03:40,660 --> 00:03:42,549
+Rust can store single characters
+
+108
+00:03:42,550 --> 00:03:44,010
+as the chardata type.
+
+109
+00:03:44,530 --> 00:03:46,950
+char is a Unicode scalar value,
+
+110
+00:03:47,040 --> 00:03:49,380
+so it can hold more than just ASCII values.
+
+111
+00:03:49,690 --> 00:03:51,570
+Because languages are complicated,
+
+112
+00:03:51,730 --> 00:03:53,559
+a char might not correspond to what
+
+113
+00:03:53,560 --> 00:03:55,610
+we humans expect a character to be.
+
+114
+00:03:56,630 --> 00:03:57,589
+Characters are written
+
+115
+00:03:57,590 --> 00:03:58,840
+with single quotes.
+
+116
+00:03:59,210 --> 00:04:01,199
+Don't confuse them with strings, which use double
+
+117
+00:04:01,200 --> 00:04:01,680
+quotes.
+
+118
+00:04:03,380 --> 00:04:05,329
+Booleans, integers, floating-point
+
+119
+00:04:05,330 --> 00:04:07,249
+numbers, and characters are the simple
+
+120
+00:04:07,250 --> 00:04:09,040
+built-in types we're going to talk about.
+
+121
+00:04:09,230 --> 00:04:11,440
+Next come the compound built-in types,
+
+122
+00:04:11,510 --> 00:04:12,760
+starting with tuples.
+
+123
+00:04:13,770 --> 00:04:15,599
+Tuples let you group multiple values
+
+124
+00:04:15,600 --> 00:04:17,260
+together within parentheses.
+
+125
+00:04:17,670 --> 00:04:19,499
+These multiple values don't have to be
+
+126
+00:04:19,500 --> 00:04:20,230
+the same type.
+
+127
+00:04:21,240 --> 00:04:22,889
+Here, ﻿tup is a tuple
+
+128
+00:04:22,890 --> 00:04:24,420
+with three elements:
+
+129
+00:04:25,100 --> 00:04:26,380
+an i32,
+
+130
+00:04:26,710 --> 00:04:27,390
+a char,
+
+131
+00:04:27,700 --> 00:04:28,500
+and a bool.
+
+132
+00:04:28,960 --> 00:04:31,419
+To get individual items out of a tuple,
+
+133
+00:04:31,420 --> 00:04:33,030
+we use tuple indexing.
+
+134
+00:04:33,980 --> 00:04:36,109
+Tuple indexing uses a dot followed
+
+135
+00:04:36,110 --> 00:04:38,269
+by the index of the item you want, starting
+
+136
+00:04:38,270 --> 00:04:39,010
+from 0.
+
+137
+00:04:39,690 --> 00:04:41,629
+This code prints the first is
+
+138
+00:04:41,630 --> 00:04:43,000
+1 and
+
+139
+00:04:43,220 --> 00:04:44,480
+the second is c.
+
+140
+00:04:45,250 --> 00:04:47,820
+To break the entire tuple into separate pieces,
+
+141
+00:04:47,890 --> 00:04:49,410
+you can use destructuring.
+
+142
+00:04:49,960 --> 00:04:51,929
+To do so, match the structure
+
+143
+00:04:51,930 --> 00:04:53,859
+of your tuple on the left-hand side
+
+144
+00:04:53,860 --> 00:04:55,879
+of a let statement before the equals
+
+145
+00:04:55,880 --> 00:04:56,430
+sign.
+
+146
+00:04:56,680 --> 00:04:58,500
+This statement will put 1 in x,
+
+147
+00:04:59,080 --> 00:05:00,960
+the character c in y,
+
+148
+00:05:01,240 --> 00:05:03,000
+and the Boolean true in z.
+
+149
+00:05:04,250 --> 00:05:05,409
+Let's discuss arrays
+
+150
+00:05:05,410 --> 00:05:06,150
+next.
+
+151
+00:05:07,410 --> 00:05:09,439
+Arrays in Rust are collections where
+
+152
+00:05:09,440 --> 00:05:11,400
+all of the elements have the same type.
+
+153
+00:05:12,310 --> 00:05:14,139
+This is an array of three
+
+154
+00:05:14,140 --> 00:05:15,450
+f64 values.
+
+155
+00:05:16,230 --> 00:05:18,560
+You can access each element of an array
+
+156
+00:05:18,660 --> 00:05:20,069
+by using square brackets
+
+157
+00:05:20,070 --> 00:05:21,740
+and the index of the element you want,
+
+158
+00:05:22,020 --> 00:05:23,060
+starting from 0.
+
+159
+00:05:23,640 --> 00:05:25,559
+This code will print out the second element of
+
+160
+00:05:25,560 --> 00:05:27,470
+the array, 3.14.
+
+161
+00:05:28,440 --> 00:05:30,329
+You can also modify an element of an
+
+162
+00:05:30,330 --> 00:05:31,670
+array using square brackets.
+
+163
+00:05:32,190 --> 00:05:33,719
+This code will print out the array
+
+164
+00:05:33,720 --> 00:05:35,900
+with the first element set to 0.
+
+165
+00:05:36,760 --> 00:05:38,709
+We can see this when we run the code, which
+
+166
+00:05:38,710 --> 00:05:40,610
+prints out the array after changing it.
+
+167
+00:05:42,200 --> 00:05:44,159
+Arrays have a fixed length set
+
+168
+00:05:44,160 --> 00:05:46,289
+when you initialize them. They can't
+
+169
+00:05:46,290 --> 00:05:48,299
+get bigger or smaller. Even though
+
+170
+00:05:48,300 --> 00:05:50,240
+the array b is mutable,
+
+171
+00:05:50,250 --> 00:05:52,199
+we can't add another element to it to
+
+172
+00:05:52,200 --> 00:05:54,290
+make it four elements long instead of three.
+
+173
+00:05:54,960 --> 00:05:57,269
+If we try to add another element to the array,
+
+174
+00:05:57,270 --> 00:05:58,960
+the compiler says we're not allowed.
+
+175
+00:05:59,430 --> 00:06:01,389
+If you need a sequence of values that can change
+
+176
+00:06:01,390 --> 00:06:03,620
+in size, you can use a Vec –
+
+177
+00:06:03,670 --> 00:06:05,760
+a type provided by the standard library.
+
+178
+00:06:06,620 --> 00:06:08,740
+One primitive type you will see a lot
+
+179
+00:06:08,750 --> 00:06:10,060
+is called a slice.
+
+180
+00:06:10,340 --> 00:06:12,499
+Slices let us reference a contiguous
+
+181
+00:06:12,500 --> 00:06:14,449
+subset of data in another data
+
+182
+00:06:14,450 --> 00:06:15,160
+structure.
+
+183
+00:06:15,830 --> 00:06:17,749
+The type of variable ﻿b here would
+
+184
+00:06:17,750 --> 00:06:19,759
+be read as a slice of i32s.
+
+185
+00:06:19,760 --> 00:06:20,350
+
+
+186
+00:06:21,260 --> 00:06:23,419
+Here, b refers to the elements
+
+187
+00:06:23,420 --> 00:06:25,459
+of a for the indices 0,
+
+188
+00:06:25,460 --> 00:06:27,669
+inclusive, to 1, exclusive,
+
+189
+00:06:27,670 --> 00:06:29,689
+which, in this case, would only
+
+190
+00:06:29,690 --> 00:06:31,120
+be the element 100.
+
+191
+00:06:32,280 --> 00:06:34,329
+A specific kind of slice is the string
+
+192
+00:06:34,330 --> 00:06:36,129
+slice written as &amp;
+
+193
+00:06:36,130 --> 00:06:37,320
+str.
+
+194
+00:06:37,560 --> 00:06:39,599
+String literals are a common way
+
+195
+00:06:39,600 --> 00:06:41,210
+to create string slices.
+
+196
+00:06:41,580 --> 00:06:43,769
+We'll talk about string slices in more depth
+
+197
+00:06:43,770 --> 00:06:45,329
+in the next unit along
+
+198
+00:06:45,330 --> 00:06:46,670
+with regular slices.
+
+199
+00:06:48,000 --> 00:06:48,929
+In this module,
+
+200
+00:06:48,930 --> 00:06:50,999
+we've shown you that Rust has a wide assortment
+
+201
+00:06:51,000 --> 00:06:52,370
+of primitive data types.
+
+202
+00:06:52,980 --> 00:06:54,059
+In future modules,
+
+203
+00:06:54,060 --> 00:06:56,039
+we'll talk about combining primitive data types
+
+204
+00:06:56,040 --> 00:06:58,319
+to build complex data types using structs
+
+205
+00:06:58,320 --> 00:06:59,230
+and enums.
+
+206
+00:06:59,470 --> 00:07:01,290
+But next up, we'll talk about functions.
+

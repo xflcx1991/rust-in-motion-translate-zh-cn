@@ -1,0 +1,556 @@
+﻿1
+00:00:00,330 --> 00:00:02,189
+Welcome to Rust in Motion 1,
+
+2
+00:00:02,190 --> 00:00:03,830
+Getting Comfortable with Rust.
+
+3
+00:00:05,870 --> 00:00:07,909
+Rust is an exciting new language aiming
+
+4
+00:00:07,910 --> 00:00:09,589
+to be an alternative to C
+
+5
+00:00:09,590 --> 00:00:10,750
+and C++,
+
+6
+00:00:11,030 --> 00:00:13,009
+with the same performance characteristics of those
+
+7
+00:00:13,010 --> 00:00:13,900
+languages,
+
+8
+00:00:14,120 --> 00:00:16,300
+but with certain classes of common bugs
+
+9
+00:00:16,430 --> 00:00:18,220
+eliminated at compile time.
+
+10
+00:00:20,440 --> 00:00:22,690
+Rust is a general-purpose language.
+
+11
+00:00:22,800 --> 00:00:24,779
+But it's especially good in situations
+
+12
+00:00:24,780 --> 00:00:26,660
+where runtime speed is needed,
+
+13
+00:00:26,970 --> 00:00:28,670
+memory safety is required,
+
+14
+00:00:29,000 --> 00:00:31,820
+and you want to take advantage of multiple processors.
+
+15
+00:00:33,930 --> 00:00:36,029
+Some areas in particular where Rust is
+
+16
+00:00:36,030 --> 00:00:38,339
+poised to do well are high-performance
+
+17
+00:00:38,340 --> 00:00:40,850
+web services, WebAssembly,
+
+18
+00:00:41,250 --> 00:00:42,800
+command-line applications,
+
+19
+00:00:43,200 --> 00:00:44,720
+and embedded devices.
+
+20
+00:00:46,800 --> 00:00:48,689
+Rust started as a Mozilla Research
+
+21
+00:00:48,690 --> 00:00:49,490
+project,
+
+22
+00:00:49,560 --> 00:00:51,389
+and a significant example of production
+
+23
+00:00:51,390 --> 00:00:53,360
+Rust usage is Firefox.
+
+24
+00:00:55,420 --> 00:00:57,489
+Mozilla has been using Rust to create
+
+25
+00:00:57,490 --> 00:00:59,760
+an experimental browser called Servo,
+
+26
+00:01:00,010 --> 00:01:01,950
+where everything is parallelized.
+
+27
+00:01:02,500 --> 00:01:04,568
+Parts of Servo are now being incorporated
+
+28
+00:01:04,569 --> 00:01:05,820
+into Firefox.
+
+29
+00:01:07,860 --> 00:01:10,049
+The Firefox Quantum release included
+
+30
+00:01:10,050 --> 00:01:12,180
+Servo's CSS rendering engine.
+
+31
+00:01:12,750 --> 00:01:14,759
+Rust was a big part of the performance improvements
+
+32
+00:01:14,760 --> 00:01:16,780
+Firefox made in that area.
+
+33
+00:01:18,870 --> 00:01:20,759
+Check out the Rust friends page to
+
+34
+00:01:20,760 --> 00:01:22,619
+see a list of companies using Rust in
+
+35
+00:01:22,620 --> 00:01:24,479
+production for everything from
+
+36
+00:01:24,480 --> 00:01:26,429
+cryptocurrency to DevOps to big
+
+37
+00:01:26,430 --> 00:01:27,070
+data.
+
+38
+00:01:29,050 --> 00:01:30,429
+Speed, safety,
+
+39
+00:01:30,430 --> 00:01:32,010
+and fearless concurrency
+
+40
+00:01:32,080 --> 00:01:33,760
+are the benefits of Rust.
+
+41
+00:01:34,330 --> 00:01:36,249
+One of the downsides of Rust is that it has
+
+42
+00:01:36,250 --> 00:01:38,460
+a reputation of being hard to learn,
+
+43
+00:01:38,860 --> 00:01:40,040
+and that's why we're here.
+
+44
+00:01:41,770 --> 00:01:42,990
+I'm Carol Nichols.
+
+45
+00:01:43,600 --> 00:01:45,729
+I'm a Ruby developer who got into Rust
+
+46
+00:01:45,730 --> 00:01:47,579
+to write better-performing code that wasn't
+
+47
+00:01:47,580 --> 00:01:48,120
+C.
+
+48
+00:01:49,030 --> 00:01:50,310
+I'm on the Rust Core team,
+
+49
+00:01:50,470 --> 00:01:52,479
+I'm the co-author of ﻿The Rust Programming Language book,﻿  
+
+50
+00:01:52,480 --> 00:01:53,370
+
+
+51
+00:01:53,740 --> 00:01:55,809
+and I maintain crates.io – the Rust Package
+
+52
+00:01:55,810 --> 00:01:57,869
+Registry.
+
+53
+00:01:57,870 --> 00:02:00,119
+Rust is especially exciting to me because
+
+54
+00:02:00,120 --> 00:02:02,159
+I think this is an opportunity for the software
+
+55
+00:02:02,160 --> 00:02:04,570
+industry to start making some new mistakes,
+
+56
+00:02:04,740 --> 00:02:06,659
+instead of the same memory safety problems
+
+57
+00:02:06,660 --> 00:02:08,450
+that lead to security vulnerabilities
+
+58
+00:02:08,490 --> 00:02:10,019
+that continue to happen over
+
+59
+00:02:10,020 --> 00:02:10,759
+and over.
+
+60
+00:02:12,550 --> 00:02:13,840
+And I'm Jake Goulding.
+
+61
+00:02:14,270 --> 00:02:16,489
+I'm a full stack developer, from C
+
+62
+00:02:16,490 --> 00:02:18,190
+to Ruby to JavaScript.
+
+63
+00:02:18,680 --> 00:02:20,830
+I'm a member of the Rust Infrastructure team,
+
+64
+00:02:21,050 --> 00:02:23,089
+I'm the number one answerer for Rust questions
+
+65
+00:02:23,090 --> 00:02:24,250
+on Stack Overflow,
+
+66
+00:02:24,650 --> 00:02:26,899
+and I maintain the Rust playground at
+
+67
+00:02:26,900 --> 00:02:28,630
+play.rust-lang.org.
+
+68
+00:02:29,120 --> 00:02:31,309
+Some of my previous work involved heavy
+
+69
+00:02:31,310 --> 00:02:33,349
+XML processing using libxml2.
+
+70
+00:02:33,350 --> 00:02:34,110
+
+
+71
+00:02:34,580 --> 00:02:36,499
+I started programming in Rust because I
+
+72
+00:02:36,500 --> 00:02:38,389
+believe it is capable of improving
+
+73
+00:02:38,390 --> 00:02:40,489
+the safety and correctness of things
+
+74
+00:02:40,490 --> 00:02:42,479
+like XML processing without
+
+75
+00:02:42,480 --> 00:02:44,710
+losing any of the performance we expect
+
+76
+00:02:44,750 --> 00:02:46,670
+from a systems programming language.
+
+77
+00:02:48,400 --> 00:02:50,370
+We founded Integer 32,
+
+78
+00:02:50,500 --> 00:02:52,359
+the world's first Rust-focused software
+
+79
+00:02:52,360 --> 00:02:53,310
+consultancy,
+
+80
+00:02:53,650 --> 00:02:55,570
+and we love helping people learn Rust.
+
+81
+00:02:56,170 --> 00:02:57,339
+I'll be teaching units 1
+
+82
+00:02:57,340 --> 00:02:59,239
+and 3. And you'll hear from me
+
+83
+00:02:59,240 --> 00:03:00,339
+for units 2
+
+84
+00:03:00,340 --> 00:03:01,160
+and 4.
+
+85
+00:03:03,090 --> 00:03:04,919
+Rust has quite a few concepts that
+
+86
+00:03:04,920 --> 00:03:07,139
+are different than most other mainstream languages
+
+87
+00:03:07,140 --> 00:03:07,780
+today.
+
+88
+00:03:08,600 --> 00:03:10,249
+If you try to jump into the deep end
+
+89
+00:03:10,250 --> 00:03:11,809
+with Rust without becoming familiar
+
+90
+00:03:11,810 --> 00:03:13,639
+with these concepts, it can be a
+
+91
+00:03:13,640 --> 00:03:15,090
+frustrating experience.
+
+92
+00:03:15,850 --> 00:03:17,799
+We're going to go through these concepts so that you're ready
+
+93
+00:03:17,800 --> 00:03:19,809
+to think in Rust as you continue on
+
+94
+00:03:19,810 --> 00:03:20,820
+your Rust journey.
+
+95
+00:03:23,150 --> 00:03:24,129
+In unit 1,
+
+96
+00:03:24,130 --> 00:03:26,019
+we're going to introduce basic syntax
+
+97
+00:03:26,020 --> 00:03:28,029
+for constructs that you've likely encountered
+
+98
+00:03:28,030 --> 00:03:30,229
+in other languages like variables,
+
+99
+00:03:30,230 --> 00:03:31,860
+data types, and functions.
+
+100
+00:03:32,260 --> 00:03:34,359
+But we'll be concentrating on what makes them different
+
+101
+00:03:34,360 --> 00:03:35,210
+in Rust.
+
+102
+00:03:36,950 --> 00:03:39,169
+In unit 2, we'll cover the concepts of ownership
+
+103
+00:03:39,170 --> 00:03:41,029
+and borrowing. These concepts
+
+104
+00:03:41,030 --> 00:03:42,429
+permeate all Rust code
+
+105
+00:03:42,430 --> 00:03:44,149
+and they help ensure memory safety
+
+106
+00:03:44,150 --> 00:03:44,940
+in Rust.
+
+107
+00:03:46,750 --> 00:03:47,859
+In unit 3,
+
+108
+00:03:47,860 --> 00:03:49,719
+we'll talk about Rust's strategy for
+
+109
+00:03:49,720 --> 00:03:51,639
+error handling.
+
+110
+00:03:51,640 --> 00:03:53,529
+Rust forces you to consider all the ways
+
+111
+00:03:53,530 --> 00:03:55,539
+your program might fail, which can
+
+112
+00:03:55,540 --> 00:03:57,330
+be frustrating while prototyping,
+
+113
+00:03:57,460 --> 00:03:59,760
+but leads to more robust production code.
+
+114
+00:04:01,480 --> 00:04:03,939
+In unit 4, we'll concentrate on lifetimes –
+
+115
+00:04:03,940 --> 00:04:05,889
+the mechanism that the compiler uses to
+
+116
+00:04:05,890 --> 00:04:07,890
+ensure all references are valid.
+
+117
+00:04:08,410 --> 00:04:10,359
+You can write a lot of Rust code without needing
+
+118
+00:04:10,360 --> 00:04:12,850
+to worry about explicit lifetime annotations.
+
+119
+00:04:12,970 --> 00:04:15,129
+But we don't want them to be intimidating if you encounter
+
+120
+00:04:15,130 --> 00:04:16,410
+them in error messages
+
+121
+00:04:16,510 --> 00:04:18,299
+or when reading other people's code.
+
+122
+00:04:18,810 --> 00:04:20,528
+We'll demystify the concept
+
+123
+00:04:20,529 --> 00:04:22,359
+and go through scenarios when lifetime
+
+124
+00:04:22,360 --> 00:04:23,800
+annotations are needed.
+
+125
+00:04:26,060 --> 00:04:27,910
+A theme in all of these units
+
+126
+00:04:28,010 --> 00:04:29,839
+is that the Rust compiler is here to
+
+127
+00:04:29,840 --> 00:04:30,760
+help you write better code.
+
+128
+00:04:32,100 --> 00:04:34,199
+That means it's very common to get compiler
+
+129
+00:04:34,200 --> 00:04:35,570
+errors when you're working.
+
+130
+00:04:36,030 --> 00:04:38,159
+Even experienced Rust programmers get compiler
+
+131
+00:04:38,160 --> 00:04:39,580
+errors all the time.
+
+132
+00:04:40,730 --> 00:04:42,649
+People have put a lot of work into making
+
+133
+00:04:42,650 --> 00:04:43,849
+the messages understandable
+
+134
+00:04:43,850 --> 00:04:44,770
+and helpful,
+
+135
+00:04:45,140 --> 00:04:47,119
+so we'll be intentionally causing errors throughout
+
+136
+00:04:47,120 --> 00:04:49,159
+the course to get experience reading
+
+137
+00:04:49,160 --> 00:04:50,640
+and responding to errors.
+
+138
+00:04:52,080 --> 00:04:53,159
+Let's  install Rust
+
+139
+00:04:53,160 --> 00:04:53,900
+and get started!
+

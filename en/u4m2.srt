@@ -1,0 +1,468 @@
+﻿1
+00:00:00,040 --> 00:00:06,260
+Welcome to module 2, An exploration of concrete lifetimes. In this module,
+
+2
+00:00:06,270 --> 00:00:11,550
+we're going to discuss what we mean when we talk about concrete lifetimes of values and references.
+
+3
+00:00:12,540 --> 00:00:14,880
+After we've defined concrete lifetime,
+
+4
+00:00:15,100 --> 00:00:17,580
+we're going to annotate the concrete lifetimes in code
+
+5
+00:00:17,580 --> 00:00:25,120
+examples for values and their references. We'll show what concrete lifetimes look like with all the code in one function
+
+6
+00:00:25,310 --> 00:00:27,420
+and when the code uses multiple functions.
+
+7
+00:00:28,840 --> 00:00:32,750
+Let's get started with the definition of concrete lifetimes for values.
+
+8
+00:00:34,330 --> 00:00:34,970
+First,
+
+9
+00:00:35,030 --> 00:00:37,660
+let's discuss what "lifetime" means in Rust,
+
+10
+00:00:37,760 --> 00:00:46,790
+which is slightly different than the general meaning of the word in English and the meaning in other programming languages.
+
+11
+00:00:46,790 --> 00:00:51,650
+In Rust, a value's lifetime is the time during which the value exists at a particular memory address.
+
+12
+00:00:53,140 --> 00:00:59,150
+You can think of the validity of a memory address as similar to the validity of a person's home address.
+
+13
+00:01:00,140 --> 00:01:01,110
+When you're born,
+
+14
+00:01:01,120 --> 00:01:02,990
+you live at a particular address.
+
+15
+00:01:04,040 --> 00:01:04,940
+At some point,
+
+16
+00:01:04,990 --> 00:01:06,820
+you might move to a different address.
+
+17
+00:01:07,990 --> 00:01:10,900
+If someone had your old address and tried to visit you,
+
+18
+00:01:10,920 --> 00:01:14,000
+you wouldn't be there.
+
+19
+00:01:14,010 --> 00:01:17,450
+Over your life, you will live in many houses and have many different addresses.
+
+20
+00:01:18,440 --> 00:01:19,400
+When you die,
+
+21
+00:01:19,410 --> 00:01:24,150
+you will also move out of your house and your address will cease to be valid one last time.
+
+22
+00:01:25,640 --> 00:01:26,750
+Correspondingly,
+
+23
+00:01:26,760 --> 00:01:37,710
+the concrete lifetime of a value in code starts when a value is created or moved into a particular location in memory, and ends when that value is moved out of or dropped from that location.
+
+24
+00:01:39,340 --> 00:01:46,750
+This maps directly to the concepts of ownership, moving, and dropping that we discussed in unit 2 in the Ownership module.
+
+25
+00:01:48,240 --> 00:01:51,510
+Now, let's talk about concrete lifetimes for references.
+
+26
+00:01:52,940 --> 00:01:58,680
+It turns out that references are values, so the definition of the start and end of a reference's
+
+27
+00:01:58,680 --> 00:02:00,845
+lifetime is the same as for values.
+
+28
+00:02:01,195 --> 00:02:05,945
+It lasts from when the reference is created or moved into its memory location and ends
+
+29
+00:02:05,945 --> 00:02:07,755
+when the reference is moved or dropped.
+
+30
+00:02:09,345 --> 00:02:10,015
+However,
+
+31
+00:02:10,025 --> 00:02:12,365
+there's an additional constraint for references.
+
+32
+00:02:12,665 --> 00:02:18,355
+A reference's lifetime must be contained within the lifetime of the value being referenced.
+
+33
+00:02:18,845 --> 00:02:23,055
+This constraint ensures every reference will always point to a valid value.
+
+34
+00:02:24,615 --> 00:02:27,045
+Let's take these definitions and show what they look like
+
+35
+00:02:27,045 --> 00:02:27,595
+in code,
+
+36
+00:02:27,925 --> 00:02:33,865
+starting with two examples where all the code is in one function. In the first example,
+
+37
+00:02:33,895 --> 00:02:41,755
+we'll show a straightforward reference to a vector. We create a vector of numbers and bind it to the variablelist.
+
+38
+00:02:42,345 --> 00:02:44,755
+We can use this vector by printing it out.
+
+39
+00:02:45,645 --> 00:02:48,185
+This value's lifetime, annotated in blue,
+
+40
+00:02:48,375 --> 00:02:52,595
+starts from the line where we create list until the closing curly brace of main,
+
+41
+00:02:52,825 --> 00:02:55,755
+where list goes out of scope and the value gets cleaned up.
+
+42
+00:02:56,745 --> 00:02:57,365
+Next,
+
+43
+00:02:57,375 --> 00:02:59,385
+let's create a reference, specifically,
+
+44
+00:02:59,395 --> 00:03:03,275
+a slice to the first two elements in the vector and bind it to the name first_two.
+
+45
+00:03:03,285 --> 00:03:03,755
+
+
+46
+00:03:04,745 --> 00:03:08,555
+We can use that reference in various places after it's created.
+
+47
+00:03:10,145 --> 00:03:12,065
+The reference has its own lifetime,
+
+48
+00:03:12,215 --> 00:03:15,555
+but it's also tied to the lifetime of the value it references.
+
+49
+00:03:15,845 --> 00:03:20,155
+So we're going to annotate the lifetime of first_two as a blue dotted line.
+
+50
+00:03:21,175 --> 00:03:26,365
+This lifetime starts where first_two is created and continues until the end of the function,
+
+51
+00:03:26,505 --> 00:03:29,355
+where it gets cleaned up just before list is cleaned up.
+
+52
+00:03:31,775 --> 00:03:39,755
+The reference's lifetime is shorter than the lifetime of the value of first_two, so this example compiles and the reference is always valid.
+
+53
+00:03:41,315 --> 00:03:47,755
+The second example is a slight variation on the first example. This time, we'll create the reference within an inner scope.
+
+54
+00:03:48,845 --> 00:03:53,555
+The concrete lifetime of list is still from where list is created until the end of main.
+
+55
+00:03:54,645 --> 00:03:57,425
+The lifetime of the reference starts where we create
+
+56
+00:03:57,425 --> 00:03:57,835
+first_two.
+
+57
+00:03:58,005 --> 00:04:01,787
+But this time, the lifetime ends at the closing curly brace of the inner scope.
+
+58
+00:04:02,727 --> 00:04:07,477
+The reference's lifetime is still shorter than the lifetime of the value it refers to, so this
+
+59
+00:04:07,477 --> 00:04:09,087
+example is valid as well.
+
+60
+00:04:10,077 --> 00:04:15,487
+This example shows that a reference's lifetime might end well before the value's lifetime ends.
+
+61
+00:04:17,077 --> 00:04:17,667
+Next,
+
+62
+00:04:17,747 --> 00:04:22,087
+let's look at two more examples to see what lifetimes look like across function calls.
+
+63
+00:04:23,677 --> 00:04:26,577
+The third example is a variation on the second example.
+
+64
+00:04:26,757 --> 00:04:29,977
+We extract the inner scope into its own function called
+
+65
+00:04:29,987 --> 00:04:30,367
+print_first_two.
+
+66
+00:04:30,377 --> 00:04:30,787
+
+
+67
+00:04:32,277 --> 00:04:34,587
+The lifetime of list is still the same.
+
+68
+00:04:35,117 --> 00:04:38,607
+Each of the two times we call the print_first_two function,
+
+69
+00:04:38,677 --> 00:04:40,357
+we pass it a reference to list,
+
+70
+00:04:40,657 --> 00:04:44,887
+so two references tied to the lifetime of list are created on these lines.
+
+71
+00:04:45,877 --> 00:04:48,947
+Each of these lifetimes are shorter than the lifetime of list,
+
+72
+00:04:49,067 --> 00:04:50,787
+so these references are valid.
+
+73
+00:04:52,317 --> 00:04:52,937
+Next,
+
+74
+00:04:52,947 --> 00:04:58,547
+we're going to annotate the lifetimes in the print_first_two function independently of where print_first_two
+
+75
+00:04:58,547 --> 00:05:02,057
+is called. The borrowed_list parameter's
+
+76
+00:05:02,057 --> 00:05:06,147
+lifetime starts at the beginning of the function and ends at the end of the function.
+
+77
+00:05:06,677 --> 00:05:09,807
+It's a reference tied to some value from where it's called,
+
+78
+00:05:09,947 --> 00:05:17,187
+so we're going to annotate it with an orange dotted line. We create the first_two slice from the parameterborrowed_list.
+
+79
+00:05:17,777 --> 00:05:23,247
+The lifetime of first_two is tied to the same value that the lifetime of borrowed_list is tied to, so we're also going to annotate it with an orange dotted line.
+
+80
+00:05:23,537 --> 00:05:34,307
+The lifetime of first_two starts when we create it and goes until it goes out of scope at the end of the function, just before borrowed_list does.
+
+81
+00:05:34,307 --> 00:05:42,427
+The difference between analyzing lifetimes when the code is all in one function and the code is in another function, is that when we write the function,
+
+82
+00:05:42,597 --> 00:05:45,787
+we don't necessarily know about everywhere it'll be called.
+
+83
+00:05:46,377 --> 00:05:48,507
+But when we do have main and compile it,
+
+84
+00:05:48,797 --> 00:05:54,447
+the borrow checker analyzes the concrete lifetimes at each call and connects them to the lifetimes in the function.
+
+85
+00:05:55,977 --> 00:05:59,637
+Because we're calling the print_first_two function with references to list,
+
+86
+00:05:59,647 --> 00:06:03,457
+we know the orange dotted lifetimes in the function are tied to the lifetime of list, so we're going to change them to blue dotted lines.
+
+87
+00:06:04,020 --> 00:06:10,920
+The third example was a function that didn't return anything.
+
+88
+00:06:11,510 --> 00:06:14,720
+The fourth example has a function that returns a reference.
+
+89
+00:06:16,250 --> 00:06:18,080
+The return_first_two function
+
+90
+00:06:18,090 --> 00:06:22,320
+takes a slice and returns a slice of the first two elements of the parameter.
+
+91
+00:06:23,870 --> 00:06:24,640
+In main,
+
+92
+00:06:24,650 --> 00:06:28,690
+we call return_first_two and store the result in the first_two variable,
+
+93
+00:06:28,820 --> 00:06:29,820
+then print it out.
+
+94
+00:06:30,850 --> 00:06:33,220
+The lifetime of list is still the same.
+
+95
+00:06:34,310 --> 00:06:38,200
+We create a reference to list and pass it to the return_first_two function,
+
+96
+00:06:38,370 --> 00:06:44,530
+so that's where our reference's lifetime starts – tied to the lifetime of list.
+
+97
+00:06:44,530 --> 00:06:44,830
+In the ﻿return_first_two ﻿
+
+98
+00:06:44,830 --> 00:06:47,020
+function, the borrowed_list parameter's
+
+99
+00:06:47,020 --> 00:06:50,810
+lifetime starts at the beginning of the function and ends at the end of the function,
+
+100
+00:06:51,060 --> 00:06:56,120
+annotated here with an orange dotted line because it's tied to some value outside of the function,
+
+101
+00:06:56,400 --> 00:06:57,440
+just like in example
+
+102
+00:06:57,440 --> 00:06:58,120
+number 3.
+
+103
+00:06:59,710 --> 00:07:04,620
+Then, we create and return the slice reference to the same value borrowed_list references.
+
+104
+00:07:05,210 --> 00:07:11,160
+This reference's lifetime is also annotated with an orange dotted line because it's tied to the same value borrowed_list
+
+105
+00:07:11,160 --> 00:07:11,620
+is.
+
+106
+00:07:12,210 --> 00:07:18,370
+This lifetime comes out of the function with the returned reference.
+
+107
+00:07:18,380 --> 00:07:30,480
+Going back to main, the return value of the return_first_two function is bound to the first_two variable. Because we passed a reference to list to the return_first_two function and the implementation of return_first_two returns
+
+108
+00:07:30,480 --> 00:07:32,610
+a reference tied to the same value as
+
+109
+00:07:32,610 --> 00:07:36,020
+its parameter, first_two is a reference that is tied to the lifetime of list.
+
+110
+00:07:36,610 --> 00:07:37,300
+Therefore,
+
+111
+00:07:37,310 --> 00:07:40,420
+we replace the orange dotted lines with blue dotted lines.
+
+112
+00:07:41,910 --> 00:07:44,890
+The lifetime of first_two is shorter than that of list,
+
+113
+00:07:44,980 --> 00:07:48,780
+so this code is valid.
+
+114
+00:07:48,790 --> 00:07:54,320
+In this module, we talked about how "lifetime" in Rust means the time a value is at a particular location in memory.
+
+115
+00:07:55,410 --> 00:08:01,220
+We discussed how references must have a lifetime contained by the lifetime of the value they point to.
+
+116
+00:08:02,310 --> 00:08:10,324
+And we looked at examples of concrete lifetimes of values and references in one function and across multiple functions where the references were valid.
+
+117
+00:08:11,364 --> 00:08:15,054
+In the next module, we'll show examples where references aren't valid, and we'll use the same visualizations to understand why the examples don't work.
+

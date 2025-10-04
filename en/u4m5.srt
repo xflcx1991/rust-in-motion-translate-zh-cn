@@ -1,0 +1,444 @@
+﻿1
+00:00:00,040 --> 00:00:01,520
+Welcome to module 5,
+
+2
+00:00:01,630 --> 00:00:09,450
+a short introduction to generic type parameters. In this module, we'll first talk about why we're making this detour.
+
+3
+00:00:10,010 --> 00:00:15,050
+Then, we'll talk about what generic type parameters are and how to use them in definitions.
+
+4
+00:00:16,140 --> 00:00:16,300
+We'll
+
+5
+00:00:16,300 --> 00:00:19,780
+look at what calling generic code looks like and discuss the analysis
+
+6
+00:00:19,780 --> 00:00:20,850
+the compiler does.
+
+7
+00:00:22,390 --> 00:00:27,050
+Let's get started by clarifying the purpose of this detour in the middle of the unit on lifetimes.
+
+8
+00:00:28,580 --> 00:00:33,300
+You may be familiar with the concept of code using generic types from other programming languages.
+
+9
+00:00:34,340 --> 00:00:35,720
+Even if you aren't familiar,
+
+10
+00:00:35,730 --> 00:00:40,650
+the ideas behind generic type parameters are an extension of the idea of types in programming at all.
+
+11
+00:00:41,740 --> 00:00:45,150
+Understanding generic type parameters is a small mental leap to take.
+
+12
+00:00:45,670 --> 00:00:46,650
+In contrast,
+
+13
+00:00:46,740 --> 00:00:50,420
+very few programming languages have a first-class concept of lifetimes.
+
+14
+00:00:51,980 --> 00:00:54,850
+Understanding lifetime parameters is a larger mental leap.
+
+15
+00:00:55,340 --> 00:00:56,120
+However,
+
+16
+00:00:56,130 --> 00:01:00,770
+generic type parameters and generic lifetime parameters in Rust have some similarities,
+
+17
+00:01:00,950 --> 00:01:02,630
+and we hope that by relating those ideas,
+
+18
+00:01:02,640 --> 00:01:04,050
+the mental leaps will be smaller.
+
+19
+00:01:05,640 --> 00:01:06,590
+With that in mind,
+
+20
+00:01:06,630 --> 00:01:09,850
+let's talk about using generic type parameters in definitions.
+
+21
+00:01:11,440 --> 00:01:15,940
+Generic type parameters are an abstraction that allow us to write code once that can be used
+
+22
+00:01:15,950 --> 00:01:17,950
+many times with different types.
+
+23
+00:01:18,990 --> 00:01:19,880
+For instance,
+
+24
+00:01:19,960 --> 00:01:24,710
+consider an application that has an approval workflow of many different types of domain objects:
+
+25
+00:01:24,720 --> 00:01:26,030
+articles have to be approved,
+
+26
+00:01:26,240 --> 00:01:29,220
+new users have to be approved, and comments have to be approved.
+
+27
+00:01:30,240 --> 00:01:37,140
+We can define one struct that manages approval of any of these types. In the struct definition,
+
+28
+00:01:37,210 --> 00:01:38,260
+after we put the struct
+
+29
+00:01:38,270 --> 00:01:40,310
+keyword and the name of the struct, Approval,
+
+30
+00:01:40,570 --> 00:01:44,680
+we're going to put angle brackets.
+
+31
+00:01:44,690 --> 00:01:47,150
+Inside the angle brackets, we declare the name of a generic type parameter.
+
+32
+00:01:47,640 --> 00:01:49,450
+T is a common name for one.
+
+33
+00:01:51,040 --> 00:01:52,490
+Within the struct definition,
+
+34
+00:01:52,500 --> 00:01:57,350
+we can now use T to stand in for any concrete type we want to be able to use.
+
+35
+00:01:58,440 --> 00:01:59,260
+In this case,
+
+36
+00:01:59,270 --> 00:02:13,125
+we're going to have a field named item that has the generic type T, as well as a field named approval of type Boolean that keeps track of whether this item has been approved or not. To use generic type parameters in implementation blocks of structs,
+
+37
+00:02:13,245 --> 00:02:17,255
+we need to declare the generic type in angle brackets after the impl keyword.
+
+38
+00:02:18,345 --> 00:02:21,725
+Then, we'll immediately use the generic type,T, in the name of the type
+
+39
+00:02:21,725 --> 00:02:25,115
+we're implementing methods on, which in this case, is Approval of T.
+
+40
+00:02:26,695 --> 00:02:37,255
+Any methods or associated functions defined on Approval of T that want to have arguments or return types that involve the type of item, can use T because it's been declared after the impl keyword.
+
+41
+00:02:38,345 --> 00:02:39,105
+For example,
+
+42
+00:02:39,115 --> 00:02:50,655
+here's a new associated function that takes an item of type T and returns an Approval of T with approved set to false. Methods or associative functions within this impl block
+
+43
+00:02:50,665 --> 00:02:55,055
+don't have to use the generic type parameter if their parameters or return types don't need it.
+
+44
+00:02:56,045 --> 00:02:56,965
+For example,
+
+45
+00:02:57,025 --> 00:03:00,395
+here's a method named approve that takes a mutable reference to self,
+
+46
+00:03:00,605 --> 00:03:03,655
+sets the approved field to true, and returns nothing.
+
+47
+00:03:05,145 --> 00:03:09,755
+Say we have a requirement for a replace method that takes a different item and returns a new
+
+48
+00:03:09,755 --> 00:03:13,255
+Approval instance with the same approved value and the new item.
+
+49
+00:03:14,245 --> 00:03:18,125
+If we want to allow the replacement item to be a different type than the current item,
+
+50
+00:03:18,165 --> 00:03:20,155
+we need a new generic type parameter.
+
+51
+00:03:21,185 --> 00:03:21,815
+We've chosen
+
+52
+00:03:21,815 --> 00:03:22,565
+U here,
+
+53
+00:03:22,645 --> 00:03:29,855
+declared U within angle brackets after the method name, and then used U for the type of the other_item parameter and the return type.
+
+54
+00:03:30,945 --> 00:03:33,905
+Because the U type is only relevant to the replace method,
+
+55
+00:03:34,135 --> 00:03:38,355
+we declare U in the method's signature rather than at the start of the impl block.
+
+56
+00:03:39,945 --> 00:03:44,125
+If we had wanted to require the other item to be the same type as the current item,
+
+57
+00:03:44,285 --> 00:03:47,055
+we wouldn't declare a new parameter for the replace method.
+
+58
+00:03:47,545 --> 00:03:54,145
+We'd use the same T that goes with the current instance of Approval.
+
+59
+00:03:54,145 --> 00:04:00,655
+To round out the Approval type's functionality, we'll add a method named approved_item that takes a reference to self and returns an Option of a reference to T.
+
+60
+00:04:02,252 --> 00:04:04,862
+We talked about the Option enum in unit 3.
+
+61
+00:04:05,952 --> 00:04:08,232
+Its definition also uses generics.
+
+62
+00:04:08,512 --> 00:04:11,462
+The Some(T) variant can hold a value of any type.
+
+63
+00:04:12,512 --> 00:04:13,192
+In this case,
+
+64
+00:04:13,192 --> 00:04:16,602
+we're making use of Option and, in place of Option's generic type T,
+
+65
+00:04:16,722 --> 00:04:18,922
+we're substituting a reference to Approval's
+
+66
+00:04:18,932 --> 00:04:20,032
+generic type T.
+
+67
+00:04:21,592 --> 00:04:24,042
+If the approved field on this instance is true,
+
+68
+00:04:24,062 --> 00:04:26,762
+we'll return the Some variant holding a reference to the item.
+
+69
+00:04:27,792 --> 00:04:29,432
+If the approved field is false,
+
+70
+00:04:29,442 --> 00:04:31,062
+we'll return the None variant.
+
+71
+00:04:31,952 --> 00:04:34,842
+Now the Approval struct prevents access to the inner item
+
+72
+00:04:34,852 --> 00:04:36,562
+unless the item has been approved.
+
+73
+00:04:37,352 --> 00:04:39,862
+This code by itself compiles successfully.
+
+74
+00:04:40,452 --> 00:04:48,462
+The compiler does type checking, keeping in mind that T will be filled in with some value, and makes sure that all of the code using T is consistent with itself.
+
+75
+00:04:48,992 --> 00:04:53,062
+Rust doesn't need to know what T will be to check internal type correctness.
+
+76
+00:04:54,552 --> 00:04:55,202
+Next,
+
+77
+00:04:55,272 --> 00:05:00,962
+let's write some code that uses this definition and substitutes concrete types for the generic type parameters.
+
+78
+00:05:02,452 --> 00:05:05,022
+When we write a main function that uses Approval,
+
+79
+00:05:05,102 --> 00:05:06,422
+we can create an Approval with,
+
+80
+00:05:06,422 --> 00:05:06,762
+say,
+
+81
+00:05:06,762 --> 00:05:09,162
+an integer amount that is requested for budgeting.
+
+82
+00:05:09,692 --> 00:05:11,192
+After the amount is approved,
+
+83
+00:05:11,312 --> 00:05:14,862
+the approved_item method will return a reference to that integer amount.
+
+84
+00:05:16,452 --> 00:05:21,862
+We can also create an Approval instance with an IP address that may or may not be allowed to access something.
+
+85
+00:05:22,352 --> 00:05:24,172
+When we approve the IP address,
+
+86
+00:05:24,182 --> 00:05:27,562
+the approved_item method returns a reference to that IP address.
+
+87
+00:05:29,092 --> 00:05:31,672
+This code compiles and runs, and what Rust does
+
+88
+00:05:31,672 --> 00:05:36,522
+behind the scenes is generate the Approval struct's code with each data type used in place of T.
+
+89
+00:05:38,152 --> 00:05:49,472
+Let's look at what happens if we do something that violates the generic type constraints when we use the definition. Recall that we're currently requiring the other item passed to the replace method to be the same type as the type
+
+90
+00:05:49,472 --> 00:05:50,662
+in the current instance.
+
+91
+00:05:52,252 --> 00:05:55,292
+If we try to call the replace method on the Approval instance
+
+92
+00:05:55,292 --> 00:06:01,062
+holding an IP address, and pass an integer instead, we'll get a compile-time error that says that there are mismatched types.
+
+93
+00:06:01,602 --> 00:06:03,662
+This instance uses an IP address,
+
+94
+00:06:03,672 --> 00:06:05,742
+but we gave the replace method an integer.
+
+95
+00:06:06,446 --> 00:06:07,476
+Even though the code
+
+96
+00:06:07,476 --> 00:06:10,556
+defined with generic type parameters compiles, the code
+
+97
+00:06:10,556 --> 00:06:13,506
+using the definitions doesn't conform to the constraints.
+
+98
+00:06:15,096 --> 00:06:18,806
+There's much more to generic type parameters that we're not going to cover in this detour.
+
+99
+00:06:19,396 --> 00:06:22,906
+If you're interested in topics such as how to add trait bounds to generic types,
+
+100
+00:06:23,396 --> 00:06:26,206
+what the differences are between generic types and associated types,
+
+101
+00:06:26,696 --> 00:06:28,656
+and how to specify a default concrete type
+
+102
+00:06:28,666 --> 00:06:29,406
+for a generic type,
+
+103
+00:06:29,896 --> 00:06:34,016
+check out the online Rust language documentation.
+
+104
+00:06:34,026 --> 00:06:38,656
+In this module, we discussed that we're taking a detour through generic type parameters to use them as a stepping stone
+
+105
+00:06:38,656 --> 00:06:41,106
+to better understand generic lifetime parameters.
+
+106
+00:06:42,096 --> 00:06:48,006
+We saw that we can declare generic type parameters within angle brackets, and then use the generic types in definitions.
+
+107
+00:06:48,596 --> 00:06:57,336
+The compiler verifies the internal consistency of definitions using generics. When we write code using definitions containing generic type parameters,
+
+108
+00:06:57,516 --> 00:06:59,256
+we substitute concrete types,
+
+109
+00:06:59,376 --> 00:07:03,106
+and the compiler verifies that the concrete types don't violate the constraints.
+
+110
+00:07:04,696 --> 00:07:05,296
+Next,
+
+111
+00:07:05,356 --> 00:07:09,256
+let's see how generic lifetime parameters are similar to generic type parameters.
+

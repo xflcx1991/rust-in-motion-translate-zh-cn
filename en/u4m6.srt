@@ -1,0 +1,572 @@
+﻿1
+00:00:00,040 --> 00:00:01,520
+Welcome to module 6
+
+2
+00:00:01,570 --> 00:00:09,610
+on how lifetime parameters are a kind of generic. In this module, we'll review the reason Rust has this syntax.
+
+3
+00:00:10,640 --> 00:00:15,350
+Then, we'll look at code that needs generic lifetime parameters to learn what the syntax looks like.
+
+4
+00:00:15,940 --> 00:00:21,750
+We'll cover the ways in which generic type parameters are similar to and different from generic lifetime parameters.
+
+5
+00:00:22,340 --> 00:00:22,490
+We'll
+
+6
+00:00:22,490 --> 00:00:28,250
+look at lifetime parameters in the context of another example, where the lifetime relationships are different from the first example.
+
+7
+00:00:28,830 --> 00:00:34,450
+And we'll finish up by discussing the general strategy we recommend for figuring out lifetime parameter errors in the future.
+
+8
+00:00:36,040 --> 00:00:39,650
+Let's start off with the purpose of the generic lifetime parameter syntax.
+
+9
+00:00:41,200 --> 00:00:46,850
+The purpose of generic lifetime parameters is to tell the compiler how the lifetimes of references are related.
+
+10
+00:00:47,840 --> 00:00:51,240
+Once the compiler knows about the relationships that references have,
+
+11
+00:00:51,450 --> 00:00:55,150
+it has enough information to check that all references will always be valid.
+
+12
+00:00:56,740 --> 00:00:59,350
+Let's talk about the syntax for generic lifetime parameters.
+
+13
+00:01:00,940 --> 00:01:01,520
+First,
+
+14
+00:01:01,530 --> 00:01:06,120
+let's make a new binary crate called simulator. In
+
+15
+00:01:06,120 --> 00:01:17,090
+Cargo.toml, we'll add the rand crate version 0.6.5 as a dependency. In the src/main.rs file, we'll add the simulate_game function definition from the module
+
+16
+00:01:17,090 --> 00:01:19,350
+exploring the concept of generic lifetimes.
+
+17
+00:01:19,940 --> 00:01:21,570
+We'll leave the main function as it is
+
+18
+00:01:21,570 --> 00:01:22,250
+for the moment.
+
+19
+00:01:23,300 --> 00:01:25,790
+This function definition currently doesn't compile:
+
+20
+00:01:25,800 --> 00:01:28,320
+we get an error message that says, missing lifetime specifier.
+
+21
+00:01:28,320 --> 00:01:33,950
+The error points to the returned string slice and says it expected a lifetime parameter there.
+
+22
+00:01:34,980 --> 00:01:38,650
+The help text says, this function's return type contains a borrowed value, 
+
+23
+00:01:38,760 --> 00:01:44,550
+but the signature does not say whether it is borrowed from `home` or `away` – the two parameters that are also references.
+
+24
+00:01:46,070 --> 00:01:46,830
+Previously,
+
+25
+00:01:46,840 --> 00:01:52,420
+we talked about how we need to tell Rust that the lifetime of the reference returned from the function will be no greater than the time both references are valid,
+
+26
+00:01:52,420 --> 00:02:00,370
+because the return value could be related to either of the parameters.
+
+27
+00:02:00,500 --> 00:02:10,820
+To tell Rust about this relationship, we're going to add angle brackets after the function name. Within the angle brackets, we declare a generic lifetime parameter with the name of a single quote and the lowercase letter,a,
+
+28
+00:02:10,940 --> 00:02:16,140
+which is usually pronounced tick a. Once we've declared the generic lifetime,
+
+29
+00:02:16,150 --> 00:02:18,130
+we use it in the rest of the definition.
+
+30
+00:02:18,620 --> 00:02:19,390
+In this case,
+
+31
+00:02:19,400 --> 00:02:22,560
+we want to relate both parameter references with the return reference,
+
+32
+00:02:22,570 --> 00:02:25,190
+so we add 'a after each ampersand.
+
+33
+00:02:26,720 --> 00:02:32,850
+The green line that represented the combination of the generic lifetimes of the parameters is now expressed to the compiler
+
+34
+00:02:32,860 --> 00:02:33,350
+by the way
+
+35
+00:02:33,350 --> 00:02:35,330
+that we used 'a in the signature.
+
+36
+00:02:36,820 --> 00:02:41,160
+This function definition now compiles. Rust can
+
+37
+00:02:41,160 --> 00:02:42,580
+now check that code calling
+
+38
+00:02:42,580 --> 00:02:45,730
+the simulate_game function will always have valid references.
+
+39
+00:02:46,720 --> 00:02:47,690
+For example,
+
+40
+00:02:47,700 --> 00:02:55,640
+here's the main function we analyzed that uses simulate_game in a valid way. With the generic lifetime parameters
+
+41
+00:02:55,650 --> 00:02:57,370
+in the simulate_game definition,
+
+42
+00:02:57,470 --> 00:02:59,430
+this code compiles and runs.
+
+43
+00:03:01,020 --> 00:03:05,130
+We also looked at a different main function that had invalid uses of references.
+
+44
+00:03:06,620 --> 00:03:08,570
+When we try to compile this example,
+
+45
+00:03:08,580 --> 00:03:11,630
+we get the error that `team2` does not live long enough.
+
+46
+00:03:12,720 --> 00:03:15,120
+team2 is dropped at the end of the inner scope,
+
+47
+00:03:15,130 --> 00:03:18,830
+but the winner variable stores a reference that might be to team2.
+
+48
+00:03:19,920 --> 00:03:22,430
+winner needs to be valid until the end of main.
+
+49
+00:03:23,520 --> 00:03:30,530
+Rust has analyzed the code using the relationships we told it about with the generic lifetime parameters and rejected this code at compile time.
+
+50
+00:03:31,620 --> 00:03:34,110
+The references would not be valid in every case, according to the way we told Rust that they were related.
+
+51
+00:03:34,120 --> 00:03:40,930
+What if we told Rust the lifetimes had a different relationship?
+
+52
+00:03:41,480 --> 00:03:51,230
+Let's try declaring a second lifetime parameter, 'b, and changing the lifetime of the away argument to have 'b, but leaving the returned reference's lifetime as 'a.
+
+53
+00:03:52,320 --> 00:03:58,830
+This would say that the lifetimes of the home parameter and the return type are related but the away parameter's lifetime is not related.
+
+54
+00:04:00,360 --> 00:04:06,290
+This also does not compile. When Rust analyzes the simulate_game function, it sees
+
+55
+00:04:06,290 --> 00:04:11,660
+the implementation won't work with the way we've specified the lifetime parameters.
+
+56
+00:04:11,660 --> 00:04:14,300
+On line 7, we're returning data from the away parameter,
+
+57
+00:04:14,380 --> 00:04:16,950
+but it has a different lifetime parameter than the return type.
+
+58
+00:04:18,500 --> 00:04:19,890
+Looking at these error messages,
+
+59
+00:04:19,900 --> 00:04:25,950
+you may be wondering: if Rust can tell us that we got the lifetimes wrong, why are lifetime annotations necessary?
+
+60
+00:04:27,440 --> 00:04:38,050
+It's for the same reasons we have to specify the types and function signatures. Specifying the lifetimes helps prevent bugs by stating in a different way what we intend for the body of the function to do.
+
+61
+00:04:39,100 --> 00:04:42,200
+It lets Rust keep its analysis local to each definition,
+
+62
+00:04:42,240 --> 00:04:49,220
+which enables errors to be detected locally rather than caused by usages of the definition that might be far away from the cause of a problem.
+
+63
+00:04:50,240 --> 00:04:56,270
+And there are some complex cases where Rust wouldn't be able to tell from the implementation what the types or lifetimes should be.
+
+64
+00:04:57,880 --> 00:05:00,780
+Now that we've seen an example of generic lifetime parameters,
+
+65
+00:05:00,900 --> 00:05:03,650
+let's compare and contrast them with generic type parameters.
+
+66
+00:05:05,180 --> 00:05:08,260
+Generic type parameters are similar to generic lifetime parameters
+
+67
+00:05:08,260 --> 00:05:09,250
+in a few ways.
+
+68
+00:05:10,810 --> 00:05:14,520
+They're both declared within angle brackets at the beginning of an item definition.
+
+69
+00:05:15,040 --> 00:05:23,550
+If you're declaring both lifetime and type parameters they even get declared in the same set of angle brackets, with lifetime declarations first, followed by type declarations.
+
+70
+00:05:24,640 --> 00:05:28,590
+Both generic type parameters and generic lifetime parameters can be used in structs,
+
+71
+00:05:28,630 --> 00:05:29,740
+enums, functions,
+
+72
+00:05:29,740 --> 00:05:30,300
+methods,
+
+73
+00:05:30,300 --> 00:05:34,940
+traits, and more.
+
+74
+00:05:34,960 --> 00:05:36,890
+Generic type parameters are generic over types. They allow you to write code once that works
+
+75
+00:05:36,890 --> 00:05:38,150
+with many different types.
+
+76
+00:05:38,740 --> 00:05:41,520
+Generic lifetime parameters are generic over scopes.
+
+77
+00:05:41,600 --> 00:05:43,530
+They allow you to write code once that works
+
+78
+00:05:43,530 --> 00:05:46,950
+with many different references that are valid for different lengths of time.
+
+79
+00:05:47,940 --> 00:05:53,250
+Both generic type parameters and generic lifetime parameters have idiomatic naming conventions.
+
+80
+00:05:53,840 --> 00:05:57,150
+The names of generic type parameters should be in upper camel case.
+
+81
+00:05:57,680 --> 00:06:03,866
+The names of generic lifetime parameters should be in snake case.
+
+82
+00:06:03,916 --> 00:06:12,556
+When using generic type parameters, Rust generates code for each of the types that the generic code is called with. Generic lifetime parameters only assist with analysis and are then discarded.
+
+83
+00:06:12,766 --> 00:06:16,106
+The compiler doesn't generate additional code because of their presence.
+
+84
+00:06:17,626 --> 00:06:18,276
+Next,
+
+85
+00:06:18,286 --> 00:06:23,206
+let's look at the Stemmer example from the module on generic lifetimes and get that to compile as well.
+
+86
+00:06:24,696 --> 00:06:30,706
+Let's create a new binary crate called linguistics. In src/main.rs,
+
+87
+00:06:30,706 --> 00:06:35,806
+we're placing the definition of a Stemmer struct and its stem method that we discussed in the previous module.
+
+88
+00:06:36,836 --> 00:06:38,596
+We'll leave the main function as it is
+
+89
+00:06:38,596 --> 00:06:39,206
+for the moment.
+
+90
+00:06:40,796 --> 00:06:42,506
+This example doesn't compile.
+
+91
+00:06:43,496 --> 00:06:50,436
+Rust complains about a lifetime mismatch because the word parameter and the return type are not related with lifetime parameters in the signature.
+
+92
+00:06:50,656 --> 00:06:58,166
+But they are related according to the body of the method that returns data from word. We discussed, in the previous module,
+
+93
+00:06:58,176 --> 00:07:04,006
+that we want to tell Rust that the word parameter and the return value are related to each other and they aren't related to self.
+
+94
+00:07:05,496 --> 00:07:12,506
+The way to do that is to declare a generic lifetime parameter for the stem method. We'll again use the name 'a.
+
+95
+00:07:13,056 --> 00:07:16,496
+Then, we add 'a to the word parameter and the returned reference,
+
+96
+00:07:16,506 --> 00:07:18,206
+but not to the reference to self.
+
+97
+00:07:19,796 --> 00:07:21,306
+This code now compiles.
+
+98
+00:07:22,856 --> 00:07:30,106
+We also looked at this code that we're now putting in the main function. Before, when we analyzed the concrete lifetimes,
+
+99
+00:07:30,116 --> 00:07:32,636
+we saw that for this usage of stemmer to be valid,
+
+100
+00:07:32,756 --> 00:07:35,456
+the return type's lifetime indeed needs to be related
+
+101
+00:07:35,466 --> 00:07:36,176
+only to word's
+
+102
+00:07:36,176 --> 00:07:36,796
+lifetime,
+
+103
+00:07:36,936 --> 00:07:38,306
+not the stemmer's lifetime.
+
+104
+00:07:39,796 --> 00:07:44,806
+This main function will indeed compile and run successfully with the way we have the lifetimes specified.
+
+105
+00:07:46,296 --> 00:07:49,526
+What if we change the lifetime relationships in the stem method
+
+106
+00:07:49,536 --> 00:07:52,996
+to say that the returned value's reference is related to self's lifetime
+
+107
+00:07:52,996 --> 00:07:53,406
+too?
+
+108
+00:07:54,426 --> 00:08:02,616
+Let's add a 'a to the reference to self and comment out the body of the main function to see only the compilers analysis of the stem method without any usage.
+
+109
+00:08:04,366 --> 00:08:05,476
+This compiles.
+
+110
+00:08:06,016 --> 00:08:09,716
+While the body of the stem method doesn't use self in the returned value,
+
+111
+00:08:09,936 --> 00:08:13,676
+there isn't anything in the body to make this relationship invalid either.
+
+112
+00:08:14,216 --> 00:08:18,476
+What we have done is constrained the lifetime relationships more tightly than they need to be.
+
+113
+00:08:20,066 --> 00:08:24,476
+If we uncomment the body of the main function, now this code doesn't compile.
+
+114
+00:08:25,516 --> 00:08:26,206
+Rust says
+
+115
+00:08:26,206 --> 00:08:28,576
+the stemmer needs to live until the end of main.
+
+116
+00:08:29,166 --> 00:08:30,816
+Adding the 'a lifetime parameter to
+
+117
+00:08:30,816 --> 00:08:36,026
+self said the return value from stem can now only live as long as the stemmer instance does.
+
+118
+00:08:36,036 --> 00:08:38,976
+But this main function isn't valid according to that relationship.
+
+119
+00:08:40,566 --> 00:08:47,676
+This example of specifying too many lifetime parameters leads us to discussing strategies for when you run into lifetime errors in the future.
+
+120
+00:08:49,266 --> 00:08:53,326
+It can be frustrating to get errors talking about lifetime parameters from the compiler,
+
+121
+00:08:53,506 --> 00:08:57,276
+and it can be tempting to try adding lifetime parameters everywhere to fix them.
+
+122
+00:08:58,266 --> 00:08:58,906
+However,
+
+123
+00:08:58,916 --> 00:09:01,986
+that can get you into a situation where the lifetime relationships are
+
+124
+00:09:01,986 --> 00:09:04,756
+overconstrained and can cause different lifetime errors,
+
+125
+00:09:04,766 --> 00:09:05,516
+as we just saw
+
+126
+00:09:05,516 --> 00:09:06,576
+with the Stemmer example.
+
+127
+00:09:08,166 --> 00:09:11,726
+A better way to handle lifetime parameter errors is to read the entire error message,
+
+128
+00:09:11,736 --> 00:09:15,076
+including the help text, to see if the compiler has any suggestions.
+
+129
+00:09:16,066 --> 00:09:16,726
+Next,
+
+130
+00:09:16,826 --> 00:09:24,326
+look at the parameters that are references and return types that are references, and think about how you want the generic lifetimes to be related in the definition.
+
+131
+00:09:25,366 --> 00:09:26,086
+Finally,
+
+132
+00:09:26,166 --> 00:09:26,486
+check
+
+133
+00:09:26,486 --> 00:09:33,196
+where you are using the definitions and trace through the concrete lifetimes to see if there are references outliving the values they're associated with,
+
+134
+00:09:33,326 --> 00:09:35,076
+as we did in the Visualizing lifetimes 
+
+135
+00:09:35,076 --> 00:09:39,376
+to understand borrow checker errors module.
+
+136
+00:09:39,386 --> 00:09:48,536
+In this module, we talked about how lifetime parameters are needed to tell the Rust compiler about the relationships between references. In the context of the simulate_game example,
+
+137
+00:09:48,576 --> 00:09:53,236
+we covered how to declare lifetime parameters within angle brackets at the beginning of a definition,
+
+138
+00:09:53,416 --> 00:09:56,276
+then use the parameters with references in signatures.
+
+139
+00:09:57,366 --> 00:10:05,009
+We related generic lifetime parameters to generic type parameters, to see how lifetime parameters are an extension of the concept of code being generic.
+
+140
+00:10:06,099 --> 00:10:06,959
+We looked at the Stemmer
+
+141
+00:10:06,959 --> 00:10:11,809
+example, where we only wanted the word parameter's lifetime associated with the returned value.
+
+142
+00:10:12,899 --> 00:10:15,239
+And when you get errors about lifetime parameters,
+
+143
+00:10:15,279 --> 00:10:29,129
+we recommended taking time to read through the error message and think about how references are related, rather than adding lifetime parameters on every reference. In the next module, we'll concentrate on what lifetime parameters don't have the power to do.
+

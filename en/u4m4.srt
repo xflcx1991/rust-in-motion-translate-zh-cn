@@ -1,0 +1,600 @@
+﻿1
+00:00:00,090 --> 00:00:08,450
+Welcome the module 4, An exploration of generic lifetimes. In this module, we'll discuss what a generic lifetime is,
+
+2
+00:00:08,770 --> 00:00:12,650
+as opposed to the concrete lifetimes we discussed in modules 2 and 3.
+
+3
+00:00:13,640 --> 00:00:18,300
+We'll go through three examples that return references and illustrate generic lifetimes:
+
+4
+00:00:18,500 --> 00:00:19,940
+a function with one parameter
+
+5
+00:00:19,970 --> 00:00:20,870
+that's a reference,
+
+6
+00:00:21,050 --> 00:00:22,300
+a function with two parameters
+
+7
+00:00:22,300 --> 00:00:24,620
+that are references, and a method with a parameter
+
+8
+00:00:24,620 --> 00:00:25,450
+that's a reference.
+
+9
+00:00:26,940 --> 00:00:30,350
+Let's start with defining what we mean by "generic lifetime."
+
+10
+00:00:31,840 --> 00:00:40,820
+A generic lifetime is the lifetime of a reference in code, where we can't know all of the possible concrete lifetimes of the values being referenced at compile time.
+
+11
+00:00:41,840 --> 00:00:45,450
+Generic lifetimes can exist in the definitions of functions,
+
+12
+00:00:45,570 --> 00:00:49,410
+methods, structs, enums, and traits.
+
+13
+00:00:49,920 --> 00:00:50,840
+In this video,
+
+14
+00:00:50,850 --> 00:00:58,220
+we're going to cover generic lifetimes in functions and methods.
+
+15
+00:00:58,420 --> 00:01:05,950
+To compile code involving generic lifetimes, Rust needs to have enough information to prove that the references will be valid for any concrete lifetime of any value the definition is invoked with.
+
+16
+00:01:07,440 --> 00:01:07,710
+Now,
+
+17
+00:01:07,710 --> 00:01:10,750
+let's look at some examples involving generic lifetimes,
+
+18
+00:01:10,960 --> 00:01:13,700
+starting with a function with one reference as a parameter,
+
+19
+00:01:13,890 --> 00:01:15,050
+and that returns a reference.
+
+20
+00:01:16,100 --> 00:01:20,410
+We're actually going to look again at the example from the module on concrete lifetimes,
+
+21
+00:01:20,420 --> 00:01:22,350
+with the return_first_two function.
+
+22
+00:01:22,840 --> 00:01:33,850
+When we looked at the return_first_two function before, we annotated the lifetimes of the references in the parameter and return value with an orange dotted line because they're tied to some value outside of the function.
+
+23
+00:01:34,840 --> 00:01:43,250
+Then, we looked at where we called the return_first_two function in main and filled in the orange lifetime with blue because it was connected to the list value in main.
+
+24
+00:01:44,240 --> 00:01:47,790
+The orange lines actually represented a generic lifetime,
+
+25
+00:01:47,920 --> 00:01:50,450
+but we glossed over that detail in the earlier video.
+
+26
+00:01:51,440 --> 00:01:52,430
+In that video,
+
+27
+00:01:52,440 --> 00:01:53,970
+we were able to look at main,
+
+28
+00:01:53,970 --> 00:01:55,770
+where return_first_two was called,
+
+29
+00:01:56,030 --> 00:01:58,220
+and see that the concrete lifetimes were valid.
+
+30
+00:01:59,240 --> 00:01:59,950
+However,
+
+31
+00:02:00,050 --> 00:02:08,370
+the Rust compiler only ever analyzes lifetimes and functions in isolation because it needs to guarantee that references will be valid in any call to the function,
+
+32
+00:02:08,380 --> 00:02:10,750
+not only the calls currently available to the compiler.
+
+33
+00:02:12,240 --> 00:02:13,080
+For instance,
+
+34
+00:02:13,110 --> 00:02:15,830
+if the return_first_two function is part of the public
+
+35
+00:02:15,830 --> 00:02:18,010
+API of a crate that we publish on crates.io,
+
+36
+00:02:18,020 --> 00:02:22,360
+Rust has no way of knowing all of the concrete ways people downloading the crate in the future
+
+37
+00:02:22,370 --> 00:02:23,350
+will call the function.
+
+38
+00:02:23,990 --> 00:02:26,940
+The good news is that Rust doesn't need to know that information.
+
+39
+00:02:27,190 --> 00:02:34,810
+It just needs to know how the lifetimes of parameters and return values are related.
+
+40
+00:02:34,870 --> 00:02:42,150
+In the return_first_two function, the only valid implementation for a function with this signature is for the return value to reference the same value that the parameter references.
+
+41
+00:02:42,740 --> 00:02:43,370
+Therefore,
+
+42
+00:02:43,380 --> 00:02:48,820
+Rust knows that the return value can live as long as the parameter can live. In main,
+
+43
+00:02:48,830 --> 00:02:55,220
+we could have created list a long time before calling return_first_two and list could live a long time after.
+
+44
+00:02:56,210 --> 00:03:00,450
+Or, perhaps list is created a long time before, but goes out of scope soon after.
+
+45
+00:03:01,440 --> 00:03:05,150
+Or, maybe list is created just before, but lives for a long time after.
+
+46
+00:03:06,140 --> 00:03:09,250
+Or, maybe it doesn't live very long before or after.
+
+47
+00:03:10,340 --> 00:03:12,300
+All of these scenarios are valid,
+
+48
+00:03:12,310 --> 00:03:18,460
+and Rust doesn't need to know which one actually happens, only that the returned reference has a lifetime tied to the same value the parameter is tied to.
+
+49
+00:03:18,470 --> 00:03:24,950
+Next, let's look at a function with two parameters that are references.
+
+50
+00:03:25,990 --> 00:03:28,850
+We're going to write a function that will simulate a sporting event.
+
+51
+00:03:29,440 --> 00:03:34,410
+The code that we look at isn't going to compile until we introduce some more syntax in a future video –
+
+52
+00:03:34,420 --> 00:03:36,160
+we're only going to concentrate on the concepts
+
+53
+00:03:36,160 --> 00:03:36,650
+for now.
+
+54
+00:03:37,640 --> 00:03:41,020
+The function is called simulate_game﻿ and ﻿has two parameters,
+
+55
+00:03:41,330 --> 00:03:43,150
+each of which are string slices.
+
+56
+00:03:43,640 --> 00:03:46,200
+The first parameter is the name of the home team,
+
+57
+00:03:46,210 --> 00:03:48,710
+and the second parameter is the name of the away team.
+
+58
+00:03:49,700 --> 00:03:54,550
+The function returns a string slice that is the name of the team that won the simulated game.
+
+59
+00:03:55,440 --> 00:03:57,800
+There are many ways we could implement this function.
+
+60
+00:03:57,960 --> 00:04:01,210
+One poor simulation would be to always have the home team win.
+
+61
+00:04:01,740 --> 00:04:02,630
+In this case,
+
+62
+00:04:02,640 --> 00:04:08,550
+we can see that the lifetime of the returned string slice would be tied to the same value that the home parameter is tied to.
+
+63
+00:04:09,940 --> 00:04:10,820
+Similarly,
+
+64
+00:04:11,030 --> 00:04:14,490
+we could have the away team always win and the lifetime of the returned
+
+65
+00:04:14,490 --> 00:04:18,250
+string slice would be tied to the same value that the away parameter is tied to.
+
+66
+00:04:19,240 --> 00:04:23,250
+But what if we choose randomly between the two teams using the rand crate?
+
+67
+00:04:23,740 --> 00:04:24,650
+With this code,
+
+68
+00:04:24,710 --> 00:04:26,860
+there's no way to tell at compile time
+
+69
+00:04:26,870 --> 00:04:29,410
+which parameter the return slice will be tied to.
+
+70
+00:04:30,440 --> 00:04:34,930
+We, as programmers, need to tell Rust how long the return value is guaranteed to be valid for,
+
+71
+00:04:35,080 --> 00:04:40,150
+so that Rust has enough information to determine whether references will always be valid at compile time.
+
+72
+00:04:41,150 --> 00:04:45,650
+We can't know that the returned reference will be tied to one or other of the parameters.
+
+73
+00:04:46,140 --> 00:04:52,050
+What we can know is that the returned reference will definitely be valid for the time when both parameters are valid.
+
+74
+00:04:52,540 --> 00:04:58,950
+This is a generic lifetime that relates the two input reference's lifetimes to the output reference's lifetime.
+
+75
+00:04:59,440 --> 00:05:02,150
+We need to tell the compiler about this relationship.
+
+76
+00:05:03,210 --> 00:05:04,250
+In other words,
+
+77
+00:05:04,450 --> 00:05:10,620
+we're saying that the output reference will live as long as some concrete lifetime that we don't know about at compile time. But it'll be no greater than the time that both of the parameters are valid.
+
+78
+00:05:10,860 --> 00:05:19,250
+Here's an example main function that calls simulate_game.
+
+79
+00:05:19,740 --> 00:05:23,810
+We've added an inner scope to make the concrete lifetimes more obvious.
+
+80
+00:05:24,340 --> 00:05:29,150
+Rust can see that the value in team1 lives from where it's declared to the end of main.
+
+81
+00:05:29,640 --> 00:05:34,050
+The value in team2 lives from where it's declared until the end of the inner scope.
+
+82
+00:05:34,740 --> 00:05:38,500
+We don't know at compile time whether team1 or team2 will win.
+
+83
+00:05:38,510 --> 00:05:45,950
+But we do know that the reference winner binds to will definitely be valid as long as team2 is valid because team2 has the shorter lifetime.
+
+84
+00:05:47,040 --> 00:05:48,950
+This code is valid and would compile
+
+85
+00:05:48,950 --> 00:05:53,350
+except for the syntax we haven't talked about yet that we need to add to the simulate_game function.
+
+86
+00:05:54,840 --> 00:05:59,240
+Now, let's look at a main function that's invalid. In this variation,
+
+87
+00:05:59,350 --> 00:06:06,750
+team1 is still valid from where it's declared until the end of main, and team2 is still valid from where it's declared to the end of the inner scope.
+
+88
+00:06:07,740 --> 00:06:12,590
+This code attempts to bind the reference returned by simulate_game to the variablewinner,
+
+89
+00:06:12,770 --> 00:06:14,350
+which is declared in the outer scope.
+
+90
+00:06:15,970 --> 00:06:19,180
+This code isn't allowed because if team2 wins,
+
+91
+00:06:19,210 --> 00:06:23,350
+the reference held by winner would be invalid because team2 gets cleaned up.
+
+92
+00:06:24,340 --> 00:06:25,850
+If team1 wins,
+
+93
+00:06:25,920 --> 00:06:28,040
+the reference in winner would be valid,
+
+94
+00:06:28,290 --> 00:06:31,630
+but Rust can't guarantee that team1 will win at compile time.
+
+95
+00:06:31,830 --> 00:06:40,680
+And the relationship we specify to Rust about the generic lifetimes involved in the simulate_game function say the returned reference is only valid for the shorter of the two lifetimes.
+
+96
+00:06:42,240 --> 00:06:43,590
+For the third example,
+
+97
+00:06:43,720 --> 00:06:46,050
+let's look at a method defined on a struct.
+
+98
+00:06:47,640 --> 00:06:49,770
+We're going to write a very simple stemmer –
+
+99
+00:06:50,000 --> 00:06:52,670
+a program that removes suffixes from words,
+
+100
+00:06:52,910 --> 00:06:54,130
+which is useful when searching,
+
+101
+00:06:54,130 --> 00:06:54,810
+for example.
+
+102
+00:06:55,280 --> 00:07:00,950
+This stemmer will be so simple that each instance supports the removal of only one suffix.
+
+103
+00:07:02,040 --> 00:07:07,150
+We're going to implement the stemmer as a struct that owns a string of the suffix that it removes.
+
+104
+00:07:07,640 --> 00:07:15,820
+The stemming part is implemented as a method named stem, defined on the Stemmer struct, that takes a string slice of the word to be stemmed.
+
+105
+00:07:16,310 --> 00:07:18,680
+The stem method returns a string slice.
+
+106
+00:07:19,180 --> 00:07:20,970
+If the word ends in the stemmer
+
+107
+00:07:20,970 --> 00:07:26,150
+suffix, the stem method returns a smaller string slice of the word without the suffix.
+
+108
+00:07:26,640 --> 00:07:28,850
+If the word doesn't end in the suffix,
+
+109
+00:07:29,030 --> 00:07:30,950
+the stem method returns the whole word.
+
+110
+00:07:31,940 --> 00:07:34,840
+Here's a test illustrating the desired functionality.
+
+111
+00:07:34,980 --> 00:07:35,780
+But again,
+
+112
+00:07:35,980 --> 00:07:40,050
+this example won't compile until we discuss some syntax in a future video.
+
+113
+00:07:40,540 --> 00:07:40,950
+For now,
+
+114
+00:07:40,950 --> 00:07:41,500
+though,
+
+115
+00:07:41,600 --> 00:07:44,650
+let's look at the lifetimes involved in the stem method.
+
+116
+00:07:46,100 --> 00:07:49,440
+There are actually two references that are inputs to the stem method:
+
+117
+00:07:49,580 --> 00:07:52,140
+the immutable reference to self that we need to read
+
+118
+00:07:52,140 --> 00:07:55,250
+the suffix field and the reference to the word being stemmed.
+
+119
+00:07:56,240 --> 00:07:58,610
+We need to tell Rust the generic lifetime
+
+120
+00:07:58,620 --> 00:08:05,080
+the returned reference is tied to. From the previous example, we know we have three choices:
+
+121
+00:08:05,090 --> 00:08:12,550
+the returned reference can be associated to the reference to self, the reference to word, or the time that both self and word are valid.
+
+122
+00:08:14,070 --> 00:08:18,470
+The way we want the stem method to work is that it will always return a slice,
+
+123
+00:08:18,640 --> 00:08:21,350
+either partial or full, of the word parameter.
+
+124
+00:08:22,840 --> 00:08:30,650
+This means that the generic lifetime relationship we want to tell Rust about is that the returned reference is tied to the same value that ﻿word﻿ is.
+
+125
+00:08:31,640 --> 00:08:38,850
+Let's look at some concrete lifetimes in a main function where we'll be calling the stem method to see why this is what we want in a different way.
+
+126
+00:08:39,940 --> 00:08:42,550
+First, we'll create a word that we want to stem.
+
+127
+00:08:43,080 --> 00:08:43,770
+Then,
+
+128
+00:08:43,870 --> 00:08:44,950
+in an inner scope,
+
+129
+00:08:44,960 --> 00:08:48,180
+we'll create an instance of Stemmer with the suffix, ed.
+
+130
+00:08:48,180 --> 00:08:54,750
+We'll return the stem of the word from the inner scope and bind it to the variable word_stem.
+
+131
+00:08:55,240 --> 00:08:56,010
+And, finally,
+
+132
+00:08:56,050 --> 00:08:58,150
+we'll print out the word and its stem.
+
+133
+00:08:59,170 --> 00:09:03,550
+The lifetime of word goes from where word is declared until the end of main.
+
+134
+00:09:04,060 --> 00:09:09,450
+The lifetime of the stemmer instance lasts from when it's declared to the end of the inner scope.
+
+135
+00:09:10,480 --> 00:09:12,430
+In order for this code to be valid,
+
+136
+00:09:12,760 --> 00:09:16,550
+word_stem needs to live from where it's declared to the end of main.
+
+137
+00:09:18,040 --> 00:09:25,950
+This code is valid because the relationship we want to add to the stem method says that the returned reference is tied to the lifetime of the word parameter.
+
+138
+00:09:26,940 --> 00:09:33,610
+If the reference returned from the stem method was tied to the self reference, or to both the self reference and the word parameter,
+
+139
+00:09:33,620 --> 00:09:35,830
+this code wouldn't be allowed because the stemmer
+
+140
+00:09:35,830 --> 00:09:36,390
+instance
+
+141
+00:09:36,390 --> 00:09:39,170
+gets cleaned up at the end of the inner scope.
+
+142
+00:09:39,170 --> 00:09:40,660
+word_stem lives longer than that,
+
+143
+00:09:40,880 --> 00:09:42,250
+and the compiler would reject
+
+144
+00:09:42,250 --> 00:09:46,950
+the code as having an invalid reference.
+
+145
+00:09:46,960 --> 00:09:53,250
+In this module, we defined a generic lifetime as the relationship that concrete lifetimes must have for the code to be valid.
+
+146
+00:09:54,240 --> 00:09:58,550
+We looked at the return_first_two function that had one generic lifetime.
+
+147
+00:09:59,540 --> 00:10:07,450
+We looked at the simulate_game function that needs to know that the lifetime of the returned reference will be valid when both of the parameter's references are valid.
+
+148
+00:10:08,440 --> 00:10:16,330
+And we looked at the stem method, where the returned reference is related to one of the parameter's references.
+
+149
+00:10:16,380 --> 00:10:21,220
+In the next module, we're going to take a slight detour to explore generic type parameters and their syntax,
+
+150
+00:10:21,530 --> 00:10:25,250
+which will set us up for understanding generic lifetime parameter syntax.
+

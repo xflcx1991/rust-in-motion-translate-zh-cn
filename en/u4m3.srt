@@ -1,0 +1,664 @@
+﻿1
+00:00:00,040 --> 00:00:07,540
+Welcome to module 3, Visualizing lifetimes to understand borrow checker errors. In the previous module,
+
+2
+00:00:07,550 --> 00:00:16,000
+we looked at lifetimes of values and references in four examples that compiled because all of the lifetimes were valid.
+
+3
+00:00:16,070 --> 00:00:20,950
+In this module, we're going to look at five examples that don't compile because they would create invalid references.
+
+4
+00:00:21,940 --> 00:00:31,250
+The examples are returning a reference to a value created within an inner scope, returning a reference to a value created within a function, referencing a value that is moved,
+
+5
+00:00:31,740 --> 00:00:41,440
+creating a struct that refers to itself, and storing references in a HashMap.
+
+6
+00:00:41,820 --> 00:00:43,950
+For each example, we'll draw the lifetimes to understand why the references would be invalid, and we'll talk about how to fix the problems.
+
+7
+00:00:45,490 --> 00:00:49,650
+Let's start with returning a reference to a value that's created within an inner scope.
+
+8
+00:00:51,240 --> 00:00:55,450
+This first example is similar to examples 1 and 2 from the previous module.
+
+9
+00:00:55,940 --> 00:00:58,850
+We create a vector and bind it to the variable list,
+
+10
+00:00:59,340 --> 00:01:02,350
+and then we create a reference to the first two items in the list.
+
+11
+00:01:03,380 --> 00:01:07,000
+The difference is that rather than creating the list in the outer scope of main,
+
+12
+00:01:07,160 --> 00:01:13,650
+we're creating the list in an inner scope and attempting to return the reference out of that scope to the first_two variable.
+
+13
+00:01:14,640 --> 00:01:19,920
+The lifetime of the list value starts where list is created and ends at the end of the inner scope
+
+14
+00:01:19,930 --> 00:01:23,210
+where list gets cleaned up. As written,
+
+15
+00:01:23,220 --> 00:01:25,090
+we're trying to use the reference to list,
+
+16
+00:01:25,100 --> 00:01:29,050
+starting from the creation of the first_two variable through the end of main.
+
+17
+00:01:30,110 --> 00:01:34,180
+The lifetime of the reference is longer than the lifetime of the value it's referencing,
+
+18
+00:01:34,260 --> 00:01:35,350
+which isn't allowed.
+
+19
+00:01:36,440 --> 00:01:38,250
+Let's look at the compiler error we get.
+
+20
+00:01:38,690 --> 00:01:41,480
+It says `list` does not live long enough,
+
+21
+00:01:41,730 --> 00:01:49,650
+then it points to the reference to the first two items of the list that we try to return from the inner scope, and says that the borrowed value does not live long enough.
+
+22
+00:01:50,200 --> 00:01:51,730
+At the end of the inner scope,
+
+23
+00:01:51,830 --> 00:01:53,000
+it says list was drop﻿ped
+
+24
+00:01:53,000 --> 00:01:53,980
+while still borrowed,
+
+25
+00:01:54,130 --> 00:01:57,250
+and it says the borrowed value needs to live until the end of main.
+
+26
+00:01:58,340 --> 00:02:04,390
+The compiler is drawing the same conclusions that we drew with the lines, just explaining it in a slightly different way.
+
+27
+00:02:04,945 --> 00:02:08,455
+Fixing this problem depends on what we're ultimately trying to do.
+
+28
+00:02:10,045 --> 00:02:15,805
+We could move all uses of the reference into the inner scope rather than returning the reference from the inner scope,
+
+29
+00:02:15,815 --> 00:02:18,605
+which would make the reference's lifetime shorter than the values.
+
+30
+00:02:19,545 --> 00:02:22,505
+Or, we can move the list creation out of the inner scope,
+
+31
+00:02:22,515 --> 00:02:25,355
+which makes the value's lifetime longer than the reference's.
+
+32
+00:02:26,945 --> 00:02:27,565
+Next,
+
+33
+00:02:27,635 --> 00:02:31,055
+let's see what happens when we try to return a reference out of a function.
+
+34
+00:02:32,745 --> 00:02:36,255
+This example is similar to one we looked at in the Borrowing module in unit
+
+35
+00:02:36,265 --> 00:02:36,725
+2.
+
+36
+00:02:36,735 --> 00:02:43,205
+But this time, we're going to look at it in the context of lifetimes. Rather than returning a reference from an inner scope,
+
+37
+00:02:43,215 --> 00:02:44,725
+as we did in the first example,
+
+38
+00:02:44,955 --> 00:02:49,855
+we're instead returning a reference out of a function that points to a value created in that function.
+
+39
+00:02:50,925 --> 00:02:58,755
+The list value's lifetime starts in the return_first_two function where it's created and ends at the end of the function where it goes out of scope.
+
+40
+00:02:59,345 --> 00:03:02,025
+This code is trying to create a reference to list,
+
+41
+00:03:02,165 --> 00:03:05,005
+return it from the function, and use it in main,
+
+42
+00:03:05,085 --> 00:03:08,555
+from where the first_two variable is created, until the end of main.
+
+43
+00:03:10,065 --> 00:03:13,725
+That would make the reference's lifetime longer than the value it's referring to,
+
+44
+00:03:13,735 --> 00:03:15,455
+which, again, would be invalid.
+
+45
+00:03:17,345 --> 00:03:19,455
+Looking at the compiler error for this code,
+
+46
+00:03:19,535 --> 00:03:21,125
+it says there's a missing lifetime
+
+47
+00:03:21,125 --> 00:03:24,795
+specifier and points to a spot where it expected a lifetime parameter.
+
+48
+00:03:25,345 --> 00:03:33,485
+The help text explains that there isn't a value for the borrowed parameter to be borrowed from because there isn't a value passed in.
+
+49
+00:03:33,485 --> 00:03:36,305
+The compiler can tell we must be trying to borrow a value we create in the function,
+
+50
+00:03:36,315 --> 00:03:37,395
+which isn't valid.
+
+51
+00:03:37,945 --> 00:03:42,355
+It then goes on to suggest giving the return type a 'static lifetime.
+
+52
+00:03:43,345 --> 00:03:44,655
+We'll be talking about lifetime
+
+53
+00:03:44,655 --> 00:03:48,945
+specifiers, lifetime parameters, and the 'static lifetime in future videos,
+
+54
+00:03:49,245 --> 00:03:54,255
+along with whether that suggestion would fix this problem or not.
+
+55
+00:03:54,255 --> 00:03:55,735
+A fix not suggested by the compiler,
+
+56
+00:03:55,745 --> 00:03:58,075
+is to move the owned list out of the function,
+
+57
+00:03:58,185 --> 00:04:02,055
+so the return type is a vector of i32 rather than a slice.
+
+58
+00:04:02,645 --> 00:04:04,955
+Then, we would create the reference in main instead,
+
+59
+00:04:05,115 --> 00:04:08,955
+which again makes the lifetime of the reference shorter than that of the value.
+
+60
+00:04:10,498 --> 00:04:11,708
+For the next example,
+
+61
+00:04:11,828 --> 00:04:16,438
+let's try creating a reference to a value that gets moved.
+
+62
+00:04:16,438 --> 00:04:20,148
+In this code, we'll create a vector and bind it to the variable
+
+63
+00:04:20,158 --> 00:04:20,708
+list_a.
+
+64
+00:04:21,258 --> 00:04:24,128
+Then, we'll transfer ownership to the variablelist_b.
+
+65
+00:04:24,138 --> 00:04:30,848
+After moving the vector out of list_a, we'll attempt to take a reference to the last two elements in list_a and
+
+66
+00:04:30,858 --> 00:04:31,608
+print them out.
+
+67
+00:04:32,698 --> 00:04:38,608
+The lifetime of list_a ends when we transfer ownership to list_b because the value is moved.
+
+68
+00:04:39,138 --> 00:04:42,208
+Its lifetime in that memory location is over.
+
+69
+00:04:42,798 --> 00:04:47,698
+The lifetime of the reference in first_two is entirely disjoint from the lifetime of list_a.
+
+70
+00:04:47,708 --> 00:04:50,458
+So, this example isn't valid because a reference's
+
+71
+00:04:50,458 --> 00:04:55,108
+lifetime must be completely contained within the lifetime of the value being referenced.
+
+72
+00:04:56,698 --> 00:05:00,408
+The compiler error tells us we can't use a value after we've moved it.
+
+73
+00:05:01,928 --> 00:05:08,988
+If we swap the lines that move the vector and take a reference so that we try to hold on to and use a reference after we've moved its value,
+
+74
+00:05:09,148 --> 00:05:10,508
+this would also be invalid.
+
+75
+00:05:11,558 --> 00:05:14,918
+The lifetime of the reference overlaps that of the value now,
+
+76
+00:05:14,928 --> 00:05:18,308
+but it still isn't completely contained within the value's lifetime.
+
+77
+00:05:19,898 --> 00:05:23,408
+The compiler now says list_a can't be moved because it's borrowed.
+
+78
+00:05:24,498 --> 00:05:29,598
+A fix that works in Rust 1.24.1 is to move the vector into list_b
+
+79
+00:05:29,608 --> 00:05:40,178
+last, and create and use the reference in an inner scope that ends before we transfer ownership. In Rust 1.31 and up, when using the Rust 2018 edition,
+
+80
+00:05:40,488 --> 00:05:45,508
+the borrow checker has learned to see where you're done with references, so the inner scope is no longer needed.
+
+81
+00:05:46,998 --> 00:05:52,908
+Next, let's take a look at why the compiler won't allow a struct to hold a reference that points to a part of itself.
+
+82
+00:05:53,398 --> 00:05:54,498
+In the second example,
+
+83
+00:05:54,508 --> 00:05:56,548
+when we tried to return a reference from a function,
+
+84
+00:05:56,728 --> 00:06:01,808
+a solution you may have been considering is returning both the vector and the reference together in one type.
+
+85
+00:06:02,398 --> 00:06:10,738
+Let's try that now. We'll define a struct named ListAndRef that stores both a vector and a slice that references the vector's
+
+86
+00:06:10,738 --> 00:06:18,549
+first_two items. In the return_list_and_first_two function, we'll create a vector and bind it to the variablelist_to_use.
+
+87
+00:06:19,139 --> 00:06:25,579
+Then, we'll create an instance of the ListAndRef struct with the list_to_use vector in the list field of the struct in a slice
+
+88
+00:06:25,579 --> 00:06:28,999
+referencing the first two elements of list_to_use in the first_two field.
+
+89
+00:06:29,529 --> 00:06:31,259
+Then, we'll return the instance.
+
+90
+00:06:32,349 --> 00:06:34,699
+There are multiple reasons that this is a problem.
+
+91
+00:06:35,689 --> 00:06:36,529
+First of all,
+
+92
+00:06:36,539 --> 00:06:38,899
+the struct owns the data in the list field.
+
+93
+00:06:39,149 --> 00:06:48,999
+So, when we assignlist_to_use, ownership is moved to the struct. We're then not allowed to create a slice referencing list_to_use because that would be a borrow after a move.
+
+94
+00:06:50,089 --> 00:06:52,339
+Even if we could create the slice reference,
+
+95
+00:06:52,349 --> 00:06:53,499
+we'd have another problem.
+
+96
+00:06:53,989 --> 00:06:56,539
+Ownership is moved when a value is returned from a function.
+
+97
+00:06:57,549 --> 00:07:06,199
+The fields in memory, before the end of the function, would hold the list and the reference to the list. Moving a value copies values on the stack.
+
+98
+00:07:06,689 --> 00:07:09,339
+When the struct instance is moved to a different location,
+
+99
+00:07:09,429 --> 00:07:12,799
+the reference would still point to the old location of the list field.
+
+100
+00:07:13,889 --> 00:07:16,059
+That location would now be invalid.
+
+101
+00:07:17,089 --> 00:07:20,869
+If Rust automatically fixed up references like this on a move,
+
+102
+00:07:20,879 --> 00:07:23,659
+moving would no longer be the quick operation it is today. Just imagine a struct with lots of self references.
+
+103
+00:07:24,189 --> 00:07:31,829
+If you have a situation where you need to have a struct hold a reference to itself,
+
+104
+00:07:31,839 --> 00:07:34,309
+check out the rental or owning-ref crates,
+
+105
+00:07:34,559 --> 00:07:39,299
+which use unsafe code but expose safe wrappers to manage self-referential structs.
+
+106
+00:07:40,889 --> 00:07:41,529
+Finally,
+
+107
+00:07:41,589 --> 00:07:45,199
+let's look at some problems that can come up with HashMaps and references.
+
+108
+00:07:46,789 --> 00:07:51,399
+This program will count the number of times words are used in text provided by user input.
+
+109
+00:07:52,389 --> 00:07:56,199
+We create a HashMap to store the words and the number of times we've seen them.
+
+110
+00:07:56,749 --> 00:07:58,059
+Then, we create a String to hold
+
+111
+00:07:58,059 --> 00:07:59,249
+the user input,
+
+112
+00:07:59,489 --> 00:08:00,899
+and we read a line of input.
+
+113
+00:08:01,429 --> 00:08:02,059
+Next,
+
+114
+00:08:02,069 --> 00:08:05,249
+we split the user input on whitespace and count the words.
+
+115
+00:08:05,569 --> 00:08:07,319
+If the word isn't in the HashMap yet,
+
+116
+00:08:07,509 --> 00:08:09,389
+we insert it with a 0 value,
+
+117
+00:08:09,489 --> 00:08:10,899
+then add 1 to the value.
+
+118
+00:08:11,389 --> 00:08:12,049
+Finally,
+
+119
+00:08:12,059 --> 00:08:13,199
+we print out the HashMap.
+
+120
+00:08:14,294 --> 00:08:21,244
+The lifetime of the counts HashMap starts where we create a new HashMap and ends at the end of main, annotated here in blue.
+
+121
+00:08:21,814 --> 00:08:28,464
+The lifetime of the input string starts where we create the new String and ends at the end of main just before counts is dropped,
+
+122
+00:08:28,474 --> 00:08:29,904
+annotated here in orange.
+
+123
+00:08:30,964 --> 00:08:36,004
+The split_whitespace method returns slices that reference the string owned by the input variable.
+
+124
+00:08:36,594 --> 00:08:39,184
+When we insert the word slices into the HashMap,
+
+125
+00:08:39,414 --> 00:08:42,634
+those references then need to live as long as the HashMap does,
+
+126
+00:08:42,644 --> 00:08:44,984
+which would mean that they would outlive the input string,
+
+127
+00:08:45,254 --> 00:08:46,504
+so this isn't allowed.
+
+128
+00:08:47,544 --> 00:08:53,314
+This is really subtle, and actually works with Rust 2018 because the Rust borrow checker learned some new tricks.
+
+129
+00:08:53,664 --> 00:08:58,304
+So, let's make it more obvious and make it not work in any Rust version by adding an inner scope.
+
+130
+00:08:58,794 --> 00:09:02,604
+Now it's easier to see that input gets cleaned up at the end of the inner scope,
+
+131
+00:09:02,744 --> 00:09:05,804
+but we need it to be valid to print out the counts in the inner scope.
+
+132
+00:09:06,854 --> 00:09:09,094
+Rust 1.24 explains this
+
+133
+00:09:09,104 --> 00:09:11,204
+as 'input' does not live long enough.
+
+134
+00:09:12,254 --> 00:09:13,564
+In this particular example,
+
+135
+00:09:13,614 --> 00:09:17,604
+we can fix the problem by swapping the order in which we declare counts and input.
+
+136
+00:09:18,094 --> 00:09:19,614
+If we declare input first,
+
+137
+00:09:19,724 --> 00:09:26,094
+it is dropped after counts is. Then, the lifetimes of the references don't need to last longer than input lives
+
+138
+00:09:26,204 --> 00:09:27,374
+and this code is valid.
+
+139
+00:09:28,394 --> 00:09:29,124
+However,
+
+140
+00:09:29,194 --> 00:09:34,404
+what if we want to accept multiple lines of input in a loop and keep a running count of word frequencies?
+
+141
+00:09:34,994 --> 00:09:35,824
+In this case,
+
+142
+00:09:35,894 --> 00:09:39,334
+the input string goes out of scope at the end of each loop iteration,
+
+143
+00:09:39,674 --> 00:09:43,274
+but we would need the word slices to be valid until the end of main,
+
+144
+00:09:43,284 --> 00:09:44,504
+where counts is valid.
+
+145
+00:09:45,494 --> 00:09:52,104
+We can't fix this program in the same way we did the variation without the loop by moving the input declaration above the declaration of counts.
+
+146
+00:09:52,654 --> 00:09:53,414
+Instead,
+
+147
+00:09:53,494 --> 00:09:59,004
+the fix is to copy each word in order to store owned strings rather than string slices in the HashMap.
+
+148
+00:09:59,524 --> 00:10:04,974
+This gets rid of all of the reference problems.
+
+149
+00:10:04,984 --> 00:10:05,804
+In the future, when you get error
+
+150
+00:10:05,804 --> 00:10:07,774
+messages like the ones we saw in this module,
+
+151
+00:10:07,884 --> 00:10:08,884
+such as borrowed value 
+
+152
+00:10:08,884 --> 00:10:10,114
+does not live long enough,
+
+153
+00:10:10,124 --> 00:10:11,324
+remember that it means Rust
+
+154
+00:10:11,324 --> 00:10:14,104
+can't prove that all of your references will always be valid.
+
+155
+00:10:15,108 --> 00:10:18,718
+Try looking at where the lifetimes of the values and the references are
+
+156
+00:10:18,758 --> 00:10:18,888
+to
+
+157
+00:10:18,888 --> 00:10:22,848
+understand what code needs to be rearranged.
+
+158
+00:10:22,858 --> 00:10:27,248
+In this unit, we looked at the concrete lifetimes in five examples with references that would be invalid.
+
+159
+00:10:28,238 --> 00:10:31,218
+We saw that we can't return a reference out of the scope
+
+160
+00:10:31,228 --> 00:10:34,948
+its value is created in or out of the function its value was created in.
+
+161
+00:10:35,438 --> 00:10:41,648
+We saw that the lifetime of a value ends when the value is moved, so references can't outlive a move either.
+
+162
+00:10:42,138 --> 00:10:45,068
+We discussed how self-referential structs aren't something safe
+
+163
+00:10:45,068 --> 00:10:47,848
+Rust allows because the references would become invalid.
+
+164
+00:10:48,438 --> 00:10:52,008
+And we covered problems that might arise when storing references in a HashMap,
+
+165
+00:10:52,438 --> 00:10:53,738
+when the HashMap outlives the values referenced.
+
+166
+00:10:53,738 --> 00:11:00,678
+The experience you've gained with concrete lifetimes will be useful to understand generic lifetimes, the next module's topic.
+

@@ -1,0 +1,128 @@
+﻿1
+00:00:00,040 --> 00:00:05,440
+Welcome to unit 4 on lifetimes. In the context of Rust,
+
+2
+00:00:05,480 --> 00:00:06,890
+when we talk about lifetimes,
+
+3
+00:00:06,900 --> 00:00:10,550
+we're talking about the length of time that a reference to some value may exist.
+
+4
+00:00:12,090 --> 00:00:16,010
+The Rust compiler ensures that all references have valid lifetimes.
+
+5
+00:00:17,040 --> 00:00:23,750
+References only exist while the value they point to has not been moved to another location or been cleaned up.
+
+6
+00:00:25,240 --> 00:00:28,890
+You can do a lot in Rust without having to think about lifetimes explicitly.
+
+7
+00:00:29,080 --> 00:00:30,650
+And as long as your code compiles,
+
+8
+00:00:30,660 --> 00:00:32,650
+you know that all of your references are valid.
+
+9
+00:00:34,140 --> 00:00:34,820
+However,
+
+10
+00:00:34,830 --> 00:00:42,650
+the Rust compiler has limits and occasionally needs extra information from us programmers to understand how the lifetime of references relate to each other.
+
+11
+00:00:44,210 --> 00:00:49,950
+The way we provide the compiler with this information is by using generic lifetime parameter annotations.
+
+12
+00:00:51,470 --> 00:00:58,680
+The goal of this unit is to give you an understanding of the analysis the compiler performs, so that when you get an error message involving lifetimes,
+
+13
+00:00:58,920 --> 00:01:03,710
+you'll know how to specify lifetime annotations or restructure your code to fix the problem.
+
+14
+00:01:05,240 --> 00:01:09,350
+To that end, module 2 is an exploration of concrete lifetimes.
+
+15
+00:01:09,840 --> 00:01:21,410
+We'll see how the borrow checker part of the compiler prevents problems that occur at runtime in other languages. In module 3, we'll visualize lifetimes of values and references
+
+16
+00:01:21,410 --> 00:01:24,050
+to help us understand borrow checker errors.
+
+17
+00:01:25,540 --> 00:01:29,310
+Module 4 will introduce the concept of generic lifetimes.
+
+18
+00:01:29,840 --> 00:01:30,010
+We'll
+
+19
+00:01:30,010 --> 00:01:44,430
+look at how Rust analyzes functions with parameters and return types that are references, without knowing what those functions will be called with.
+
+20
+00:01:44,430 --> 00:01:47,950
+Module 5 will take a quick detour to cover how to specify generic type parameters for when you want to write code once that can be used with many types rather than one concrete type.
+
+21
+00:01:49,540 --> 00:01:55,670
+We're taking that detour because in module 6, we'll cover how to specify generic lifetime parameters for when you want to write code
+
+22
+00:01:55,670 --> 00:01:59,870
+once that could be used with multiple lifetimes rather than one concrete lifetime.
+
+23
+00:02:00,450 --> 00:02:04,630
+The syntax for generic type parameters and generic lifetime parameters is similar.
+
+24
+00:02:06,220 --> 00:02:07,250
+In module 7,
+
+25
+00:02:07,260 --> 00:02:09,970
+we'll see how generic lifetime parameters are descriptive,
+
+26
+00:02:09,980 --> 00:02:11,020
+not prescriptive.
+
+27
+00:02:11,620 --> 00:02:16,130
+We can't change the lifetime of any reference by specifying lifetime parameters.
+
+28
+00:02:16,620 --> 00:02:22,630
+The purpose of lifetime parameters is only to describe to the compiler how the lifetimes of references are related.
+
+29
+00:02:24,120 --> 00:02:24,760
+Finally,
+
+30
+00:02:24,770 --> 00:02:28,130
+in module 8, we'll get to know the lifetime elision rules.
+
+31
+00:02:28,720 --> 00:02:36,230
+These rules are how the compiler understands code when we don't specify lifetime parameters, and is why we don't have to annotate every reference.
+
+32
+00:02:37,820 --> 00:02:38,710
+Let's get started!
+

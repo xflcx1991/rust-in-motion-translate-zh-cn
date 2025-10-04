@@ -1,0 +1,832 @@
+﻿1
+00:00:00,300 --> 00:00:01,710
+Welcome to module 3
+
+2
+00:00:01,910 --> 00:00:03,630
+on handling Result and Option.
+
+3
+00:00:05,610 --> 00:00:07,530
+In this module, we'll discuss
+
+4
+00:00:07,730 --> 00:00:09,389
+two types provided by the standard
+
+5
+00:00:09,589 --> 00:00:09,960
+library:
+
+6
+00:00:10,440 --> 00:00:11,310
+the Result type
+
+7
+00:00:11,510 --> 00:00:12,480
+and the Option type.
+
+8
+00:00:14,590 --> 00:00:16,530
+We'll look at what to do when you get
+
+9
+00:00:16,730 --> 00:00:18,689
+a Result or Option returned
+
+10
+00:00:18,889 --> 00:00:20,130
+from a function or method call
+
+11
+00:00:20,610 --> 00:00:22,739
+to either use a successfully produced
+
+12
+00:00:22,939 --> 00:00:23,310
+value
+
+13
+00:00:23,670 --> 00:00:24,350
+or recover
+
+14
+00:00:24,550 --> 00:00:25,470
+in the failure case.
+
+15
+00:00:27,550 --> 00:00:28,250
+We'll wrap up
+
+16
+00:00:28,450 --> 00:00:30,769
+with a discussion of how to turn recoverable
+
+17
+00:00:30,969 --> 00:00:33,140
+failures into unrecoverable panics
+
+18
+00:00:33,340 --> 00:00:33,830
+if we want.
+
+19
+00:00:35,550 --> 00:00:36,760
+Let's start with the Result
+
+20
+00:00:36,960 --> 00:00:37,120
+type.
+
+21
+00:00:38,830 --> 00:00:40,719
+Result is an enum defined by the
+
+22
+00:00:40,919 --> 00:00:41,710
+standard library.
+
+23
+00:00:42,100 --> 00:00:43,300
+It has two variants.
+
+24
+00:00:44,570 --> 00:00:46,399
+When a function or method returns
+
+25
+00:00:46,599 --> 00:00:47,810
+a value of type Result,
+
+26
+00:00:48,440 --> 00:00:50,540
+what it means is that, if everything went well,
+
+27
+00:00:50,960 --> 00:00:52,430
+you'll get back the Ok variant
+
+28
+00:00:52,630 --> 00:00:53,180
+of the result
+
+29
+00:00:53,390 --> 00:00:54,200
+with a value inside.
+
+30
+00:00:55,680 --> 00:00:57,690
+However, if something went wrong,
+
+31
+00:00:57,890 --> 00:00:59,639
+you'll get back the Err variant of the
+
+32
+00:00:59,839 --> 00:01:00,090
+result,
+
+33
+00:01:00,540 --> 00:01:02,609
+with a value inside that describes more about
+
+34
+00:01:02,809 --> 00:01:03,360
+what went wrong
+
+35
+00:01:03,560 --> 00:01:03,900
+and why.
+
+36
+00:01:06,120 --> 00:01:08,069
+As an example, let's use
+
+37
+00:01:08,269 --> 00:01:10,019
+the serde_json crate to parse
+
+38
+00:01:10,219 --> 00:01:11,920
+a string containing some JSON data
+
+39
+00:01:12,390 --> 00:01:13,720
+into a Rust data type.
+
+40
+00:01:15,650 --> 00:01:17,540
+Parsing JSON returns a Result.
+
+41
+00:01:18,380 --> 00:01:19,910
+If the JSON is well-formed,
+
+42
+00:01:20,300 --> 00:01:21,460
+parsing will succeed
+
+43
+00:01:21,750 --> 00:01:23,690
+and we'll get an instance of a Rust type.
+
+44
+00:01:25,380 --> 00:01:27,440
+If we have invalid JSON that,
+
+45
+00:01:27,640 --> 00:01:29,850
+say, has a number as the key
+
+46
+00:01:30,210 --> 00:01:31,680
+or a trailing comma,
+
+47
+00:01:32,190 --> 00:01:33,270
+parsing will fail
+
+48
+00:01:33,470 --> 00:01:35,189
+and we'll get an error that describes the
+
+49
+00:01:35,389 --> 00:01:35,750
+problem.
+
+50
+00:01:37,800 --> 00:01:39,840
+Here's some code demonstrating success
+
+51
+00:01:40,040 --> 00:01:40,530
+and failure.
+
+52
+00:01:41,260 --> 00:01:43,320
+We're taking some raw strings containing
+
+53
+00:01:43,520 --> 00:01:45,449
+JSON, which you can imagine might
+
+54
+00:01:45,649 --> 00:01:47,279
+have come from an API call to a
+
+55
+00:01:47,479 --> 00:01:48,120
+web service,
+
+56
+00:01:48,510 --> 00:01:50,339
+and parsing it into instances of a
+
+57
+00:01:50,539 --> 00:01:51,030
+Person struct.
+
+58
+00:01:52,200 --> 00:01:53,360
+The first string is well-formed
+
+59
+00:01:53,560 --> 00:01:54,330
+JSON,
+
+60
+00:01:55,340 --> 00:01:57,140
+and the second string has a trailing comma.
+
+61
+00:01:58,830 --> 00:01:59,930
+When we run this code,
+
+62
+00:02:00,300 --> 00:02:02,070
+we see that the value in first
+
+63
+00:02:02,270 --> 00:02:04,410
+is the Ok variant containing an instance
+
+64
+00:02:04,610 --> 00:02:05,490
+of the Person struct.
+
+65
+00:02:06,530 --> 00:02:08,480
+The value in second is the Err
+
+66
+00:02:08,680 --> 00:02:10,519
+variant containing an instance
+
+67
+00:02:10,719 --> 00:02:12,530
+of a serde_json Error struct
+
+68
+00:02:12,950 --> 00:02:14,780
+that has information on why parsing
+
+69
+00:02:14,980 --> 00:02:15,190
+failed.
+
+70
+00:02:17,000 --> 00:02:18,889
+Next, let's look at the Option
+
+71
+00:02:19,089 --> 00:02:19,190
+type.
+
+72
+00:02:20,970 --> 00:02:22,889
+Option is similar to Result in
+
+73
+00:02:23,089 --> 00:02:24,610
+that it also has two variants.
+
+74
+00:02:25,590 --> 00:02:27,330
+Rather than representing success
+
+75
+00:02:27,530 --> 00:02:29,070
+and failure that Result does,
+
+76
+00:02:29,340 --> 00:02:31,229
+the variants of Option represent
+
+77
+00:02:31,429 --> 00:02:33,090
+the concepts of having something
+
+78
+00:02:33,290 --> 00:02:34,170
+or having nothing.
+
+79
+00:02:35,340 --> 00:02:37,229
+If a function returns a value of
+
+80
+00:02:37,429 --> 00:02:39,210
+type Option, you'll either get
+
+81
+00:02:39,410 --> 00:02:40,130
+a Some variant
+
+82
+00:02:40,330 --> 00:02:41,340
+with a value inside,
+
+83
+00:02:41,880 --> 00:02:43,770
+or you'll get a None variant without
+
+84
+00:02:43,970 --> 00:02:45,690
+any value because there wasn't anything to
+
+85
+00:02:45,890 --> 00:02:46,200
+return.
+
+86
+00:02:48,230 --> 00:02:50,129
+For example, vectors have a
+
+87
+00:02:50,329 --> 00:02:52,400
+last method that returns an Option.
+
+88
+00:02:53,270 --> 00:02:55,610
+This code will demonstrate how last works.
+
+89
+00:02:57,770 --> 00:02:59,840
+In the vector named nonempty_list
+
+90
+00:03:00,040 --> 00:03:01,450
+here, we have a vector
+
+91
+00:03:01,650 --> 00:03:03,709
+with elements, and we're printing out the debug
+
+92
+00:03:03,909 --> 00:03:05,230
+format of the return value.
+
+93
+00:03:07,210 --> 00:03:09,129
+We also have an empty_list that we
+
+94
+00:03:09,329 --> 00:03:09,930
+call last on
+
+95
+00:03:10,130 --> 00:03:10,390
+and print.
+
+96
+00:03:12,620 --> 00:03:14,449
+If we run this code, we see
+
+97
+00:03:14,649 --> 00:03:16,160
+that if the vector has elements,
+
+98
+00:03:16,490 --> 00:03:18,619
+last returns the Some variant containing
+
+99
+00:03:18,819 --> 00:03:20,230
+the last element in the vector.
+
+100
+00:03:21,650 --> 00:03:23,450
+If the vector doesn't have elements,
+
+101
+00:03:23,690 --> 00:03:25,820
+the last method returns the None variant.
+
+102
+00:03:27,520 --> 00:03:29,260
+So, once we have a Result
+
+103
+00:03:29,460 --> 00:03:31,150
+or Option, what do we do with them?
+
+104
+00:03:32,420 --> 00:03:34,240
+Let's start by looking at the success
+
+105
+00:03:34,440 --> 00:03:34,720
+case.
+
+106
+00:03:36,600 --> 00:03:38,560
+If we have a value inside Result's
+
+107
+00:03:38,760 --> 00:03:39,420
+Ok variant
+
+108
+00:03:39,690 --> 00:03:41,519
+or Option's Some variant, we
+
+109
+00:03:41,719 --> 00:03:43,469
+can't use it directly as if it was just
+
+110
+00:03:43,669 --> 00:03:45,390
+the value – the types don't match.
+
+111
+00:03:47,250 --> 00:03:49,379
+For example, if we've parsed a JSON
+
+112
+00:03:49,579 --> 00:03:51,900
+string into a Person instance successfully
+
+113
+00:03:52,290 --> 00:03:54,090
+and then try to access the name field,
+
+114
+00:03:54,570 --> 00:03:56,639
+we get an error that says there is no field 
+
+115
+00:03:56,839 --> 00:03:57,610
+`name` on Result.
+
+116
+00:03:58,720 --> 00:04:00,639
+We need to get the value out of the Ok
+
+117
+00:04:00,839 --> 00:04:01,240
+variant.
+
+118
+00:04:02,790 --> 00:04:03,930
+One way we can do that
+
+119
+00:04:04,410 --> 00:04:06,060
+is by using a match expression
+
+120
+00:04:06,260 --> 00:04:07,550
+with an arm for the Ok variant
+
+121
+00:04:08,520 --> 00:04:10,110
+that captures the value inside it,
+
+122
+00:04:10,590 --> 00:04:11,460
+which we've done here
+
+123
+00:04:11,660 --> 00:04:13,080
+with a variable named inner.
+
+124
+00:04:14,160 --> 00:04:16,010
+We then return that value out of
+
+125
+00:04:16,210 --> 00:04:16,710
+the match
+
+126
+00:04:17,860 --> 00:04:19,660
+and assign it to the variable first_inner.
+
+127
+00:04:19,860 --> 00:04:20,140
+
+
+128
+00:04:21,110 --> 00:04:22,430
+And then we can use the Person value
+
+129
+00:04:22,850 --> 00:04:23,690
+we've extracted.
+
+130
+00:04:30,200 --> 00:04:32,019
+Now, let's talk about what to do in
+
+131
+00:04:32,219 --> 00:04:33,010
+the failure case.
+
+132
+00:04:34,840 --> 00:04:36,789
+We can specify the Err variant in
+
+133
+00:04:36,989 --> 00:04:38,530
+another arm of the match expression,
+
+134
+00:04:38,950 --> 00:04:39,790
+or the None variant
+
+135
+00:04:39,990 --> 00:04:40,870
+if we have an Option,
+
+136
+00:04:41,560 --> 00:04:43,569
+and the code we put in that arm depends
+
+137
+00:04:43,769 --> 00:04:44,680
+on what we want to do
+
+138
+00:04:44,920 --> 00:04:45,760
+in case of a problem.
+
+139
+00:04:47,260 --> 00:04:49,180
+For example, trying to parse
+
+140
+00:04:49,380 --> 00:04:50,079
+a JSON string
+
+141
+00:04:50,279 --> 00:04:51,939
+with a trailing comma will put us in
+
+142
+00:04:52,139 --> 00:04:53,769
+the Err case where we could choose
+
+143
+00:04:53,969 --> 00:04:55,300
+to return a default value.
+
+144
+00:04:56,800 --> 00:04:58,689
+We could also choose to handle different
+
+145
+00:04:58,889 --> 00:04:59,830
+errors differently.
+
+146
+00:05:00,370 --> 00:05:02,440
+We do that by capturing the inner
+
+147
+00:05:02,640 --> 00:05:04,690
+Errinformation by using a variable
+
+148
+00:05:04,960 --> 00:05:06,160
+instead of an underscore.
+
+149
+00:05:06,640 --> 00:05:08,649
+And then in the code block, we can take
+
+150
+00:05:08,849 --> 00:05:10,600
+different actions based on the properties
+
+151
+00:05:10,800 --> 00:05:11,430
+of the error.
+
+152
+00:05:13,220 --> 00:05:15,020
+We saw earlier that this call
+
+153
+00:05:15,220 --> 00:05:16,970
+to from_str
+
+154
+00:05:17,240 --> 00:05:18,010
+returns a serde_json Error.
+
+155
+00:05:20,010 --> 00:05:21,839
+This Error struct has a number of
+
+156
+00:05:22,039 --> 00:05:24,060
+methods on it to get more information
+
+157
+00:05:24,260 --> 00:05:25,919
+about the error so we can decide what
+
+158
+00:05:26,119 --> 00:05:26,640
+to do about it.
+
+159
+00:05:28,940 --> 00:05:30,770
+For example, this is_eof
+
+160
+00:05:31,450 --> 00:05:33,409
+method is useful if we're attempting
+
+161
+00:05:33,609 --> 00:05:34,760
+to process streaming data.
+
+162
+00:05:35,390 --> 00:05:37,279
+If that's the case, we could try
+
+163
+00:05:37,479 --> 00:05:38,960
+to recover by reading more data
+
+164
+00:05:39,160 --> 00:05:39,830
+and retrying.
+
+165
+00:05:41,980 --> 00:05:43,820
+Finally, let's talk about a choice
+
+166
+00:05:44,020 --> 00:05:45,699
+you always have – turning a
+
+167
+00:05:45,899 --> 00:05:48,159
+recoverable error into an unrecoverable
+
+168
+00:05:48,359 --> 00:05:48,520
+one.
+
+169
+00:05:50,020 --> 00:05:51,969
+In the match expression arm, where we're
+
+170
+00:05:52,169 --> 00:05:53,550
+handling an Err variant,
+
+171
+00:05:54,100 --> 00:05:55,960
+we can choose to call the panic! macro to
+
+172
+00:05:56,160 --> 00:05:57,879
+end execution for all the
+
+173
+00:05:58,079 --> 00:06:00,060
+reasons we learned about in the previous module.
+
+174
+00:06:01,820 --> 00:06:03,740
+It's not possible to turn an
+
+175
+00:06:03,940 --> 00:06:05,679
+unrecoverable error into a
+
+176
+00:06:05,879 --> 00:06:07,820
+recoverable one. Therefore,
+
+177
+00:06:08,020 --> 00:06:10,450
+Result gives callers the most flexibility.
+
+178
+00:06:12,510 --> 00:06:14,370
+If the match expressions we used in this
+
+179
+00:06:14,570 --> 00:06:14,940
+module
+
+180
+00:06:15,300 --> 00:06:16,890
+look messy and verbose to you,
+
+181
+00:06:17,250 --> 00:06:19,349
+keep watching! In a few modules
+
+182
+00:06:19,549 --> 00:06:21,299
+from now, we'll be looking at some ways
+
+183
+00:06:21,499 --> 00:06:22,170
+to improve this code.
+
+184
+00:06:24,250 --> 00:06:26,099
+The improvements are variations on
+
+185
+00:06:26,299 --> 00:06:28,110
+the behavior of this match expression, though,
+
+186
+00:06:28,440 --> 00:06:30,210
+so it's important to understand this basic
+
+187
+00:06:30,410 --> 00:06:30,750
+case.
+
+188
+00:06:33,020 --> 00:06:33,960
+In this module,
+
+189
+00:06:34,220 --> 00:06:35,890
+we discussed the Result enum
+
+190
+00:06:36,100 --> 00:06:38,300
+that has the variants Ok and Err
+
+191
+00:06:38,720 --> 00:06:39,859
+to represent success
+
+192
+00:06:40,059 --> 00:06:40,510
+and failure,
+
+193
+00:06:40,940 --> 00:06:43,160
+and the Option enum that has the variants
+
+194
+00:06:43,360 --> 00:06:45,139
+Some and None to represent
+
+195
+00:06:45,339 --> 00:06:46,260
+something or nothing.
+
+196
+00:06:47,910 --> 00:06:49,829
+We looked at examples using a match
+
+197
+00:06:50,029 --> 00:06:51,780
+expression to extract the value
+
+198
+00:06:51,980 --> 00:06:52,950
+in the success case
+
+199
+00:06:53,150 --> 00:06:55,230
+and attempt to recover in the failure case
+
+200
+00:06:55,430 --> 00:06:57,419
+by taking an action like using a default
+
+201
+00:06:57,619 --> 00:06:58,890
+value or retrying.
+
+202
+00:07:00,360 --> 00:07:02,490
+We also talked about using the panic! macro
+
+203
+00:07:02,690 --> 00:07:05,010
+within the match to turn a recoverable
+
+204
+00:07:05,210 --> 00:07:06,950
+error into an unrecoverable one
+
+205
+00:07:07,150 --> 00:07:07,560
+if we want.
+
+206
+00:07:09,690 --> 00:07:11,789
+Next, let's look at returning Result
+
+207
+00:07:11,989 --> 00:07:13,829
+from functions and using the ?
+
+208
+00:07:14,029 --> 00:07:14,640
+operator.
+
